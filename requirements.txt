@@ -1,52 +1,42 @@
-# # linkchecker
-# # mkdocs
-# # mkdocs-material
-# # mkdocs-redirects
-# # mkdocstrings-python
-# # markdown-exec
-# # markdown-callouts
-# # mdformat
-# # mdformat-admon
-# # mdformat-footnote
-# # mdformat-frontmatter
-# # mdformat-gfm
-# # mdformat-mkdocs
-# # mdformat-ruff
-# # mdformat-simple-breaks
-# # mdformat-tables
-# mkdocs-awesome-pages-plugin
-# mkdocs-autolinks-plugin
-# mkdocs-awesome-nav
+# linkchecker
 # mkdocs
-# mkdocs-material<2.0
-# pymdown-extensions
-# #mkdocs-macros-plugin
-# mkdocs-glightbox
-# mkdocs-minify-plugin
-# #mkdocs-kroki-plugin
-# #mkdocs-wikilinks-plugin
-# #mkdocs-obsidian-support-plugin
-# #mkdocs-git-revision-date-localized-plugin
-
-# mkdocs-callouts
-# #mkdocs-obsidian-bridge
-# #mkdocs-obsidian-interactive-graph-plugin
-# #overrides
-# #mkdocs-gen-files
-# #mkdocs-literate-nav
-# #markdown-exec[ansi]
-# mkdocs-panzoom-plugin
-# mkdocs-quiz
-# # mkdocs-gen-files 
-# #mkdocs-literate-nav
-
+# mkdocs-material
+# mkdocs-redirects
+# mkdocstrings-python
+# markdown-exec
+# markdown-callouts
+# mdformat
+# mdformat-admon
+# mdformat-footnote
+# mdformat-frontmatter
+# mdformat-gfm
+# mdformat-mkdocs
+# mdformat-ruff
+# mdformat-simple-breaks
+# mdformat-tables
+# mkdocs-macros-plugin
+# mkdocs-kroki-plugin
+# mkdocs-wikilinks-plugin
+# mkdocs-obsidian-support-plugin
+# mkdocs-git-revision-date-localized-plugin
+# mkdocs-obsidian-bridge
+# mkdocs-obsidian-interactive-graph-plugin
+# overrides
+# mkdocs-gen-files
+# mkdocs-literate-nav
+# markdown-exec[ansi]
+# mkdocs-gen-files 
+# mkdocs-literate-nav
 mkdocs==1.6.0
-mkdocs-material
-pymdown-extensions
-
+mkdocs-material==9.5.XX
+mkdocs-panzoom-plugin
+mkdocs-quiz
 mkdocs-awesome-pages-plugin
 mkdocs-autolinks-plugin
+mkdocs-awesome-nav
+# mkdocs
+# mkdocs-material
+pymdown-extensions
 mkdocs-glightbox
-mkdocs-panzoom-plugin
 mkdocs-minify-plugin
 mkdocs-callouts
