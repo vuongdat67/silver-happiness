@@ -1,0 +1,15 @@
+nav:
+  - CTF:
+    - index.md
+    - RootMe:
+      - Forensics:
+        - Command & Control - Level 5: ctf/rootme/forensics/medium/command-control-lv5.md
+        - DNS Exfiltration: ctf/rootme/forensics/medium/dns-exfiltration.md
+        - Docker Layers: ctf/rootme/forensics/medium/docker-layers.md
+        - Windows LDAP User KerbeRoastable: ctf/rootme/forensics/medium/window-ldap-user-kerberoastable.md
+    - picoCTF:
+      - Forensics:
+          - Advanced Potion Making: ctf/picoCTF/forensics/medium/advanced-potion-making.md
+          - MSB: ctf/picoCTF/forensics/medium/msb.md
+    - Tachyon:
+      - Chall: ctf/tachyon/forensics/chall.md

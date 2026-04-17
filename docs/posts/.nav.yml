@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  # - "2026"
+  # - "2025"
+  - "*"
+sort:
+  direction: asc

@@ -1,0 +1,10 @@
+flatten_single_child_sections: true
+
+nav:
+  - index.md
+  - posts
+  - ctf
+  - Showcase:
+      - showcase.md
+      - showcase
+  - tags.md

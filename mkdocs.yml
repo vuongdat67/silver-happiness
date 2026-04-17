@@ -1,0 +1,184 @@
+site_name: "Hopes and Journeys"
+site_description: "Findings, thoughts, tutorials, work. Pieces of my mind!"
+site_url: "https://vuongdat67.github.io/"
+repo_url: "https://github.com/vuongdat67/my-docs/"
+repo_name: "vuongdat67/my-docs"
+
+copyright: Copyright &copy; 2025 - 2026 Vuong Thanh Dat
+
+exclude_docs: drafts/
+not_in_nav: |
+  notes/
+  tips-for-writing-*
+
+
+theme:
+  name: material
+  custom_dir: docs/assets/templates
+  icon:
+    logo: material/penguin
+  features:
+    # Core navigation
+    # - navigation.instant
+    # - navigation.instant.prefetch
+    # - navigation.instant.progress
+    # - navigation.instant.preview
+    # - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    # Content features
+    - toc.follow
+    # - toc.integrate
+    # Search
+    - search.suggest
+    # - search.share
+    # Content
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.view
+    - content.action.edit
+    # - content.attachment
+    # Tooltips
+    - content.tooltips
+    - content.footnote.tooltips
+    # Announcements
+    - announce.dismiss
+    # - header.autohide
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-2
+        name: Switch to dark mode
+      primary: indigo
+      accent: deep purple
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+      primary: black
+      accent: green
+
+extra_css:
+  - assets/css/custom.css
+  - assets/css/combined.css
+  - assets/css/admonition.css
+  - assets/css/buttons.css
+  - assets/css/navigation.css
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css
+extra_javascript:
+  - assets/js/navigation.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js
+  - assets/js/katex.js
+# - assets/js/mathjax.js
+# - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - abbr
+  - def_list
+  - attr_list
+  - footnotes
+  - md_in_html
+  - meta
+  - pymdownx.blocks.admonition
+  - pymdownx.blocks.html
+  - pymdownx.blocks.tab
+  - pymdownx.blocks.caption
+  # - pymdownx.inlinehilite
+  # - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.magiclink
+  - pymdownx.snippets:
+      check_paths: true
+      base_path: [docs/snippets, "."]
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      auto_title: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+      clickable_checkbox: true
+  - toc:
+      permalink: "¤"
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.caret # Hỗ trợ superscript X^2^
+  - pymdownx.tilde # Hỗ trợ subscript H~2~O và ~~strikethrough~~
+  - pymdownx.mark # Hỗ trợ ==highlight==
+  - pymdownx.keys # Hỗ trợ ++ctrl+alt+del++
+  - pymdownx.betterem # Cải thiện cách render Bold/Italic để không bị lỗi khi dính nhau
+  - pymdownx.smartsymbols # Tự biến (c) thành ©, (r) thành ®
+
+plugins:
+  - search
+  - awesome-nav
+  - panzoom
+  - glightbox
+  # - minify:
+  #     minify_html: true
+  #     minify_js: true
+  #     htmlmin_opts:
+  #         remove_comments: true
+  - tags:
+      tags_slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+      tags_slugify_format: "tag:{slug}"
+# - rss
+# - autolinks
+extra:
+  status:
+    new: Recently added
+    deprecated: Deprecated
+  social:
+    - icon: simple/youtube
+      link: https://youtube.com/@yourchannel
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/vuongdat67
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/in/yourprofile
+  generator: false
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: Thanks for your feedback!
+
+# Validation settings
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+

@@ -1,0 +1,39 @@
+{% extends "main.html" %}
+
+{% block content %}
+  {{ page.content }}
+  {% for p in nav.pages %}
+    {% if p.url.startswith("guide/") and p.meta.get("date") and not p.url.endswith("guide/index.html") %}
+      <div class="guide-post">
+        <p class="guide-date">{{ p.meta.date.strftime("%b %d, %Y") }}</p>
+        <h3 class="guide-title"><a href="{{ p.url | url }}">{{ p.title }}</a></h3>
+        {% if p.meta.get("description") %}
+          <p class="guide-description">{{ p.meta.description }}</p>
+        {% endif %}
+        <hr>
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <style>
+    .guide-post .guide-date {
+      margin-bottom: 0;
+      font-size: 0.75rem;
+      color: var(--md-default-fg-color--light);
+    }
+    .guide-post .guide-title {
+      margin-top: 0.2rem;
+      font-weight: 600;
+    }
+    .guide-post .guide-description {
+      margin-top: 0.3rem;
+      margin-bottom: 0.5rem;
+    }
+    .guide-post hr {
+      margin: 1rem 0;
+    }
+  </style>
+{% endblock %}
