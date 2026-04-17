@@ -41,7 +41,7 @@
 # #mkdocs-literate-nav
 
 mkdocs==1.8.0
-mkdocs-material==9.5.XX
+mkdocs-material
 pymdown-extensions
 
 mkdocs-awesome-pages-plugin
