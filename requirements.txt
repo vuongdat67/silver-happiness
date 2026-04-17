@@ -40,7 +40,7 @@
 # # mkdocs-gen-files 
 # #mkdocs-literate-nav
 
-mkdocs==1.8.0
+mkdocs==1.6.0
 mkdocs-material
 pymdown-extensions
 
