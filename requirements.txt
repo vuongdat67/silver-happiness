@@ -28,7 +28,7 @@
 # mkdocs-gen-files 
 # mkdocs-literate-nav
 mkdocs==1.6.0
-mkdocs-material==9.5.XX
+mkdocs-material==9.5.23
 mkdocs-panzoom-plugin
 mkdocs-quiz
 mkdocs-awesome-pages-plugin
