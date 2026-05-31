@@ -1,3 +1,7 @@
+---
+tags:
+  - showcase
+---
 # CRAB-He – Bitcoin HTLC Protocol Implementation
 
 ![crab-he](../assets/showcase/crab-he.png)

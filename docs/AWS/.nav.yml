@@ -1,0 +1,30 @@
+nav:
+  - AWS:
+      - index.md
+      - Foundational:
+          - CLF-02:
+              - CLF-02/index.md
+              - "1. Cloud Computing": CLF-02/1. Cloud Computing.md
+              - "2. IAM": CLF-02/2. IAM.md
+              - "3. Amazon EC2": CLF-02/3. Amazon EC2.md
+              - "4. EC2 Instance Storage": CLF-02/4. EC2 Instance Storage.md
+              - "5. Elastic Load Balancing & Auto Scaling Groups": CLF-02/5. Elastic Load Balancing & Auto Scaling Groups.md
+              - "6. Amazon S3": CLF-02/6. Amazon S3.md
+              - "7. Databases & Analytics": CLF-02/7. Databases & Analytics.md
+              - "8. Other Compute": CLF-02/8. Other Compute.md
+              - "9. Deploying and Managing Infrastructure at Scale": CLF-02/9. Deploying and Managing Infrastructure at Scale.md
+              - "10. AWS Global Infrastructure": CLF-02/10. AWS Global Infrastructure.md
+              - "11. Cloud Integration": CLF-02/11. Cloud Integration.md
+              - "12. Cloud Monitoring": CLF-02/12. Cloud Monitoring.md
+              - "13. AWS VPC": CLF-02/13. AWS VPC.md
+              - "14. AWS Security & Compliance": CLF-02/14. AWS Security & Compliance.md
+              - "15. AWS Machine Learning Services": CLF-02/15. AWS Machine Learning Services.md
+              - "16. Account Management, Billing & Support": CLF-02/16. Account Management, Billing & Support.md
+              - "17. Advanced Identity": CLF-02/17. Advanced Identity.md
+              - "18. Other AWS Services": CLF-02/18. Other AWS Services.md
+              - "19. AWS Architecting & Ecosystem": CLF-02/19. AWS Architecting & Ecosystem.md
+              - "Day 1": CLF-02/Day 1.md
+              - "Day 2": CLF-02/Day 2.md
+              - "Day 3": CLF-02/Day 3.md
+              - "Day 4": CLF-02/Day 4.md
+              - "Day 5": CLF-02/Day 5.md

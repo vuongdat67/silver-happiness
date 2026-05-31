@@ -1,3 +1,7 @@
+---
+tags:
+  - showcase
+---
 # MCP SSDLC Security Toolkit – Modular Security Engine
 
 ![mcp-toolkit](../assets/showcase/sdlc-kit.png)

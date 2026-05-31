@@ -1,3 +1,7 @@
+---
+tags:
+  - showcase
+---
 # secure_detect_extension – Secure Code Detection Extension
 
 <video autoplay loop muted playsinline style="display:block; margin:auto; width:auto;">

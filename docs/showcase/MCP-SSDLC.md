@@ -1,3 +1,7 @@
+---
+tags:
+  - showcase
+---
 # MCP SSDLC – AI-driven Secure SDLC Framework
 
 ![mcp-ssdlc](../assets/showcase/SDLC.png)

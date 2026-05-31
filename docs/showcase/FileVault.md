@@ -1,3 +1,7 @@
+---
+tags:
+  - showcase
+---
 # FileVault – Secure File Encryption Tool
 
 <video autoplay loop muted playsinline style="display:block; margin:auto; width:auto;">

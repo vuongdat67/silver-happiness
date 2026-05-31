@@ -7,4 +7,5 @@ nav:
   - Showcase:
       - showcase.md
       - showcase
+  - AWS
   - tags.md

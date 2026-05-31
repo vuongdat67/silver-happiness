@@ -1,3 +1,7 @@
+---
+tags:
+  - showcase
+---
 # volGPT – Memory Forensics Triage with LLM
 
 ![volgpt](../assets/showcase/volgpt.jpg)

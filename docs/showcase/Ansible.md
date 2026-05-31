@@ -1,3 +1,7 @@
+---
+tags:
+  - showcase
+---
 # NT132.Q11.ANTT-Group15 – Infrastructure Automation with Ansible
 
 ![nt132-ansible](../assets/showcase/ansible.png)

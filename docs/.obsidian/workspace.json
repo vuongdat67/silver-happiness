@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "6781c4501663f72d",
+        "id": "fa650f7ea296e36f",
         "type": "tabs",
         "children": [
           {
-            "id": "6d0d8aa3acb931d1",
+            "id": "d2c738d850087273",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -176,8 +176,16 @@
       "bases:Create new base": false
     }
   },
-  "active": "6d0d8aa3acb931d1",
+  "active": "cdf4928a9c4bffc1",
   "lastOpenFiles": [
+    "posts/course/se2/it005/index.md",
+    "posts/course/se2/it002/index.md",
+    "posts/course/se2/it002/L0_1.md",
+    "posts/course/se2/it001/index.md",
+    "posts/course/se2/it001/L2.md",
+    "posts/course/se2/it001/L1.md",
+    "posts/guide/github/gitflow.md",
+    "posts/guide/github/flow.md",
     "ctf/forensics/rootme/dns-exfiltration.md",
     "showcase/ExploitGen Assembly.md",
     "showcase/CRAB-He.md",
