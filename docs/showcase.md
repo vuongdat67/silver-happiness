@@ -3,6 +3,9 @@ hide:
   - navigation
   - toc
 template: showcase.html
+voxel_dog:
+  model: assets/interactive/voxel-dog/dog-baked.glb
+  poster: assets/interactive/voxel-dog/dog.png
 projects:
   - name: FileVault
     description: Secure file management CLI with encryption, integrity verification, and TUI interface.

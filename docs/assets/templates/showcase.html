@@ -3,9 +3,35 @@
 {% block styles %}
   {{ super() }}
   <link rel="stylesheet" type="text/css" href="{{ 'assets/css/showcase.css' | url }}" media="screen"/>
+  {% if page.meta.voxel_dog %}
+  <link rel="stylesheet" type="text/css" href="{{ 'assets/interactive/mkdocs-interactive.css' | url }}" media="screen"/>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
+{% if page.meta.voxel_dog %}
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<section class="showcase-voxel-hero" aria-label="Voxel Dog 3D mascot">
+  <model-viewer
+    class="showcase-voxel-viewer"
+    data-voxel-viewer
+    src="{{ page.meta.voxel_dog.model | url }}"
+    poster="{{ page.meta.voxel_dog.poster | url }}"
+    alt="Voxel dog 3D model"
+    auto-rotate
+    auto-rotate-delay="0"
+    camera-controls
+    interaction-prompt="none"
+    rotation-per-second="720deg"
+    shadow-intensity="1"
+    exposure="1"
+    camera-orbit="35deg 70deg 8.2m"
+    field-of-view="32deg">
+  </model-viewer>
+</section>
+<script src="{{ 'assets/interactive/voxel-dog/voxel-dog.js' | url }}" defer></script>
+{% endif %}
+
 <table class="showcase-table">
 {% for row in page.meta.projects|batch(3) %}
 <tr>
