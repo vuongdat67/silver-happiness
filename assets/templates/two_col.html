@@ -1,0 +1,11 @@
+{% extends "main.html" %}
+
+{% block content %}
+  <div class="container-info">
+    {{ page.meta.get("sidebar_content", "") }}
+  </div>
+
+  <div class="container-main">
+    {{ page.content }}
+  </div>
+{% endblock %}

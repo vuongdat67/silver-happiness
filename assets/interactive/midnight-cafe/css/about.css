@@ -1,0 +1,118 @@
+.about-toggle {
+      background: transparent;
+      border: none;
+      color: #7a6e67;
+      font-size: 16px;
+      padding: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+
+    .about-toggle:hover {
+      background: transparent;
+      color: var(--mint);
+    }
+
+    .about-arrow {
+      font-size: 12px;
+      transition: transform 0.3s;
+      display: inline-block;
+      animation: bounceArrow 2s infinite ease-in-out;
+    }
+
+    @keyframes bounceArrow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(4px); }
+    }
+
+    .about-toggle[aria-expanded="true"] .about-arrow {
+      transform: rotate(180deg);
+      animation: none;
+    }
+
+    .expanded-about {
+      display: none;
+      max-width: 800px;
+      margin: 0 auto 60px auto;
+      padding: 32px 24px;
+      background: transparent;
+      border-top: 1px dashed #3d3531;
+    }
+
+    .expanded-about:not([hidden]) {
+      display: block;
+      animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUpFade {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .about-content h2 {
+      font-size: 16px;
+      color: var(--mint);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-family: "Courier New", Courier, monospace;
+      text-align: center;
+    }
+
+    .about-content p {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #b5a8a1;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .about-image {
+      margin: 32px auto;
+      text-align: center;
+    }
+
+    .about-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      margin: 32px 0;
+    }
+
+    .about-gallery .about-image {
+      margin: 0;
+      flex: 1 1 200px;
+      max-width: 300px;
+    }
+
+    .about-image img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 2px solid #3d3531;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .about-image img:hover {
+      transform: scale(1.03);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+    }
+
+    .image-caption {
+      font-size: 12px;
+      color: #7a6e67;
+      margin-top: 8px;
+      font-style: italic;
+    }

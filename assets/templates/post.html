@@ -1,0 +1,66 @@
+{% extends "main.html" %}
+{% block content %}
+  <h1>{{ page.title }}</h1>
+  {% if page.meta.get("date") %}
+    <p class="post-meta">
+      Published {{ page.meta.date.strftime("%b %d, %Y") }}
+      {% if page.meta.get("authors") %}by {{ page.meta.authors|join(", ") }}{% endif %}
+    </p>
+  {% endif %}
+
+  {% if page.meta.get("tags") %}
+    <div class="post-tags">
+      {% for tag in page.meta.tags %}
+        <a class="post-tag" href="{{ ('tags/#' + tag.lower()) | url }}">{{ tag }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if page.meta.get("image") and page.meta.image.get("show_in_post") %}
+    <div class="post-cover">
+      <img src="{{ page.meta.image.src | url }}" alt="{{ page.title }}"/>
+    </div>
+  {% endif %}
+
+  {{ page.content }}
+{% endblock %}
+{% block styles %}
+  {{ super() }}
+  <style>
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.8rem;
+    }
+    .post-tag {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.65rem;
+      border-radius: 1rem;
+      border: 1px solid var(--md-default-fg-color--lighter);
+      color: var(--md-default-fg-color--light);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .post-tag:hover {
+      border-color: var(--md-accent-fg-color);
+      color: var(--md-accent-fg-color);
+    }
+    .post-meta {
+      font-size: 0.8em;
+      text-decoration: underline;
+      text-align: right;
+    }
+    .post-cover img {
+      width: auto;
+      max-width: 100%;
+      max-height: 450px;
+      display: block;
+      margin: 0 auto;
+      /* vertical-align: middle; */
+    }
+    .md-main__inner {
+      margin-bottom: 1.5rem;
+    }
+  </style>
+{% endblock %}

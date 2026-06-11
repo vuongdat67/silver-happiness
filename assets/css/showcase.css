@@ -1,0 +1,90 @@
+h1 {
+  display: none;
+}
+
+.showcase-voxel-hero {
+  align-items: center;
+  background:
+    radial-gradient(circle at 50% 78%, rgba(255, 191, 116, 0.24), transparent 22rem),
+    radial-gradient(circle at 35% 22%, rgba(127, 199, 255, 0.18), transparent 24rem),
+    linear-gradient(180deg, rgba(135, 207, 204, 0.22), rgba(18, 13, 18, 0.03));
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-radius: 8px;
+  display: grid;
+  justify-items: center;
+  margin: 0 auto 22px;
+  min-height: 210px;
+  overflow: hidden;
+  width: min(360px, 100%);
+}
+
+.showcase-voxel-viewer {
+  background: transparent;
+  height: clamp(190px, 24vw, 240px);
+  width: min(340px, 100%);
+}
+
+/* big screens */
+@media only screen and (min-width: 76.25em) {
+  .md-main__inner {
+    max-width: none;
+  }
+  .md-sidebar--primary {
+    left: 0;
+    display: none;
+  }
+  .md-sidebar--secondary {
+    right: 0;
+    margin-left: 0;
+    -webkit-transform: none;
+    transform: none;
+  }
+  .md-content {
+    max-width: none;
+  }
+
+  .showcase-table table {
+    table-layout: fixed;
+    width: 100px;
+  }
+
+  .showcase-table tr td {
+    padding: 0 40px 10px !important;
+    width: 33% !important;
+  }
+
+  tr {
+    text-align: center;
+  }
+
+  /* Credits to https://github.com/IanLunn/Hover */
+  .hover-grow {
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-property: transform;
+    transition-property: transform;
+  }
+  .hover-grow:hover, .hover-grow:focus, .hover-grow:active {
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05);
+  }
+}
+
+/* small screens */
+@media only screen and (max-width: 76.25em) {
+  .showcase-table tr td {
+    display: block;
+  }
+
+  .showcase-voxel-hero {
+    min-height: 190px;
+  }
+}
+
+.showcase-table {
+  table-layout: fixed;
+  width: 100%;
+}
+.hover-grow {
+  width: 100%;
+}
