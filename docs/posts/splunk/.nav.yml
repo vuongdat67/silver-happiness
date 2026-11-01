@@ -1,0 +1,14 @@
+nav:
+  - SOC:
+    - Internship:
+      - "Tổng Quan": index.md
+      - "Nguyên Tắc Trace Log": trace-logs/index.md
+      - "Tổng Hợp Cấu Hình": configs/index.md
+      - "Tuần 1: Vận Hành SOC": week1/index.md
+      - "Tuần 2: Quản Trị Log": week2/index.md
+      - "Tuần 3: Splunk và SPL": week3/index.md
+      - "Tuần 4: CIM và Data Models": week4/index.md
+      - "Tuần 5: Kịch Bản Tấn Công": week5/index.md
+      - "Tuần 6: Active Directory": week6/index.md
+      - "Tuần 7: Điều Tra BOTSv1": week7/index.md
+      - "Tuần 8: Giám Sát Mạng SPL": week8/index.md
