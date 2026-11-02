@@ -62,7 +62,9 @@ graph LR
 ```
 
 ![Kiến trúc logic Active Directory](assets/ad_logical_architecture.png)
+*Hình 1.1: Kiến trúc logic của Active Directory: Forest, Tree, Domain và Organizational Unit.*
 ![Kiến trúc vật lý Active Directory](assets/ad_physical_architecture.png)
+*Hình 1.2: Kiến trúc vật lý của Active Directory: Domain Controllers, Sites và Subnets.*
 
 ---
 
@@ -83,6 +85,7 @@ graph LR
 ### 1.2 Thuật Ngữ và Định Danh Đối Tượng Trong AD (Terminology)
 
 ![Cây đối tượng trong Active Directory](assets/ad_objects_tree.png)
+*Hình 1.3: Cây đối tượng và các lớp định danh (User, Group, Computer) trong Active Directory.*
 
 1. **SID (Security Identifier)**: Định danh nhị phân duy nhất cấp phát cho mỗi đối tượng User, Group hoặc Computer.
  * Cấu trúc chuẩn: `S-1-5-21-<DomainIdentifier>-<RID>`
@@ -101,6 +104,7 @@ graph LR
 ### 1.3 Các Giao Thức Truyền Thông Cốt Lõi Trong Môi Trường AD
 
 ![So sánh NTLM và Kerberos](assets/ntlm_vs_kerberos.png)
+*Hình 1.4: So sánh kiến trúc xác thực thử thách-phản hồi NTLM và vé xác thực Kerberos v5.*
 
 * **Kerberos v5 (Port 88)**: Giao thức xác thực mặc định, an toàn cao dựa trên vé (*Ticket-based Authentication*) và mật mã đối xứng.
 * **NTLM v1/v2 (Port 445 / 139)**: Giao thức xác thực truyền thống Challenge-Response, dễ bị tấn công Pass-the-Hash và NTLM Relay.
@@ -113,6 +117,7 @@ graph LR
 ### 1.4 Cơ Chế Ủy Quyền (Delegation Architecture)
 
 ![Kiến trúc Delegation trong Active Directory](assets/delegation_architecture.png)
+*Hình 1.5: Kiến trúc cơ chế ủy quyền (Unconstrained, Constrained, Resource-Based Constrained Delegation).*
 
 Cho phép một dịch vụ mạng (Front-end Web Server) mạo danh (*Impersonate*) người dùng cuối để truy cập vào tài nguyên Back-end (Database Server):
 1. **Unconstrained Delegation**: Máy chủ Front-end lưu toàn bộ vé **TGT** của người dùng trong RAM LSASS $\rightarrow$ **Cực kỳ nguy hiểm**: Nếu chiếm được máy này, attacker lấy được vé TGT của Domain Admin nếu họ từng đăng nhập vào.
@@ -124,7 +129,9 @@ Cho phép một dịch vụ mạng (Front-end Web Server) mạo danh (*Impersona
 ## 2. Bề Mặt Tấn Công và Luồng Xác Thực Kerberos v5
 
 ![Bề mặt tấn công Active Directory](assets/ad_attack_surface.png)
+*Hình 2.1: Toàn cảnh bề mặt tấn công nhắm vào hạ tầng Active Directory và Domain Controller.*
 ![Luồng xác thực Kerberos v5](assets/kerberos_auth_flow.png)
+*Hình 2.2: Luồng trao đổi gói tin chuẩn của giao thức xác thực Kerberos v5 (AS-REQ/REP và TGS-REQ/REP).*
 
 ```mermaid
 sequenceDiagram
@@ -176,6 +183,7 @@ sequenceDiagram
 ### 4.1 Kerberoasting (MITRE ATT&CK: T1558.003)
 
 ![Cơ chế tấn công Kerberoasting](assets/kerberoasting_flow.png)
+*Hình 4.1: Sơ đồ luồng tấn công Kerberoasting trích xuất vé TGS mã hóa RC4 của tài khoản dịch vụ.*
 
 #### 1. Mô Tả Cơ Chế Tấn Công (Mechanism)
 Bất kỳ tài khoản người dùng domain hợp lệ nào (không cần đặc quyền) đều có quyền gửi yêu cầu `TGS-REQ` tới Domain Controller để xin vé dịch vụ (`TGS-REP`) cho bất kỳ dịch vụ nào có đăng ký **SPN** (ví dụ: `MSSQLSvc/sql01.lab.local:1433`). 
@@ -214,6 +222,7 @@ index=windows_security earliest=-24h EventCode=4769 Ticket_Encryption_Type=0x17 
 ### 4.2 AS-REP Roasting (MITRE ATT&CK: T1558.004)
 
 ![Cơ chế tấn công AS-REP Roasting](assets/asrep_roasting_flow.png)
+*Hình 4.2: Sơ đồ luồng tấn công AS-REP Roasting nhắm vào tài khoản không yêu cầu Pre-Authentication.*
 
 #### 1. Mô Tả Cơ Chế Tấn Công (Mechanism)
 Mặc định khi người dùng gửi yêu cầu `AS-REQ`, Kerberos yêu cầu **Pre-Authentication** (Người dùng phải dùng mật khẩu của mình mã hóa Timestamp hiện tại gửi lên để DC xác nhận).
@@ -249,6 +258,7 @@ index=windows_security earliest=-24h EventCode=4768 Pre_Authentication_Type=0 Ti
 ### 4.3 Pass-the-Hash: PtH (MITRE ATT&CK: T1550.002)
 
 ![Cơ chế tấn công Pass-the-Hash](assets/pth_flow.png)
+*Hình 4.3: Sơ đồ cơ chế tấn công Pass-the-Hash mượn mã băm NTLM qua giao thức SMB.*
 
 #### 1. Mô Tả Cơ Chế Tấn Công (Mechanism)
 Giao thức NTLM không truyền mật khẩu văn bản thô mà sử dụng chính **NTLM Hash** để Challenge-Response.
@@ -291,6 +301,7 @@ index=windows_security earliest=-24h EventCode=4624 Logon_Type=3 Authentication_
 ### 4.4 Overpass-the-Hash / Pass-the-Key (MITRE ATT&CK: T1550.002 / T1558)
 
 ![Cơ chế tấn công Overpass-the-Hash](assets/overpass_hash_flow.png)
+*Hình 4.4: Sơ đồ tấn công Overpass-the-Hash đổi NTLM hash lấy vé Kerberos TGT.*
 
 #### 1. Mô Tả Cơ Chế Tấn Công (Mechanism)
 Kẻ tấn công sử dụng mã băm NTLM (hoặc AES Key) làm khóa bí mật để mã hóa Timestamp gửi yêu cầu `AS-REQ` tới KDC $\rightarrow$ KDC cấp một vé **Kerberos TGT hoàn toàn hợp lệ**. Kẻ tấn công biến một mã băm NTLM "cũ" thành một chiếc vé Kerberos "xịn" để di chuyển ngang trong toàn mạng.
@@ -313,6 +324,7 @@ index=windows_security earliest=-24h EventCode=4768 Ticket_Encryption_Type=0x17
 ### 4.5 Pass-the-Ticket: PtT (MITRE ATT&CK: T1550.003)
 
 ![Cơ chế tấn công Pass-the-Ticket](assets/ptt_flow.png)
+*Hình 4.5: Sơ đồ tấn công Pass-the-Ticket tiêm vé TGS/TGT trực tiếp vào phiên LSASS bằng Mimikatz.*
 
 #### 1. Mô Tả Cơ Chế Tấn Công (Mechanism)
 Kẻ tấn công trích xuất trực tiếp vé Kerberos (**TGT hoặc TGS**) từ bộ nhớ LSASS của một máy tính bị chiếm quyền (`.kirbi` format), sau đó nạp (*Inject/Replay*) chiếc vé này vào phiên làm việc trên một máy tính khác mà không cần biết mật khẩu hay hash của người dùng.
@@ -338,6 +350,7 @@ index=windows_security earliest=-24h EventCode=4768
 ### 4.6 Golden Ticket (MITRE ATT&CK: T1558.001)
 
 ![Cơ chế tấn công Golden Ticket](assets/golden_ticket_flow.png)
+*Hình 4.6: Sơ đồ tạo và sử dụng Golden Ticket giả mạo vé TGT tối cao bằng mã băm tài khoản krbtgt.*
 
 #### 1. Mô Tả Cơ Chế Tấn Công (Mechanism)
 Kẻ tấn công chiếm được mật mã băm của tài khoản **`krbtgt`**, tự tạo một vé TGT offline có thời hạn **10 năm**, tự gán quyền **Enterprise Admins (SID 519)** và mạo danh bất kỳ user nào trong Forest. Kẻ tấn công có quyền sinh sát vĩnh viễn dù quản trị viên có đổi mật khẩu của toàn bộ user trong domain.
@@ -361,6 +374,7 @@ index=windows_security earliest=-34h (EventCode=4768 OR EventCode=4769) NOT user
 ### 4.7 DCSync (MITRE ATT&CK: T1003.006)
 
 ![Cơ chế tấn công DCSync](assets/dcsync_flow.png)
+*Hình 4.7: Sơ đồ tấn công DCSync giả lập Domain Controller để trích xuất cơ sở dữ liệu NTDS.dit qua DRSUAPI.*
 
 #### 1. Mô Tả Cơ Chế Tấn Công (Mechanism)
 DCSync lợi dụng tính năng nhân bản dữ liệu hợp pháp của Active Directory (**MS-DRSR Protocol**). Kẻ tấn công mạo danh là một Domain Controller hợp lệ và gửi lệnh `DSGetNCChanges` qua RPC tới DC chính để yêu cầu nhân bản và trích xuất toàn bộ mật mã băm trong tệp `NTDS.dit` (bao gồm `Administrator` và `krbtgt`) mà **không cần chạy bất kỳ mã độc nào trên máy chủ DC**.
@@ -381,6 +395,7 @@ index=windows_security earliest=-24h EventCode=4662 Access_Mask=0x100 Object_Typ
 ### 4.8 DCShadow (MITRE ATT&CK: T1207)
 
 ![Cơ chế tấn công DCShadow](assets/dcshadow_flow.png)
+*Hình 4.8: Sơ đồ tấn công DCShadow đăng ký Domain Controller giả mạo để đẩy thuộc tính độc hại vào AD.*
 
 #### 1. Mô Tả Cơ Chế Tấn Công (Mechanism)
 Kẻ tấn công tạm thời đăng ký máy trạm bị chiếm thành một **Rogue Domain Controller** hợp pháp trong phân vùng cấu hình (`CN=Configuration`) của AD qua RPC $\rightarrow$ Đẩy các thay đổi độc hại (ví dụ gán `SIDHistory` để leo quyền Admin) qua giao thức nhân bản DRS $\rightarrow$ Tự hủy đăng ký để xóa dấu vết (**Bypass hoàn toàn Event 4662 truyền thống**).

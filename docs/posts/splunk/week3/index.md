@@ -70,12 +70,14 @@ Mọi thành phần trong hạ tầng CNTT (máy trạm, máy chủ, thiết b�
 * **Thiếu khả năng giám sát tập trung**: Kẻ tấn công thực hiện chuỗi hành vi xâm nhập qua nhiều bước (*Reconnaissance $\rightarrow$ Phishing $\rightarrow$ Lateral Movement $\rightarrow$ Data Exfiltration*), mỗi bước để lại một dấu vết trên các thiết bị khác nhau. Nếu không tập trung dữ liệu, SOC Analyst hoàn toàn "mù" trước bức tranh toàn cảnh của cuộc tấn công.
 
 ![Bài toán Log Management trong vận hành bảo mật](assets/log_management_problem.jpeg)
+*Hình 1.1: Thách thức phân tán và khối lượng bùng nổ của nhật ký trong doanh nghiệp.*
 
 ---
 
 ### 1.2 Tại Sao Tổ Chức Bắt Buộc Cần Hệ Thống SIEM?
 
 ![Tại sao tổ chức cần hệ thống SIEM](assets/why_siem.jpeg)
+*Hình 1.2: Vai trò trung tâm của hệ thống SIEM trong thu thập và tương quan dữ liệu an ninh.*
 
 1. **Correlation (Tương quan sự kiện đa nguồn)**:
  - Một sự kiện đăng nhập thất bại đơn lẻ là bình thường.
@@ -92,6 +94,7 @@ Mọi thành phần trong hạ tầng CNTT (máy trạm, máy chủ, thiết b�
 ## 2. Tổng Quan Nền Tảng Splunk Enterprise và Các Thành Phần Kiến Trúc
 
 ![Tổng quan nền tảng Splunk](assets/splunk_overview.jpeg)
+*Hình 2.1: Tổng quan nền tảng phân tích và giám sát dữ liệu Splunk Enterprise.*
 
 **Splunk Enterprise** là nền tảng xử lý dữ liệu máy (Machine Data) và SIEM phân tán hàng đầu thế giới, hoạt động dựa trên nguyên lý: **Thu thập dữ liệu thô $\rightarrow$ Phân tích cú pháp thời gian thực $\rightarrow$ Lưu trữ dưới dạng Index $\rightarrow$ Truy vấn song song với ngôn ngữ SPL**.
 
@@ -100,7 +103,9 @@ Mọi thành phần trong hạ tầng CNTT (máy trạm, máy chủ, thiết b�
 ### 2.1 Các Thành Phần Cốt Lõi (Splunk Architecture Components)
 
 ![Các thành phần trong kiến trúc Splunk](assets/splunk_components.png)
+*Hình 2.2: Các thành phần chức năng cốt lõi trong kiến trúc phân tán của Splunk.*
 ![Luồng luân chuyển dữ liệu giữa các thành phần](assets/splunk_architecture_flow.png)
+*Hình 2.3: Luồng luân chuyển dữ liệu từ Forwarder qua Indexer đến Search Head.*
 
 ```mermaid
 flowchart LR
@@ -146,29 +151,34 @@ flowchart LR
 
 #### 1. Forwarder (Thu Thập Dữ Liệu Tại Nguồn)
 ![Universal Forwarder vs Heavy Forwarder](assets/uf_vs_hf.png)
+*Hình 2.4: So sánh kiến trúc và tài nguyên giữa Universal Forwarder và Heavy Forwarder.*
 
 * **Universal Forwarder (UF)**: Agent siêu nhẹ (~10MB RAM, <1% CPU), chỉ thu thập log thô và gửi trực tiếp qua cổng TCP `9997`. Không có giao diện web, không phân tích cú pháp tại chỗ. Thích hợp cài đặt hàng loạt trên hàng nghìn Endpoint.
 * **Heavy Forwarder (HF)**: Một instance Splunk Enterprise hoàn chỉnh, thực hiện phân tích cú pháp (Parsing), lọc bỏ log rác (Filtering) và định tuyến dữ liệu (Routing) sang các hệ thống khác trước khi chuyển về Indexer.
 
 #### 2. Indexer (Xử Lý, Đánh Chỉ Mục và Lưu Trữ)
 ![Thành phần Indexer](assets/indexer_component.jpeg)
+*Hình 2.5: Thành phần Indexer đảm nhiệm phân tích cú pháp và ghi dữ liệu vào các Bucket.*
 
 * **Nhiệm vụ**: Tiếp nhận luồng dữ liệu từ Forwarder, thực hiện chia dòng (*Line-breaking*), nhận diện Timestamp, bóc tách các trường siêu dữ liệu (*host, source, sourcetype*) và nén lưu trữ vào các Bucket trên đĩa.
 * **Indexer Cluster**: Mô hình nhóm nhiều Indexer để phân tải và dự phòng dữ liệu (*High Availability*). Được quản lý bởi **Cluster Manager (Master Node)**.
 
 #### 3. Search Head (Giao Diện Người Dùng và Phân Tích)
 ![Thành phần Search Head](assets/search_head_component.jpeg)
+*Hình 2.6: Thành phần Search Head phục vụ truy vấn SPL, hiển thị Dashboard và gửi Cảnh báo.*
 
 * **Nhiệm vụ**: Cung cấp giao diện Web GUI (Port `8000`), tiếp nhận câu truy vấn SPL từ người dùng, phân phối Search Job xuống tất cả các Indexer (Distributed Search), thu thập và gộp kết quả trả về. Search Head chỉ lưu trữ Knowledge Objects (Reports, Dashboards, Alerts), **không lưu trữ log thô**.
 * **Search Head Cluster (SHC)**: Nhóm từ 3 Search Head trở lên, được điều phối bởi **Captain Node** để cân bằng tải truy vấn cho hàng trăm Analyst đồng thời.
 
 #### 4. Deployment Server (Quản Lý Cấu Hình Tập Trung)
 ![Thành phần Deployment Server](assets/deployment_server.png)
+*Hình 2.7: Thành phần Deployment Server quản lý và phân phối cấu hình tập trung cho các Client.*
 
 * Quản lý và phân phối tự động các gói cấu hình (**Deployment Apps**) đến hàng nghìn Forwarder dựa trên nhóm máy (**Server Classes**) mà không cần thao tác thủ công trên từng Endpoint.
 
 #### 5. License Master và Monitoring Console (MC)
 ![License Master và Monitoring Console](assets/license_monitoring_console.jpeg)
+*Hình 2.8: Thành phần License Master và bảng điều khiển giám sát hiệu năng Monitoring Console.*
 
 * **License Master**: Quản lý và giám sát dung lượng log được index hàng ngày (GB/day) theo hạn ngạch bản quyền.
 * **Monitoring Console (MC)**: Trung tâm giám sát sức khỏe toàn diện của hệ thống Splunk (CPU, RAM, Disk I/O, Search Concurrency, Forwarder Connection).
@@ -184,20 +194,25 @@ flowchart LR
 | **Clustered Enterprise** | **Indexer Cluster** (với Cluster Manager, `RF=2, SF=2`) kết hợp **Search Head Cluster (SHC)**. | **Độ sẵn sàng cao tuyệt đối (HA)**, không mất dữ liệu, tự động cân bằng tải. | Chi phí hạ tầng cao, cấu hình phức tạp. Dùng cho **SOC Doanh nghiệp lớn, MSSP, Ngân hàng**. |
 
 ![Mô hình Single Instance](assets/single_instance_deploy.png)
+*Hình 2.9: Mô hình triển khai Single Instance phù hợp môi trường thử nghiệm và Lab.*
 ![Mô hình Search Head Cluster](assets/search_head_cluster.png)
+*Hình 2.10: Mô hình Search Head Cluster (SHC) đảm bảo tính sẵn sàng cao và cân bằng tải truy vấn.*
 ![Mô hình Distributed Enterprise](assets/distributed_deploy.png)
+*Hình 2.11: Mô hình Distributed Enterprise triển khai quy mô lớn với nhiều Indexer Peers.*
 
 ---
 
 ## 3. Pipeline Thu Thập, Xử Lý Dữ Liệu và Vòng Đời Bucket
 
 ![Pipeline thu thập dữ liệu](assets/data_collection_pipeline.png)
+*Hình 3.1: 4 giai đoạn xử lý dữ liệu trong đường ống Splunk Data Pipeline.*
 
 ---
 
 ### 3.1 Bộ Ba Tệp Tin Cấu Hình Xử Lý Log: `inputs.conf` - `props.conf` - `transforms.conf`
 
 ![Bộ ba tệp tin cấu hình](assets/conf_files_pipeline.jpeg)
+*Hình 3.2: Bộ ba tệp tin cấu hình then chốt: inputs.conf, props.conf và transforms.conf.*
 
 ```mermaid
 flowchart TD
@@ -241,7 +256,9 @@ flowchart TD
 ### 3.2 Khái Niệm Knowledge Objects và Mô Hình Dữ Liệu Chung (CIM)
 
 ![Knowledge Objects trong Splunk](assets/knowledge_objects.png)
+*Hình 3.3: Hệ thống các đối tượng tri thức (Knowledge Objects) làm giàu ngữ cảnh trong Splunk.*
 ![Kiến trúc chuẩn hóa CIM](assets/cim_architecture.png)
+*Hình 3.4: Kiến trúc chuẩn hóa dữ liệu đa nguồn theo mô hình thông tin chung CIM.*
 
 !!! warning "Phân biệt các loại Knowledge Objects"
 
@@ -263,6 +280,7 @@ flowchart TD
 Dữ liệu trong mỗi Index được chia nhỏ thành các thư mục gọi là **Buckets**. Splunk không quản lý thời gian sống theo từng event mà quản lý theo từng Bucket:
 
 ![Vòng đời lưu trữ Bucket](assets/bucket_lifecycle.jpeg)
+*Hình 3.5: Vòng đời dữ liệu di chuyển qua các tầng Bucket: Hot, Warm, Cold và Frozen.*
 
 ```mermaid
 stateDiagram-v2
@@ -285,6 +303,7 @@ stateDiagram-v2
 ## 4. Thực Hành Triển Khai Lab Multi-Node Splunk Cluster Thực Tế (5 Máy)
 
 ![Sơ đồ kiến trúc Lab 5 máy](assets/lab_topology_architecture.png)
+*Hình 4.1: Sơ đồ thiết kế mạng và địa chỉ IP cụm Splunk Lab 5 máy ảo.*
 
 ### 4.1 Bảng Phân Bổ Địa Chỉ IP và Vai Trò Node Trong Lab
 
@@ -302,24 +321,34 @@ stateDiagram-v2
 
 ````carousel
 ![Bước 1: Cấu hình tài nguyên phần cứng VM](assets/lab_step_01.png)
+*Hình 4.2: Cấu hình tài nguyên phần cứng máy ảo trên nền tảng ảo hóa.*
 <!-- slide -->
 ![Bước 2: Cài đặt và giải nén Splunk Enterprise 10.4.1 trên Ubuntu](assets/lab_step_02.png)
+*Hình 4.3: Cài đặt và giải nén gói nhị phân Splunk Enterprise trên hệ điều hành Ubuntu.*
 <!-- slide -->
 ![Bước 3: Mở cổng lắng nghe 9997 và cấu hình web.conf](assets/lab_step_03.png)
+*Hình 4.4: Mở cổng lắng nghe nhận dữ liệu 9997 và cấu hình web.conf.*
 <!-- slide -->
 ![Bước 4: Cấu hình Cluster Manager với RF=2, SF=2 và Secret Key](assets/lab_step_04.png)
+*Hình 4.5: Cấu hình Cluster Manager với hệ số nhân bản RF=2 và hệ số tìm kiếm SF=2.*
 <!-- slide -->
 ![Bước 5: Cấu hình Indexer Peers gia nhập Cluster và tắt Web Server](assets/lab_step_05.png)
+*Hình 4.6: Cấu hình các Indexer Peers gia nhập cụm và vô hiệu hóa giao diện web cục bộ.*
 <!-- slide -->
 ![Bước 6: Kiểm tra trạng thái Cluster Peers trên Search Head GUI](assets/lab_step_06.png)
+*Hình 4.7: Bảng điều khiển Cluster Peers hiển thị trạng thái Up và Healthy trên Search Head GUI.*
 <!-- slide -->
 ![Bước 7: Cài đặt Universal Forwarder trên Ubuntu với user splunkf](assets/lab_step_07.png)
+*Hình 4.8: Cài đặt Splunk Universal Forwarder trên Ubuntu Server với tài khoản người dùng splunkf.*
 <!-- slide -->
 ![Bước 8: Cấu hình inputs.conf thu thập log Apache access_combined](assets/lab_step_08.png)
+*Hình 4.9: Cấu hình inputs.conf thu thập nhật ký truy cập web Apache access_combined.*
 <!-- slide -->
 ![Bước 9: Cài đặt Universal Forwarder trên Windows Server 2022](assets/lab_step_09.png)
+*Hình 4.10: Cài đặt Universal Forwarder trên máy chủ Windows Server 2022.*
 <!-- slide -->
 ![Bước 10: Xác nhận dữ liệu log đổ về đầy đủ trên Search Head](assets/lab_step_10.png)
+*Hình 4.11: Kiểm tra dữ liệu log đổ về đầy đủ và đồng bộ trên Search Head.*
 ````
 
 ---
@@ -327,6 +356,7 @@ stateDiagram-v2
 ## 5. Cẩm Nang Ngôn Ngữ Truy Vấn SPL và Splunk Training Fundamentals (Modules 5 → 9)
 
 ![Tổng quan ngôn ngữ SPL](assets/spl_overview.jpeg)
+*Hình 5.1: Tổng quan ngôn ngữ truy vấn Search Processing Language (SPL) của Splunk.*
 
 Cú pháp pipeline chuẩn: `<search terms> | command1 | command2 | ...`
 

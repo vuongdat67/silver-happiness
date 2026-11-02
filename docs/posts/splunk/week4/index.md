@@ -61,8 +61,11 @@ graph LR
 ### 1.1 Splunk CIM (Common Information Model) và Data Models
 
 ![Tổng quan mô hình CIM](assets/cim_model_overview.png)
+*Hình 1.1: Tổng quan cấu trúc chuẩn hóa dữ liệu theo chuẩn Common Information Model (CIM).* 
 ![Các trường dữ liệu trong CIM Data Model](assets/cim_data_model_fields.png)
+*Hình 1.2: Danh mục các trường dữ liệu tiêu chuẩn trong CIM Data Model.* 
 ![Cấu trúc phân cấp Data Model Hierarchy](assets/data_model_hierarchy.png)
+*Hình 1.3: Cấu trúc phân cấp đối tượng cha - con trong Data Model Hierarchy.* 
 
 #### 1.1.1 CIM Là Gì và Tại Sao Bắt Buộc Trong SOC Enterprise?
 Khi vận hành SOC thực tế, dữ liệu đổ về từ hàng chục hãng công nghệ khác nhau:
@@ -92,7 +95,9 @@ Khi vận hành SOC thực tế, dữ liệu đổ về từ hàng chục hãng 
 ### 1.2 Tag và Eventtype
 
 ![Cấu hình Eventtypes trên Splunk GUI](assets/eventtypes_config_gui.png)
+*Hình 2.1: Giao diện cấu hình Eventtypes phân loại sự kiện trên Splunk.* 
 ![Cấu hình Tags trên Splunk GUI](assets/tags_config_gui.png)
+*Hình 2.2: Giao diện gắn Tags chuẩn hóa ngữ cảnh cho các trường dữ liệu.* 
 
 #### 1.2.1 Phân Biệt Eventtype vs Tag
 
@@ -129,6 +134,7 @@ flowchart LR
 ### 1.3 Dashboard và Report
 
 ![Giao diện Dashboard và Report](assets/dashboard_report_gui.png)
+*Hình 2.3: Giao diện xây dựng Dashboard trực quan hóa và lập báo cáo định kỳ.* 
 
 * **Report (Báo cáo)**: Là một câu truy vấn SPL được lưu lại kèm theo định dạng trực quan hóa (Bảng, Biểu đồ). Report có thể được lên lịch chạy định kỳ (*Scheduled Report*) để gửi tệp PDF qua Email cho Ban Giám đốc.
 * **Dashboard (Bảng điều khiển)**: Gom nhiều Reports và Panels lại trên cùng một giao diện duy nhất.
@@ -140,7 +146,9 @@ flowchart LR
 ### 1.4 Pivot, Dataset và Lookups
 
 ![Giao diện công cụ Pivot](assets/pivot_tool_interface.png)
+*Hình 2.4: Công cụ thiết kế biểu đồ và phân tích dữ liệu nhanh Pivot Interface.* 
 ![Giao diện Dataset và Lookups](assets/dataset_lookup_gui.png)
+*Hình 2.5: Quản lý bộ dữ liệu Dataset và bảng tra cứu đối chiếu Lookups.* 
 
 * **Pivot**: Công cụ kéo thả trực quan trên Web GUI, cho phép người dùng nghiệp vụ (Business Analyst) hoặc L1 Analyst tạo biểu đồ phân tích nhanh từ **Data Model** mà không cần biết viết câu lệnh SPL.
 * **Dataset**: Đại diện cho một tập dữ liệu có cấu trúc (bảng dữ liệu) được sinh ra từ Index, Data Model hoặc Lookup Table.
@@ -153,7 +161,9 @@ flowchart LR
 ### 1.5 Macro và Wildcard
 
 ![Cấu hình Macros trên Splunk](assets/macros_config_gui.png)
+*Hình 2.6: Cấu hình Search Macros tái sử dụng logic tìm kiếm phức tạp.* 
 ![Sử dụng Wildcard và Macro trong tìm kiếm](assets/wildcard_macro_usage.png)
+*Hình 2.7: Ứng dụng Wildcard kết hợp Macro trong truy vấn thực tế.* 
 
 * **Search Macro**: Định nghĩa các đoạn SPL có thể tái sử dụng và truyền tham số (`$param$`), lưu trong `macros.conf`:
   ```ini
@@ -171,14 +181,18 @@ flowchart LR
 ## 2. Xây Dựng Hệ Thống Cảnh Báo An Ninh Tự Động (Alerting)
 
 ![Kiến trúc Alerting trong Splunk](assets/alert_architecture_overview.png)
+*Hình 3.1: Kiến trúc tổng quan cơ chế kích hoạt và gửi cảnh báo (Alerting Engine).* 
 
 ---
 
 ### 2.1 Hướng Dẫn Cấu Hình Cảnh Báo Qua Email (Gmail SMTP)
 
 ![Cài đặt Server Email trong Splunk](assets/email_server_settings.png)
+*Hình 3.2: Cài đặt thông số kết nối máy chủ gửi thư điện tử SMTP Server.* 
 ![Tạo App Password trên Google Account](assets/google_app_password.png)
+*Hình 3.3: Tạo mật khẩu ứng dụng (App Password) trên Google Account bảo mật 2 lớp.* 
 ![Kết quả nhận cảnh báo qua Email](assets/email_alert_result.png)
+*Hình 3.4: Bằng chứng nhận thông báo cảnh báo sự cố an ninh thực tế qua Email.* 
 
 #### Bước 1: Tạo Mật Khẩu Ứng Dụng (Google App Password)
 1. Truy cập `https://myaccount.google.com/security`.
@@ -220,8 +234,11 @@ Vào **Settings $\rightarrow$ Server settings $\rightarrow$ Email settings**:
 ### 2.2 Hướng Dẫn Cấu Hình Cảnh Báo Qua Telegram Bot
 
 ![Tạo Bot qua BotFather](assets/botfather_token.png)
+*Hình 3.5: Khởi tạo Bot Telegram và trích xuất API Bot Token qua BotFather.* 
 ![Lấy Chat ID từ Telegram API](assets/telegram_chat_id.png)
+*Hình 3.6: Xác định Chat ID của nhóm trực chiến SOC qua Telegram API.* 
 ![Kết quả nhận cảnh báo trên Telegram](assets/telegram_alert_result.png)
+*Hình 3.7: Cảnh báo an ninh tức thời kèm chi tiết kỹ thuật gửi về kênh Telegram SOC.* 
 
 #### Bước 1: Tạo Bot Telegram Qua `@BotFather`
 1. Mở Telegram, tìm bot `@BotFather`.
@@ -256,7 +273,9 @@ Vào **Settings $\rightarrow$ Server settings $\rightarrow$ Email settings**:
 ## 3. Triển Khai Deployment Server và Indexer Cluster Thực Tế (5 Máy)
 
 ![Sơ đồ kiến trúc Lab thực hành](assets/lab_practice_topology.png)
+*Hình 4.1: Sơ đồ thiết kế mạng chi tiết cụm Multi-Node Splunk Cluster Lab.* 
 ![Chi tiết kiến trúc Multi-Node](assets/lab_full_architecture.png)
+*Hình 4.2: Kiến trúc kết nối đầy đủ giữa Search Head, Cluster Manager, Indexers và Forwarders.* 
 
 ---
 
@@ -276,7 +295,9 @@ Vào **Settings $\rightarrow$ Server settings $\rightarrow$ Email settings**:
 
 #### Bước 1: Thiết Lập Cluster Manager (Máy 1 - `10.0.0.10`)
 ![Cấu hình Cluster Manager](assets/manager_node_conf.png)
+*Hình 4.3: Cấu hình tệp server.conf chỉ định vai trò Cluster Manager.* 
 ![Thiết lập Indexer Clustering](assets/setting-index-clustering.png)
+*Hình 4.4: Bật tính năng Indexer Clustering trên giao diện quản trị Splunk.* 
 
 ```bash
 sudo -u splunk /home/splunk/splunk/bin/splunk edit cluster-config \
@@ -292,7 +313,9 @@ sudo -u splunk /home/splunk/splunk/bin/splunk restart
 
 #### Bước 2: Cấu Hình Indexer Peer 01 (Máy 2 - `10.0.0.20`)
 ![Cấu hình Peer Node 1](assets/peer_node_1_conf.png)
+*Hình 4.5: Cấu hình Indexer Peer 1 gia nhập cụm với khóa bảo mật bí mật.* 
 ![Tệp cấu hình index1](assets/index1-config.png)
+*Hình 4.6: Tệp cấu hình phân vùng lưu trữ indexes.conf trên Indexer Peer 1.* 
 
 ```bash
 sudo -u id1 /home/id1/splunk/bin/splunk edit cluster-config \
@@ -309,7 +332,9 @@ sudo -u id1 /home/id1/splunk/bin/splunk restart
 
 #### Bước 3: Cấu Hình Indexer Peer 02 (Máy 3 - `10.0.0.30`)
 ![Cấu hình Peer Node 2](assets/peer_node_2_conf.png)
+*Hình 4.7: Cấu hình Indexer Peer 2 gia nhập cụm và đồng bộ trạng thái.* 
 ![Tệp cấu hình index2](assets/index2-config.png)
+*Hình 4.8: Tệp cấu hình phân vùng lưu trữ indexes.conf trên Indexer Peer 2.* 
 
 ```bash
 sudo -u id2 /home/id2/splunk/bin/splunk edit cluster-config \
@@ -328,8 +353,11 @@ sudo -u id2 /home/id2/splunk/bin/splunk restart
 ### 3.3 Xác Nhận Hoạt Động Của Cluster và Trạng Thái Sức Khỏe
 
 ![Kiểm tra Cluster Status qua CLI](assets/cli-cluster-status.png)
+*Hình 4.9: Kiểm tra trạng thái Cluster qua dòng lệnh splunk show cluster-status.* 
 ![Trạng thái Peer Health](assets/peer_health.png)
+*Hình 4.10: Kiểm tra chi tiết sức khỏe các nút Indexer Peer qua giao diện dòng lệnh.* 
 ![Cluster Health Dashboard](assets/cluster_health_dashboard.png)
+*Hình 4.11: Bảng điều khiển Cluster Health Dashboard hiển thị trạng thái hoàn hảo All Peers Up.* 
 
 Chạy lệnh kiểm tra trên Máy 1 (`10.0.0.10`):
 ```bash
@@ -341,8 +369,11 @@ Chạy lệnh kiểm tra trên Máy 1 (`10.0.0.10`):
 ### 3.4 Phân Phối Cấu Hình Tự Động Qua Deployment Server
 
 ![Cấu hình Server Classes](assets/deployment_server_classes.png)
+*Hình 4.12: Thiết lập Server Classes phân phối ứng dụng trên Deployment Server.* 
 ![Phân phối Cluster Bundle](assets/cluster_bundle_deploy.png)
+*Hình 4.13: Quy trình đóng gói và triển khai Cluster Bundle tới toàn bộ Indexers.* 
 ![Xác nhận cấu hình tập trung](assets/master_cluster_verification.png)
+*Hình 4.14: Xác nhận cấu hình đồng bộ thành công trên Search Head và Indexer Peers.* 
 
 1. **Tạo Deployment App `TA_linux_logs`** trên Máy 1 tại `/home/splunk/splunk/etc/deployment-apps/TA_linux_logs/local/inputs.conf`.
 2. **Cấu hình `serverclass.conf`**:

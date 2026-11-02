@@ -26,7 +26,7 @@ tags:
 | **Severity (Mức độ)** | **CRITICAL (Mức độ 1 - Sự cố xâm nhập và phá hoại diện rộng)** |
 | **Status (Trạng thái)** | **Contained và Eradicated (Đã cô lập, xác định IoC và đề xuất khắc phục)** |
 
-# 1. Tóm Tắt Điều Hành (Executive Summary)
+## 1. Tóm Tắt Điều Hành (Executive Summary)
 
 Trong tháng 08/2016, Trung tâm Vận hành An ninh Mạng (SOC) của Wayne Enterprises ghi nhận và xử lý hai chiến dịch tấn công an ninh mạng nghiêm trọng xảy ra đồng thời trên cả vùng mạng DMZ công cộng và mạng nội bộ người dùng:
 
@@ -47,7 +47,7 @@ Trong tháng 08/2016, Trung tâm Vận hành An ninh Mạng (SOC) của Wayne En
 | **Tác động (Impact)** | Trang chủ website bị deface; lộ tài khoản quản trị tối cao | 406 file `.txt` cục bộ và 257 file `.pdf` chia sẻ qua SMB bị mã hóa |
 | **Trọng tâm phát hiện** | Splunk Stream HTTP (`stream:http`), Sysmon Event 1 | Sysmon Event 1/2/11, Stream SMB (`stream:smb`), Suricata SID 2816763 |
 
-# 2. Sự Cố 1: Website Defacement (Chiến Dịch Po1s0n1vy)
+## 2. Sự Cố 1: Website Defacement (Chiến Dịch Po1s0n1vy)
 
 ### 2.1 Bối Cảnh và Mục Tiêu Điều Tra
 Vào ngày 10/08/2016, website công khai `imreallynotbatman.com` của Wayne Enterprises bị nhóm tin tặc Po1s0n1vy tấn công thay đổi giao diện trang chủ nhằm bôi nhọ uy tín doanh nghiệp. Mục tiêu điều tra bao gồm:
@@ -82,6 +82,8 @@ Vào ngày 10/08/2016, website công khai `imreallynotbatman.com` của Wayne En
 
 ![](assets/image2.png) 
 *Hình 2. Tác nhân đe dọa PO1SON1VY*
+
+### 2.4.1 Giai Đoạn 1: Trinh Sát và Quét Lỗ Hổng Ứng Dụng Web (Reconnaissance & Vulnerability Scanning)
 
 #### Question 101: What is the likely IPv4 address of someone from the Po1s0n1vy group scanning imreallynotbatman.com for web application vulnerabilities?
 **Answer guidance:** IPv4 address.
@@ -169,6 +171,8 @@ index=botsv1 imreallynotbatman.com src_ip="40.80.148.42" "cms"
 ![](assets/image15.png) 
 *Hình 15. Kết quả xác nhận câu 103*
 
+### 2.4.2 Giai Đoạn 2: Phân Tích Hình Ảnh Deface và Hạ Tầng C2 Dynamic DNS (Questions 104-106)mpact & Command and Control)
+
 #### Question 104: What is the name of the file that defaced the imreallynotbatman.com website?
 **Answer guidance:** Filename with extension.
 
@@ -246,6 +250,8 @@ index="botsv1" sourcetype="stream:dns" "prank.strangled.net" OR "jumpingcrab.com
 ![](assets/image26.png) 
 *Hình 26. Kết quả xác nhận câu 106*
 
+### 2.4.3 Giai Đoạn 3: Tấn Công Vét Cạn Mật Khẩu Quản Trị Joomla (Questions 108, 114-119)rute Force)
+
 #### Question 108: What IP address was brute forcing the admin login on imreallynotbatman.com?
 **Answer guidance:** IPv4 address.
 
@@ -282,6 +288,8 @@ index="botsv1" dest_ip="192.168.250.70" http_method=POST uri_path="/joomla/admin
 
 ![](assets/image33.png) 
 *Hình 33. Kết quả xác nhận câu 108*
+
+### 2.4.4 Giai Đoạn 4: Tải Lên Mã Độc Web Shell 3791.exe và Thực Thi Nhị Phân (Questions 109-112)ccess & Execution)
 
 #### Question 109: What is the name of the executable uploaded to the web server by the attacker?
 **Answer guidance:** Filename with extension.
@@ -544,7 +552,7 @@ index="botsv1" src_ip="23.22.63.114" http_method=POST uri_path="/joomla/administ
 ![](assets/image66.png) 
 *Hình 66. Kết quả xác nhận câu 119*
 
-# 3. Sự Cố 2: Cerber Ransomware Outbreak (Lây Nhiễm Qua USB và Macro)
+## 3. Sự Cố 2: Cerber Ransomware Outbreak (Lây Nhiễm Qua USB và Macro)
 
 ### 3.1 Bối Cảnh và Mục Tiêu Điều Tra
 Vào ngày 24/08/2016, máy trạm của Bob Smith bị lây nhiễm Cerber Ransomware sau khi cắm thiết bị lưu trữ USB ngoài mang tên `MIRANDA_PRI`. Mục tiêu điều tra bao gồm:
@@ -578,6 +586,8 @@ Vào ngày 24/08/2016, máy trạm của Bob Smith bị lây nhiễm Cerber Rans
 
 ![](assets/image67.png) 
 *Hình 67. Thử thách Challenge Ransomware Outbreak*
+
+### 3.4.1 Giai Đoạn 1: Định Vị Máy Trạm Nạn Nhân và Cảnh Báo NIDS Suricata (Triage & Network Detection)
 
 #### Question 200: What was the most likely IPv4 address of we8105desk on 2016-08-24?
 **Answer guidance:** IPv4 address.
@@ -679,6 +689,8 @@ index="botsv1" src_ip="192.168.250.100" sourcetype="stream:dns" "cerber"
 ![](assets/image84.png) 
 *Hình 84. Kết quả xác nhận câu 202*
 
+### 3.4.2 Giai Đoạn 2: Véc-tơ Xâm Nhập USB và Chuỗi Thực Thi VBScript Obfuscation (Initial Access & Execution)
+
 #### Question 203: What was the first suspicious domain queried by we8105desk that delivered the payload?
 **Answer guidance:** Domain format.
 
@@ -760,6 +772,8 @@ index="botsv1" host="we8105desk" sourcetype="WinRegistry" "FriendlyName" OR "USB
 
 ![](assets/image94.png) 
 *Hình 94. Kết quả xác nhận câu 205*
+
+### 3.4.3 Giai Đoạn 3: Di Chuyển Ngang Qua SMB và Thiệt Hại Mã Hóa Dữ Liệu (Questions 206-209)ral Movement & Encryption Impact)
 
 #### Question 206: Bob Smith's workstation (we8105desk) connected to a file server via SMB. What was the IPv4 address of the file server?
 **Answer guidance:** IPv4 address.
@@ -878,6 +892,8 @@ index="botsv1" host="we8105desk" sourcetype="XmlWinEventLog:Microsoft-Windows-Sy
 ![](assets/image111.png) 
 *Hình 111. Kết quả xác nhận câu 209*
 
+### 3.4.4 Giai Đoạn 4: Tải Payload Steganography và Cơ Chế Lẩn Tránh Cerber (Questions 210-211)asion & Steganography)
+
 #### Question 210: The malware downloads a file that contains the code for the ransomware. What is the name of this file?
 **Answer guidance:** Filename with extension.
 
@@ -919,7 +935,7 @@ index="botsv1" src_ip="192.168.250.100" sourcetype="stream:http"
 4. **Script Obfuscation (Làm rối mã VBScript / Command-Line):** Câu lệnh thực thi dòng lệnh của `cmd.exe` có độ dài lên tới **4490 ký tự**, chèn dày đặc các biến môi trường rác, ký tự nối chuỗi `^`, `%` và mã hóa base64/hex nhằm qua mặt hệ thống giám sát dòng lệnh (Command-Line Logging).
 5. **Polymorphism và Process Masquerading (Đa hình và Giả mạo tiến trình):** Cerber liên tục đổi tên tệp thực thi thành `osk.exe` (giả lập tiện ích On-Screen Keyboard hợp pháp của Windows) và tự động thay đổi cấu trúc mã băm sau mỗi lần thực thi để tránh bị phát hiện theo mã băm MD5/SHA256.
 
-# 4. Ma Trận Chỉ Số Nhận Diện Mối Đe Dọa Toàn Diện (Master IoC Table)
+## 4. Ma Trận Chỉ Số Nhận Diện Mối Đe Dọa Toàn Diện (Master IoC Table)
 
 | Phân Loại (Type) | Chỉ Số Nhận Diện (Indicator) | Bối Cảnh Xuất Hiện và Ý Nghĩa Kỹ Thuật (Context) |
 | :--- | :--- | :--- |
@@ -937,7 +953,7 @@ index="botsv1" src_ip="192.168.250.100" sourcetype="stream:http"
 | **Hardware / USB** | `MIRANDA_PRI` (Serial: `7D961196`)| Tên thiết bị USB lưu trữ cắm vào máy trạm Bob Smith (WinRegistry Event 20011). |
 | **Suricata Alert SID**| `2816763` | Chữ ký nhận diện lưu lượng mạng độc hại của Cerber Ransomware. |
 
-# 5. Bảng Ánh Xạ Khung Phòng Thủ MITRE ATT&CK Enterprise Matrix
+## 5. Bảng Ánh Xạ Khung Phòng Thủ MITRE ATT&CK Enterprise Matrix
 
 | Chiến Thuật (Tactic) | Mã Kỹ Thuật và Tên (Technique ID và Name) | Bằng Chứng Thực Tế Trong Sự Cố (Technical Context) |
 | :--- | :--- | :--- |
@@ -955,9 +971,9 @@ index="botsv1" src_ip="192.168.250.100" sourcetype="stream:http"
 | **Impact** | `T1491.001` - Internal/External Defacement | Thay đổi giao diện trang chủ `imreallynotbatman.com` bằng hình ảnh Po1s0n1vy. |
 | **Impact** | `T1486` - Data Encrypted for Impact | Mã hóa 406 file `.txt` cục bộ và 257 file `.pdf` trên File Server bằng thuật toán Cerber. |
 
-# 6. Kỹ Năng và Bài Học Rút Ra Cho SOC Analyst (Skills và Lessons Learned)
+## 6. Kỹ Năng và Bài Học Rút Ra Cho SOC Analyst (Skills và Lessons Learned)
 
-### 1. Tương Quan Dữ Liệu Đa Nguồn và Tái Dựng Sự Cố (Data Correlation)
+### 6.1. Tương Quan Dữ Liệu Đa Nguồn và Tái Dựng Sự Cố (Data Correlation)
 Một sự cố an ninh mạng không bao giờ được phản ánh đầy đủ chỉ từ một nguồn log duy nhất. SOC Analyst phải rèn luyện kỹ năng liên kết (pivot) linh hoạt giữa các nguồn telemetry:
 - **Sysmon:** Truy vết chuỗi quan hệ Cha - Con (Parent-Child Process), dòng lệnh (CommandLine), và mã băm thực thi.
 - **Windows Security Logs:** Xác thực phiên làm việc, định danh người dùng và phiên kết nối mạng.
@@ -965,17 +981,17 @@ Một sự cố an ninh mạng không bao giờ được phản ánh đầy đ�
 - **Suricata NIDS:** Nhận diện các chữ ký cảnh báo lưu lượng mạng độc hại (SID `2816763`).
 - **Splunk Stream (HTTP, DNS, SMB):** Tái hiện chi tiết nội dung gói tin, phương thức truyền tải, mã trạng thái và phiên chia sẻ tệp tin.
 
-### 2. Xác Thực Bằng Chứng và Làm Giàu Dữ Liệu Qua OSINT (Evidence Validation)
+### 6.2. Xác Thực Bằng Chứng và Làm Giàu Dữ Liệu Qua OSINT (Evidence Validation)
 Phân biệt rõ ràng 3 cấp độ chứng cứ trong báo cáo điều tra:
 - **Confirmed Evidence (Chứng cứ xác thực):** Được chứng minh trực tiếp bằng bản ghi log hệ thống hoặc tệp tin thu thập được.
 - **Supporting Evidence (Chứng cứ củng cố):** Được hỗ trợ qua các nguồn Threat Intelligence bên ngoài (VirusTotal, AlienVault OTX).
 - **Inferred Finding (Nhận định suy luận):** Suy luận logic dựa trên các dữ kiện kỹ thuật liên quan khi chưa có bằng chứng tuyệt đối.
 
-### 3. Tối Ưu Hóa Câu Truy Vấn SPL (SPL Optimization)
+### 6.3. Tối Ưu Hóa Câu Truy Vấn SPL (SPL Optimization)
 - Luôn thu hẹp không gian tìm kiếm bằng `index`, `sourcetype`, `host`, `src_ip`, `dest_ip` và `earliest/latest` trước khi dùng các lệnh thống kê.
 - Khai thác hiệu quả các hàm trích xuất `rex`, hàm đo độ dài chuỗi `len()`, và hàm đếm giá trị duy nhất `dc()` (Distinct Count) để tăng tốc độ phân tích điều tra.
 
-### 4. Quy Trình Điều Tra Chuẩn 7 Bước Cho SOC Analyst
+### 6.4. Quy Trình Điều Tra Chuẩn 7 Bước Cho SOC Analyst
 
 Quá trình điều tra sự cố số tuân thủ nghiêm ngặt chu trình phản ứng 7 bước chuẩn:
 
@@ -987,7 +1003,7 @@ Quá trình điều tra sự cố số tuân thủ nghiêm ngặt chu trình ph�
 6. **Ánh Xạ Khung Phòng Thủ (MITRE ATT&CK Mapping):** Phân loại các hành vi vào ma trận kỹ thuật chuẩn để đánh giá bề mặt tấn công.
 7. **Đánh Giá Thiệt Hại và Khắc Phục (Impact Assessment và Remediation):** Đo lường tài sản bị xâm phạm, phục hồi dữ liệu từ bản sao lưu sạch và triển khai các biện pháp củng cố phòng thủ.
 
-# 7. Khuyến Nghị Tổng Thể và Lộ Trình Củng Cố Phòng Thủ (Strategic Roadmap)
+## 7. Khuyến Nghị Tổng Thể và Lộ Trình Củng Cố Phòng Thủ (Strategic Roadmap)
 
 | Mức Độ Ưu Tiên | Khuyến Nghị Kỹ Thuật (Recommendations) |
 | :--- | :--- |
@@ -1001,7 +1017,7 @@ Quá trình điều tra sự cố số tuân thủ nghiêm ngặt chu trình ph�
 | **MEDIUM** | Tăng cường năng lực phát hiện của SIEM/EDR: Xây dựng các Use Case tương quan giữa Sysmon Event 1, 2, 11 và Windows Security Event 5145. |
 | **LOW** | Tổ chức đào tạo nâng cao nhận thức an toàn thông tin định kỳ cho nhân viên về nguy cơ từ email lừa đảo và thiết bị USB lạ. |
 
-# 8. Tài Liệu Tham Khảo (References)
+## 8. Tài Liệu Tham Khảo (References)
 
 1. Splunk Boss of the SOC (BOTS) v1 Scenario Guide: https://bots.splunk.com/
 2. MITRE ATT&CK Enterprise Matrix (v14.1): https://attack.mitre.org/

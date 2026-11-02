@@ -49,9 +49,11 @@ graph LR
 ```
 
 ![Quy trình SOC](assets/escalate.png)
+*Hình 1.1: Quy trình xử lý và leo thang cảnh báo an ninh trong SOC.*
 
 
 ![Tổng quan quy trình](assets/overview-escalate.png)
+*Hình 1.2: Tổng quan vòng đời phân loại và điều tra từ Event đến Incident.*
 
 ---
 
@@ -60,6 +62,7 @@ graph LR
 **SOC (Security Operations Center)** là trung tâm chỉ huy tập trung kết hợp chặt chẽ giữa **Con người (People) - Quy trình (Process) - Công nghệ (Technology)** nhằm giám sát liên tục (24/7/365), phát hiện sớm, phân tích chuyên sâu và phản ứng kịp thời trước mọi mối đe dọa an ninh mạng.
 
 ![Tổng quan mô hình SOC](assets/soc_overview.jpeg)
+*Hình 1.3: Mô hình tổ chức và chức năng cốt lõi của Trung tâm Vận hành An ninh (SOC).*
 
 | Mô hình SOC | Định nghĩa và Đặc điểm | Ưu điểm | Nhược điểm và Thách thức |
 | :--- | :--- | :--- | :--- |
@@ -72,6 +75,7 @@ graph LR
 ### 1.3 Cấu trúc Phân tầng Nhân sự SOC: L1 / L2 / L3
 
 ![Mô hình phân tầng SOC L1 L2 L3](assets/soc_tier_l1_l2_l3.jpeg)
+*Hình 1.4: Cấu trúc phân tầng trách nhiệm nhân sự SOC: L1 Triage, L2 Response và L3 Hunting.*
 
 ```mermaid
 flowchart LR
@@ -122,6 +126,7 @@ flowchart LR
 ### 1.4 Các vai trò chuyên trách mở rộng trong Modern SOC
 
 ![Các vai trò chuyên trách trong SOC](assets/soc_roles.png)
+*Hình 1.5: Các vị trí chuyên môn mở rộng trong Modern SOC (Detection Engineer, Threat Hunter, Forensics).*
 
 1. **Detection Engineer**: Chuyên gia thiết kế, phát triển và tối ưu hóa các Detection Rule (Splunk SPL, Elastic KQL, Sigma Rules, YARA) để lấp đầy các khoảng trống (Gaps) theo ma trận MITRE ATT&CK.
 2. **Threat Intelligence Analyst (CTI)**: Thu thập, đánh giá và phân phối tri thức về các nhóm tấn công (Adversary Profile, IoCs, TTPs) từ nguồn OSINT, ISACs và Commercial Feeds để định hướng phòng thủ.
@@ -143,6 +148,7 @@ flowchart LR
 ### 2.1 SIEM: Security Information and Event Management
 
 ![Kiến trúc luồng dữ liệu SIEM](assets/siem_architecture.jpeg)
+*Hình 2.1: Kiến trúc thu thập, phân tích và quản lý log tập trung của hệ thống SIEM.*
 
 **SIEM** là nền tảng quản lý thông tin và sự kiện an ninh, đóng vai trò "bộ não lưu trữ và tương quan" của mọi hoạt động ghi log.
 
@@ -184,6 +190,7 @@ flowchart LR
 ### 2.2 SOAR: Security Orchestration, Automation and Response
 
 ![Tự động hóa SOAR](assets/soar_automation.png)
+*Hình 2.2: Kiến trúc tự động hóa quy trình phân tích và phản ứng sự cố với SOAR.*
 
 **SOAR** giải quyết vấn đề lớn nhất của SOC hiện đại: **Alert Fatigue (Quá tải cảnh báo)** và **Thiếu hụt nhân lực** thông qua cơ chế tự động hóa quy trình nghiệp vụ (Playbooks).
 
@@ -196,6 +203,7 @@ flowchart LR
 ### 2.3 EDR: Endpoint Detection and Response
 
 ![EDR giám sát Endpoint sâu](assets/edr_detection.png)
+*Hình 2.3: Cơ chế giám sát hành vi tiến trình và phân tích sâu tại thiết bị đầu cuối của EDR.*
 
 **EDR** là giải pháp chuyên sâu giám sát toàn bộ hoạt động bên trong hệ điều hành của các máy chủ và máy trạm:
 * **Ghi nhận Process Lineage (Cây tiến trình)**: Theo dõi tiến trình cha - con (`ParentProcessId` $\rightarrow$ `ProcessId`). Phát hiện các bất thường kinh điển như `winword.exe` gọi `cmd.exe` hoặc `powershell.exe`.
@@ -207,6 +215,7 @@ flowchart LR
 ### 2.4 Bảng Đối Chiếu So Sánh Toàn Diện SIEM vs SOAR vs EDR
 
 ![So sánh SIEM SOAR EDR](assets/siem_soar_edr_comparison.png)
+*Hình 2.4: Ma trận so sánh tính năng và phạm vi hoạt động giữa SIEM, SOAR và EDR.*
 
 | Tiêu chí so sánh | SIEM (Security Info và Event) | SOAR (Orchestration và Auto) | EDR (Endpoint Detection) |
 | :--- | :--- | :--- | :--- |
@@ -220,6 +229,7 @@ flowchart LR
 ### 2.5 Luồng Phối Hợp Tác Chiến Hiện Đại (The Modern SOC Triad Flow)
 
 ![Luồng phối hợp SOC Triad](assets/soc_tool_orchestration.png)
+*Hình 2.5: Luồng phối hợp tác chiến tự động và đồng bộ giữa bộ ba SIEM - SOAR - EDR.*
 
 ```mermaid
 sequenceDiagram
@@ -256,7 +266,9 @@ sequenceDiagram
 **Cyber Kill Chain** (phát triển năm 2011) mô hình hóa cuộc tấn công mạng có chủ đích theo 7 giai đoạn liên tiếp. Triết lý cốt lõi: *"Bẻ gãy bất kỳ một mắt xích nào trong chuỗi, toàn bộ chiến dịch tấn công của đối phương sẽ thất bại."*
 
 ![Cyber Kill Chain 7 Stages](assets/cyber_kill_chain.png)
+*Hình 3.1: 7 giai đoạn trong mô hình Cyber Kill Chain của Lockheed Martin.*
 ![Mô tả 7 giai đoạn Kill Chain](assets/kill_chain_7_stages.png)
+*Hình 3.2: Chi tiết mục tiêu và kỹ thuật tấn công qua 7 giai đoạn Kill Chain.*
 
 ```mermaid
 flowchart LR
@@ -288,7 +300,9 @@ flowchart LR
 **Pyramid of Pain** (2013) trả lời câu hỏi chiến lược: *"Khi Defender phát hiện và vô hiệu hóa một chỉ số an ninh, Attacker sẽ phải chịu bao nhiêu 'nỗi đau' (chi phí, thời gian, công sức) để tiếp tục tấn công?"*
 
 ![Pyramid of Pain Overview](assets/pyramid_of_pain.jpeg)
+*Hình 3.3: Mô hình Kim Tự Tháp Nỗi Đau (Pyramid of Pain) của David Bianco.*
 ![Kim Tự Tháp Nỗi Đau 6 Tầng](assets/pyramid_of_pain_6_tiers.png)
+*Hình 3.4: 6 tầng chỉ số nhận diện nguy cơ và mức độ gây khó khăn cho kẻ tấn công.*
 
 ```mermaid
 graph BT
@@ -325,7 +339,9 @@ graph BT
 **NIST SP 800-61** (do Viện Tiêu chuẩn và Công nghệ Quốc gia Mỹ ban hành) là bộ tiêu chuẩn vàng toàn cầu định hình quy trình ứng phó và xử lý sự cố an ninh mạng.
 
 ![Chu trình NIST SP 800-61](assets/nist_sp800_61_cycle.png)
+*Hình 3.5: Vòng đời phản ứng sự cố theo tiêu chuẩn NIST SP 800-61.*
 ![4 Pha NIST SP 800-61 Rev 2](assets/nist_sp800_61_4_phases.png)
+*Hình 3.6: 4 pha xử lý sự cố an toàn thông tin theo chuẩn NIST SP 800-61 Rev 2.*
 
 ```mermaid
 flowchart LR
@@ -363,8 +379,11 @@ flowchart LR
 #### Tiến Hóa Từ NIST SP 800-61 Rev 2 Sang Rev 3 (Tích Hợp NIST CSF 2.0)
 
 ![NIST Rev 3 Comparison](assets/nist_rev3_comparison.png)
+*Hình 3.7: So sánh sự dịch chuyển phương pháp luận giữa NIST SP 800-61 Rev 2 và Rev 3.*
 ![NIST CSF 2.0 Functions](assets/nist_csf_functions.png)
+*Hình 3.8: 6 chức năng cốt lõi của Khung quản trị an ninh mạng NIST CSF 2.0.*
 ![NIST CSF Categories](assets/nist_csf_2_0_categories.png)
+*Hình 3.9: Phân loại danh mục kiểm soát an ninh thông tin theo NIST CSF 2.0.*
 
 | Tiêu chí | NIST SP 800-61 Rev 2 | NIST SP 800-61 Rev 3 (2025) |
 | :--- | :--- | :--- |
@@ -379,7 +398,9 @@ flowchart LR
 ### 4.1 Tổng quan và Cấu trúc Phân cấp
 
 ![MITRE ATT&CK Matrix Overview](assets/mitre_attack_overview.png)
+*Hình 4.1: Tổng quan ma trận chiến thuật và kỹ thuật MITRE ATT&CK Enterprise.*
 ![MITRE Enterprise Tactics](assets/mitre_enterprise_tactics.jpeg)
+*Hình 4.2: 14 Tactics đại diện cho các giai đoạn tấn công trong MITRE ATT&CK.*
 
 **MITRE ATT&CK** (Adversarial Tactics, Techniques, and Common Knowledge) là cơ sở tri thức toàn cầu tổng hợp từ hàng chục nghìn vụ tấn công thực tế trong tự nhiên (*in the wild*).
 
@@ -424,6 +445,7 @@ graph TD
 #### Technique 1: T1595: Active Scanning (Tactic: Reconnaissance)
 
 ![MITRE Reconnaissance TA0043](assets/mitre_reconnaissance_ta0043.png)
+*Hình 4.3: Kỹ thuật Active Scanning (T1595) thuộc Tactic Reconnaissance (TA0043).*
 
 Kẻ tấn công chủ động gửi các gói tin thăm dò trực tiếp đến dải mạng công khai của nạn nhân nhằm lập bản đồ tài nguyên và tìm kiếm điểm yếu sơ hở.
 
@@ -455,6 +477,7 @@ index=web_logs status=404
 #### Technique 2: T1566: Phishing (Tactic: Initial Access)
 
 ![MITRE Initial Access TA0001](assets/mitre_initial_access_ta0001.jpeg)
+*Hình 4.4: Kỹ thuật Phishing (T1566) thuộc Tactic Initial Access (TA0001).*
 
 Phishing chiếm trên 40% nguyên nhân dẫn đến các vụ xâm nhập mạng doanh nghiệp toàn cầu.
 
@@ -488,6 +511,7 @@ index=windows_sysmon EventCode=1
 #### Technique 3: T1059: Command và Scripting Interpreter (Tactic: Execution)
 
 ![MITRE Execution TA0002](assets/mitre_execution_ta0002.png)
+*Hình 4.5: Kỹ thuật Command and Scripting Interpreter (T1059) thuộc Tactic Execution (TA0002).*
 
 Kỹ thuật lạm dụng các trình thông dịch có sẵn và được tin cậy trong hệ điều hành (*Living Off The Land - LOLBins*) để thực thi mã độc.
 
