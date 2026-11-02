@@ -28,10 +28,12 @@ Tài liệu đúc kết phương pháp luận điều tra sự cố chuyên sâu
 
 ### 1.1 Nguyên tắc 1: "Host Is King" (Định Danh Máy Chủ Là Trọng Tâm)
 
-> [!important] Ranh giới giữa Định danh Động (IP) và Định danh Tĩnh (Host)
-> - **Địa chỉ IP là dữ kiện biến động:** Trong kiến trúc mạng doanh nghiệp hiện đại, địa chỉ IP thay đổi liên tục theo thời gian do cơ chế cấp phát DHCP, phiên kết nối VPN quay vòng, Gateway NAT hoặc chuyển vùng IP Roaming. Tin tặc cũng thường xuyên thực hiện giả mạo IP nguồn (IP Spoofing) hoặc mượn các dải IP nội bộ khác nhau qua máy chủ nhảy cóc (Proxy / Pivot).
-> - **Tên máy chủ (Host) và Object ID là bất biến:** Tên máy chủ hệ điều hành (`host="POC-WIN-IIS"`), định danh thực thể trong Active Directory, hoặc ID dịch vụ (`s_sitename="W3SVC2"`) là các giá trị tĩnh gắn liền với cấu trúc tài sản (Asset Inventory).
-> - **Hành động bắt buộc của SOC Analyst:** Mọi câu truy vấn tương quan, tìm kiếm mở rộng (Drilldown) và luật phát hiện (Correlation Search) bắt buộc phải neo chặt vào trường `host` trước khi tiến hành lọc theo `c_ip` hoặc `s_ip`.
+!!! warning "Ranh giới giữa Định danh Động (IP) và Định danh Tĩnh (Host)"
+
+    - **Địa chỉ IP là dữ kiện biến động:** Trong kiến trúc mạng doanh nghiệp hiện đại, địa chỉ IP thay đổi liên tục theo thời gian do cơ chế cấp phát DHCP, phiên kết nối VPN quay vòng, Gateway NAT hoặc chuyển vùng IP Roaming. Tin tặc cũng thường xuyên thực hiện giả mạo IP nguồn (IP Spoofing) hoặc mượn các dải IP nội bộ khác nhau qua máy chủ nhảy cóc (Proxy / Pivot).
+    - **Tên máy chủ (Host) và Object ID là bất biến:** Tên máy chủ hệ điều hành (`host="POC-WIN-IIS"`), định danh thực thể trong Active Directory, hoặc ID dịch vụ (`s_sitename="W3SVC2"`) là các giá trị tĩnh gắn liền với cấu trúc tài sản (Asset Inventory).
+    - **Hành động bắt buộc của SOC Analyst:** Mọi câu truy vấn tương quan, tìm kiếm mở rộng (Drilldown) và luật phát hiện (Correlation Search) bắt buộc phải neo chặt vào trường `host` trước khi tiến hành lọc theo `c_ip` hoặc `s_ip`.
+
 
 ### 1.2 Nguyên tắc 2: Thống Kê Trước (Statistics View), Xem Log Thô Sau (Events Drilldown)
 

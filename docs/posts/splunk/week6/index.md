@@ -150,22 +150,26 @@ sequenceDiagram
 
 ## 3. Chiến Lược Truy Vết Tận Gốc Của SOC (Pivot và Process Tree Reconstruction)
 
-> [!tip] Nguyên Tắc Điều Tra Truy Vết Của L2/L3 SOC Analyst
-> Khi phát hiện một cảnh báo tấn công Active Directory trên Domain Controller (Event 4624, 4672, 4768, 4769), không được dừng lại ở IP nguồn mà phải thực hiện chuỗi truy vết 2 bước:
-> 1. **Truy ngược Hostname / MAC thực tế**: Không tin tưởng 100% vào `src_ip` (do attacker có thể làm giả IP). Sử dụng `src_ip` truy vấn ngược vào DHCP Server log hoặc Datamodel `Network_Sessions` để xác định chính xác Hostname và địa chỉ MAC vật lý.
-> 2. **Dựng lại Cây Tiến Trình (Process Lineage Tree - PID/PPID)**: Bóc tách mã phiên đăng nhập `Logon_ID` (hoặc `TargetLogonId`) từ log DC, sau đó truy vấn vào **Sysmon EventID 1** hoặc **Event 4688** trên chính máy Endpoint nguồn. Bạn sẽ thấy trọn vẹn phả hệ tiến trình độc hại:
-> * Ví dụ: `explorer.exe` $\rightarrow$ `cmd.exe` (PPID: 4120) $\rightarrow$ `python.exe` (PID: 5824, CommandLine: `python.exe wmiexec.py -hashes ... Administrator@10.0.0.50`).
+!!! tip "Nguyên Tắc Điều Tra Truy Vết Của L2/L3 SOC Analyst"
+
+    Khi phát hiện một cảnh báo tấn công Active Directory trên Domain Controller (Event 4624, 4672, 4768, 4769), không được dừng lại ở IP nguồn mà phải thực hiện chuỗi truy vết 2 bước:
+    1. **Truy ngược Hostname / MAC thực tế**: Không tin tưởng 100% vào `src_ip` (do attacker có thể làm giả IP). Sử dụng `src_ip` truy vấn ngược vào DHCP Server log hoặc Datamodel `Network_Sessions` để xác định chính xác Hostname và địa chỉ MAC vật lý.
+    2. **Dựng lại Cây Tiến Trình (Process Lineage Tree - PID/PPID)**: Bóc tách mã phiên đăng nhập `Logon_ID` (hoặc `TargetLogonId`) từ log DC, sau đó truy vấn vào **Sysmon EventID 1** hoặc **Event 4688** trên chính máy Endpoint nguồn. Bạn sẽ thấy trọn vẹn phả hệ tiến trình độc hại:
+    * Ví dụ: `explorer.exe` $\rightarrow$ `cmd.exe` (PPID: 4120) $\rightarrow$ `python.exe` (PID: 5824, CommandLine: `python.exe wmiexec.py -hashes ... Administrator@10.0.0.50`).
+
 
 ---
 
 ## 4. Phân Tích Chuyên Sâu 8 Kỹ Thuật Tấn Công Active Directory và Bộ Luật Splunk Thực Chiến
 
-> [!important] Ghi Chú Về Chuẩn Hóa Dữ Liệu Trong SPL
-> Tất cả các luật SPL dưới đây đều được chuẩn hóa nâng cao:
-> * Tự động xóa bỏ tiền tố IPv6 (`::ffff:`) qua `eval src_ip = replace(src_ip, "^::ffff:", "")`.
-> * Loại bỏ nhiễu Localhost (`::1`, `127.0.0.1`, `fe80*`).
-> * Chuẩn hóa tên User bằng cách cắt bỏ domain suffix (`eval user = replace(user, "@.*$", "")`) để tránh lỗi khi join giữa các EventID.
-> * Lọc bỏ tài khoản máy tính (`NOT user="*$"` và `NOT user="*$@*"`).
+!!! warning "Ghi Chú Về Chuẩn Hóa Dữ Liệu Trong SPL"
+
+    Tất cả các luật SPL dưới đây đều được chuẩn hóa nâng cao:
+    * Tự động xóa bỏ tiền tố IPv6 (`::ffff:`) qua `eval src_ip = replace(src_ip, "^::ffff:", "")`.
+    * Loại bỏ nhiễu Localhost (`::1`, `127.0.0.1`, `fe80*`).
+    * Chuẩn hóa tên User bằng cách cắt bỏ domain suffix (`eval user = replace(user, "@.*$", "")`) để tránh lỗi khi join giữa các EventID.
+    * Lọc bỏ tài khoản máy tính (`NOT user="*$"` và `NOT user="*$@*"`).
+
 
 ---
 
@@ -413,22 +417,30 @@ index=windows_security earliest=-7d EventCode=4662 Object_Type=serversContainer 
 
 ## 6. Bộ Câu Hỏi Bảo Vệ Chuyên Đề và Vấn Đáp Chuyên Sâu (Q&A Defense Guide)
 
-> [!faq]- Q1: Tại sao Kerberoasting chỉ nhắm vào tài khoản User gắn SPN mà không nhắm vào tài khoản Computer?
-> - **Trả lời**: Tài khoản máy tính (`ComputerName$`) trong Active Directory có mật khẩu ngẫu nhiên 120 ký tự được hệ thống tự động đổi mỗi 30 ngày, khiến việc bẻ khóa offline bất khả thi. Ngược lại, tài khoản User chạy dịch vụ (Service Account) thường do con người đặt mật khẩu, độ phức tạp thấp và ít khi đổi mật khẩu, nên dễ dàng bị crack bằng Wordlist.
+??? question "Q1: Tại sao Kerberoasting chỉ nhắm vào tài khoản User gắn SPN mà không nhắm vào tài khoản Computer?"
 
-> [!faq]- Q2: Sự khác nhau bản chất giữa Golden Ticket và Silver Ticket là gì?
-> - **Trả lời**:
-> - **Golden Ticket**: Giả mạo vé **TGT** bằng mã băm của tài khoản **`krbtgt`**. Cần tương tác với KDC để xin vé dịch vụ, cho phép truy cập toàn bộ tài nguyên trong toàn Forest.
-> - **Silver Ticket**: Giả mạo vé **TGS** bằng mã băm của chính **Service Account** đích. Không tương tác với KDC (tàng hình trước KDC log), chỉ truy cập được duy nhất dịch vụ của tài khoản đó.
+    **Trả lời**: Tài khoản máy tính (`ComputerName$`) trong Active Directory có mật khẩu ngẫu nhiên 120 ký tự được hệ thống tự động đổi mỗi 30 ngày, khiến việc bẻ khóa offline bất khả thi. Ngược lại, tài khoản User chạy dịch vụ (Service Account) thường do con người đặt mật khẩu, độ phức tạp thấp và ít khi đổi mật khẩu, nên dễ dàng bị crack bằng Wordlist.
 
-> [!faq]- Q3: Tại sao DCSync lại nguy hiểm hơn việc trực tiếp sao chép tệp `NTDS.dit`?
-> - **Trả lời**: Để copy tệp `NTDS.dit`, kẻ tấn công phải có quyền Local Admin trên Domain Controller và sử dụng VSS (Volume Shadow Copy) để vượt qua khóa file của hệ điều hành $\rightarrow$ Rất dễ bị EDR và Antivirus phát hiện. DCSync sử dụng giao thức mạng hợp pháp MS-DRSR từ xa, không cần thực thi mã độc trên DC và không cần chạm vào đĩa cứng của DC.
 
-> [!faq]- Q4: Biện pháp phòng thủ gốc rễ (Root Cause Mitigation) cho tấn công Kerberoasting là gì?
-> - **Trả lời**:
-> 1. Chuyển đổi toàn bộ Service Accounts sang **Group Managed Service Accounts (gMSA)**: Mật khẩu 128 ký tự phức tạp tự động đổi định kỳ bởi Active Directory.
-> 2. Ép buộc chỉ sử dụng thuật toán mã hóa **AES-128/256** và vô hiệu hóa hoàn toàn RC4 trên Kerberos.
-> 3. Đặt mật khẩu cho Service Accounts tối thiểu từ 25 ký tự trở lên.
+??? question "Q2: Sự khác nhau bản chất giữa Golden Ticket và Silver Ticket là gì?"
+
+    **Trả lời**:
+    - **Golden Ticket**: Giả mạo vé **TGT** bằng mã băm của tài khoản **`krbtgt`**. Cần tương tác với KDC để xin vé dịch vụ, cho phép truy cập toàn bộ tài nguyên trong toàn Forest.
+    - **Silver Ticket**: Giả mạo vé **TGS** bằng mã băm của chính **Service Account** đích. Không tương tác với KDC (tàng hình trước KDC log), chỉ truy cập được duy nhất dịch vụ của tài khoản đó.
+
+
+??? question "Q3: Tại sao DCSync lại nguy hiểm hơn việc trực tiếp sao chép tệp `NTDS.dit`?"
+
+    **Trả lời**: Để copy tệp `NTDS.dit`, kẻ tấn công phải có quyền Local Admin trên Domain Controller và sử dụng VSS (Volume Shadow Copy) để vượt qua khóa file của hệ điều hành $\rightarrow$ Rất dễ bị EDR và Antivirus phát hiện. DCSync sử dụng giao thức mạng hợp pháp MS-DRSR từ xa, không cần thực thi mã độc trên DC và không cần chạm vào đĩa cứng của DC.
+
+
+??? question "Q4: Biện pháp phòng thủ gốc rễ (Root Cause Mitigation) cho tấn công Kerberoasting là gì?"
+
+    **Trả lời**:
+    1. Chuyển đổi toàn bộ Service Accounts sang **Group Managed Service Accounts (gMSA)**: Mật khẩu 128 ký tự phức tạp tự động đổi định kỳ bởi Active Directory.
+    2. Ép buộc chỉ sử dụng thuật toán mã hóa **AES-128/256** và vô hiệu hóa hoàn toàn RC4 trên Kerberos.
+    3. Đặt mật khẩu cho Service Accounts tối thiểu từ 25 ký tự trở lên.
+
 
 ---
 

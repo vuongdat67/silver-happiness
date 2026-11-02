@@ -243,12 +243,14 @@ flowchart TD
 ![Knowledge Objects trong Splunk](assets/knowledge_objects.png)
 ![Kiến trúc chuẩn hóa CIM](assets/cim_architecture.png)
 
-> [!important] Phân biệt các loại Knowledge Objects
-> * **Extract Fields**: Bóc tách các trường dữ liệu có cấu trúc từ chuỗi text thô tại thời điểm tìm kiếm (*Search-time*).
-> * **Field Alias**: Đổi tên hoặc gán thêm tên mới cho trường dữ liệu đã có để tương thích chuẩn CIM (ví dụ: `clientip AS src_ip`).
-> * **Calculated Fields (`EVAL`)**: Tạo ra trường dữ liệu mới dựa trên phép tính toán logic hoặc hàm toán học (ví dụ: đổi bytes sang MB).
-> * **Lookups**: Kết hợp dữ liệu log thời gian thực với bảng tra cứu ngoài (CSV hoặc KV Store) để làm giàu thông tin (*Threat Intel IP, GeoLocation, User Identity*).
-> * **CIM (Common Information Model)**: Chuẩn hóa tên trường của hàng chục hãng công nghệ khác nhau về một định dạng thống nhất (ví dụ: `src`, `dest`, `user`, `action`).
+!!! warning "Phân biệt các loại Knowledge Objects"
+
+    * **Extract Fields**: Bóc tách các trường dữ liệu có cấu trúc từ chuỗi text thô tại thời điểm tìm kiếm (*Search-time*).
+    * **Field Alias**: Đổi tên hoặc gán thêm tên mới cho trường dữ liệu đã có để tương thích chuẩn CIM (ví dụ: `clientip AS src_ip`).
+    * **Calculated Fields (`EVAL`)**: Tạo ra trường dữ liệu mới dựa trên phép tính toán logic hoặc hàm toán học (ví dụ: đổi bytes sang MB).
+    * **Lookups**: Kết hợp dữ liệu log thời gian thực với bảng tra cứu ngoài (CSV hoặc KV Store) để làm giàu thông tin (*Threat Intel IP, GeoLocation, User Identity*).
+    * **CIM (Common Information Model)**: Chuẩn hóa tên trường của hàng chục hãng công nghệ khác nhau về một định dạng thống nhất (ví dụ: `src`, `dest`, `user`, `action`).
+
 
 #### Phân Biệt Splunk App vs Splunk Add-on (Technology Add-on - TA):
 * **Technology Add-on (TA)**: Được cài trên Forwarder/Indexer/Search Head nhằm mục đích **Ingest và Parse dữ liệu**, chuẩn hóa tên trường về đúng chuẩn CIM (ví dụ: `Splunk_TA_windows`, `Splunk_TA_nix`).
@@ -523,19 +525,27 @@ index=web_logs status=404
 
 ## 6. Bảng Hỏi - Đáp Chuyên Sâu Khi Bảo Vệ / Trình Bày (Q&A Defense Guide)
 
-> [!faq]- Q1: Tại sao trong môi trường Enterprise bắt buộc phải phân tách Universal Forwarder và Heavy Forwarder?
-> - **Trả lời**: Universal Forwarder được thiết kế siêu nhẹ (<10MB RAM) để cài đặt đại trà trên hàng chục nghìn Endpoint mà không ảnh hưởng hiệu năng máy trạm. Heavy Forwarder đóng vai trò như một bộ thu gom trung gian (Aggregator) tại vùng biên DMZ để phân tích cú pháp, lọc bỏ dữ liệu rác và mã hóa dữ liệu nhạy cảm trước khi gửi về Indexer Core.
+??? question "Q1: Tại sao trong môi trường Enterprise bắt buộc phải phân tách Universal Forwarder và Heavy Forwarder?"
 
-> [!faq]- Q2: Sự khác nhau bản chất giữa Indexer Cluster và Search Head Cluster là gì?
-> - **Trả lời**:
-> - **Indexer Cluster**: Tập trung vào **Độ sẵn sàng của Dữ liệu (Data Availability và Storage Redundancy)**. Sử dụng Cluster Manager để nhân bản các bản sao dữ liệu thô (`RF`) và tệp chỉ mục tìm kiếm (`SF`) giữa các Indexer Peers.
-> - **Search Head Cluster (SHC)**: Tập trung vào **Độ sẵn sàng của Dịch vụ Tìm kiếm và Cân bằng tải người dùng (Search Scalability và High Concurrency)**. Sử dụng Captain Node để đồng bộ Knowledge Objects và phân phối search jobs cho nhiều Analyst.
+    **Trả lời**: Universal Forwarder được thiết kế siêu nhẹ (<10MB RAM) để cài đặt đại trà trên hàng chục nghìn Endpoint mà không ảnh hưởng hiệu năng máy trạm. Heavy Forwarder đóng vai trò như một bộ thu gom trung gian (Aggregator) tại vùng biên DMZ để phân tích cú pháp, lọc bỏ dữ liệu rác và mã hóa dữ liệu nhạy cảm trước khi gửi về Indexer Core.
 
-> [!faq]- Q3: Tại sao việc sử dụng chuẩn CIM (Common Information Model) lại mang tính sống còn đối với SOC Enterprise?
-> - **Trả lời**: Trong doanh nghiệp, log đến từ hàng chục hãng khác nhau (Windows gọi là `TargetUserName`, Linux gọi là `user`, Cisco gọi là `USER_ID`). Nếu không có CIM, SOC Engineer phải viết hàng chục luật cảnh báo riêng biệt cho từng hãng. Nhờ CIM, toàn bộ được ánh xạ về trường chuẩn `user`, giúp một Detection Rule duy nhất có thể bắt được vi phạm trên toàn bộ các nền tảng.
 
-> [!faq]- Q4: Tại sao các lệnh Streaming trong SPL lại chạy nhanh hơn các lệnh Non-Streaming?
-> - **Trả lời**: Lệnh Streaming (`eval`, `rex`, `rename`) có thể thực thi phân tán song song độc lập trên từng Indexer ngay tại thời điểm đọc dữ liệu từ đĩa. Ngược lại, lệnh Non-Streaming (`sort`, `dedup`) bắt buộc phải chuyển toàn bộ dữ liệu về Search Head để gộp và sắp xếp tập trung, gây thắt cổ chai đường truyền và bộ nhớ.
+??? question "Q2: Sự khác nhau bản chất giữa Indexer Cluster và Search Head Cluster là gì?"
+
+    **Trả lời**:
+    - **Indexer Cluster**: Tập trung vào **Độ sẵn sàng của Dữ liệu (Data Availability và Storage Redundancy)**. Sử dụng Cluster Manager để nhân bản các bản sao dữ liệu thô (`RF`) và tệp chỉ mục tìm kiếm (`SF`) giữa các Indexer Peers.
+    - **Search Head Cluster (SHC)**: Tập trung vào **Độ sẵn sàng của Dịch vụ Tìm kiếm và Cân bằng tải người dùng (Search Scalability và High Concurrency)**. Sử dụng Captain Node để đồng bộ Knowledge Objects và phân phối search jobs cho nhiều Analyst.
+
+
+??? question "Q3: Tại sao việc sử dụng chuẩn CIM (Common Information Model) lại mang tính sống còn đối với SOC Enterprise?"
+
+    **Trả lời**: Trong doanh nghiệp, log đến từ hàng chục hãng khác nhau (Windows gọi là `TargetUserName`, Linux gọi là `user`, Cisco gọi là `USER_ID`). Nếu không có CIM, SOC Engineer phải viết hàng chục luật cảnh báo riêng biệt cho từng hãng. Nhờ CIM, toàn bộ được ánh xạ về trường chuẩn `user`, giúp một Detection Rule duy nhất có thể bắt được vi phạm trên toàn bộ các nền tảng.
+
+
+??? question "Q4: Tại sao các lệnh Streaming trong SPL lại chạy nhanh hơn các lệnh Non-Streaming?"
+
+    **Trả lời**: Lệnh Streaming (`eval`, `rex`, `rename`) có thể thực thi phân tán song song độc lập trên từng Indexer ngay tại thời điểm đọc dữ liệu từ đĩa. Ngược lại, lệnh Non-Streaming (`sort`, `dedup`) bắt buộc phải chuyển toàn bộ dữ liệu về Search Head để gộp và sắp xếp tập trung, gây thắt cổ chai đường truyền và bộ nhớ.
+
 
 ---
 

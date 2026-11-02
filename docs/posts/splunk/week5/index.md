@@ -31,8 +31,10 @@ cssclasses:
 
 ## 1. Tóm tắt kịch bản (Executive Summary và 5W1H)
 
-> [!abstract] Tổng quan kịch bản
-> Kịch bản mô phỏng một cuộc tấn công mạng có chủ đích (Targeted Attack / Ransomware Operation) bắt đầu từ việc khai thác lỗ hổng upload trên ứng dụng web public-facing tại vùng DMZ, chiếm quyền root Linux, thiết lập kênh điều khiển ngầm (Reverse SOCKS5 Tunnel) để vượt qua phân vùng mạng, đánh cắp credential nội bộ, di chuyển ngang (Lateral Movement) sang máy chủ Windows Server 2022, vô hiệu hóa cơ chế phòng thủ Defender, trích xuất bộ nhớ LSASS, phá hủy bản sao lưu phục hồi (Volume Shadow Copies) và tiến hành mã hóa dữ liệu hàng loạt nhằm mục đích tống tiền kép (*Double Extortion*).
+!!! abstract "Tổng quan kịch bản"
+
+    Kịch bản mô phỏng một cuộc tấn công mạng có chủ đích (Targeted Attack / Ransomware Operation) bắt đầu từ việc khai thác lỗ hổng upload trên ứng dụng web public-facing tại vùng DMZ, chiếm quyền root Linux, thiết lập kênh điều khiển ngầm (Reverse SOCKS5 Tunnel) để vượt qua phân vùng mạng, đánh cắp credential nội bộ, di chuyển ngang (Lateral Movement) sang máy chủ Windows Server 2022, vô hiệu hóa cơ chế phòng thủ Defender, trích xuất bộ nhớ LSASS, phá hủy bản sao lưu phục hồi (Volume Shadow Copies) và tiến hành mã hóa dữ liệu hàng loạt nhằm mục đích tống tiền kép (*Double Extortion*).
+
 
 ```mermaid
 flowchart LR
@@ -80,10 +82,12 @@ flowchart LR
 
 ## 2. Mô hình Lab và Kiến trúc mạng (Network Topology)
 
-> [!important] Nguyên tắc cách ly và Định tuyến (Routing Policy)
-> - **Máy tấn công (Kali Attacker)** chỉ kết nối trực tiếp được với máy chủ Web qua dải mạng DMZ (`192.168.50.0/24`).
-> - **Không có kết nối trực tiếp** từ Kali đến mạng Internal (`192.168.100.0/24`). Bắt buộc kẻ tấn công phải triển khai kỹ thuật **Network Pivoting và Reverse Tunneling** qua máy chủ Web Server bị chiếm quyền.
-> - **Splunk Server** đặt tại mạng quản trị/nội bộ, tiếp nhận log tập trung từ Universal Forwarder (UF) trên tất cả các node thông qua cổng TCP `9997`.
+!!! warning "Nguyên tắc cách ly và Định tuyến (Routing Policy)"
+
+    - **Máy tấn công (Kali Attacker)** chỉ kết nối trực tiếp được với máy chủ Web qua dải mạng DMZ (`192.168.50.0/24`).
+    - **Không có kết nối trực tiếp** từ Kali đến mạng Internal (`192.168.100.0/24`). Bắt buộc kẻ tấn công phải triển khai kỹ thuật **Network Pivoting và Reverse Tunneling** qua máy chủ Web Server bị chiếm quyền.
+    - **Splunk Server** đặt tại mạng quản trị/nội bộ, tiếp nhận log tập trung từ Universal Forwarder (UF) trên tất cả các node thông qua cổng TCP `9997`.
+
 
 ```mermaid
 graph LR
@@ -550,8 +554,10 @@ Get-ChildItem -Path "C:\Users\Public\LabData" -Recurse -File | ForEach-Object {
 
 ## 5. Bộ Quy Tắc Phát Hiện Splunk SIEM Chuẩn Hóa (12 Detection Rules)
 
-> [!tip] Chuẩn hóa Splunk SPL kết hợp Kiểm chứng Thực tế trên Splunk MCP Server
-> Tất cả các luật phát hiện dưới đây đã được kiểm tra trực tiếp trên môi trường Splunk Lab thực tế (`host: uf-ubuntu` và `host: WIN-I370HR7VSPS`).
+!!! tip "Chuẩn hóa Splunk SPL kết hợp Kiểm chứng Thực tế trên Splunk MCP Server"
+
+    Tất cả các luật phát hiện dưới đây đã được kiểm tra trực tiếp trên môi trường Splunk Lab thực tế (`host: uf-ubuntu` và `host: WIN-I370HR7VSPS`).
+
 
 ---
 
@@ -560,12 +566,14 @@ Get-ChildItem -Path "C:\Users\Public\LabData" -Recurse -File | ForEach-Object {
 ![Rule 1 Splunk SPL Query](assets/rules/rule01_webshell_spl.png)
 ![Rule 1 Splunk Kết Quả Tìm Kiếm Thực Tế](assets/rules/rule01_results.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1190` (Exploit Public-Facing App), `T1505.003` (Web Shell)
-> - **Data Source**: `index=web_logs` (Apache / Nginx Access Logs)
-> - **Pyramid of Pain**: ==Host Artifacts / Tools==
-> - **Risk Weight**: **20**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **52 sự kiện** trên `host=uf-ubuntu` từ `clientip=192.168.50.100` gọi tới `/dvwa/hackable/uploads/shell.php`.
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1190` (Exploit Public-Facing App), `T1505.003` (Web Shell)
+    - **Data Source**: `index=web_logs` (Apache / Nginx Access Logs)
+    - **Pyramid of Pain**: ==Host Artifacts / Tools==
+    - **Risk Weight**: **20**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **52 sự kiện** trên `host=uf-ubuntu` từ `clientip=192.168.50.100` gọi tới `/dvwa/hackable/uploads/shell.php`.
+
 
 #### Kỹ thuật phân tích và Logic phát hiện
 - `urldecode(urldecode(uri_query))`: Giải mã 2 lần (double-decode) để vô hiệu hóa kỹ thuật né tránh kiểm duyệt URL encoding.
@@ -600,12 +608,14 @@ index=web_logs method IN ("GET","POST") status=200
 
 ![Rule 2 Splunk SPL Query và Kết Quả](assets/rules/rule02_cron_spl.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1053.003` (Scheduled Task/Job: Cron)
-> - **Data Source**: `index=linux_security sourcetype=auditd`
-> - **Pyramid of Pain**: ==TTPs / Behavior==
-> - **Risk Weight**: **50**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **105 sự kiện** trên `host=uf-ubuntu` ghi nhận user `www-data` (`uid=33`) thực thi `/usr/bin/crontab`.
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1053.003` (Scheduled Task/Job: Cron)
+    - **Data Source**: `index=linux_security sourcetype=auditd`
+    - **Pyramid of Pain**: ==TTPs / Behavior==
+    - **Risk Weight**: **50**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **105 sự kiện** trên `host=uf-ubuntu` ghi nhận user `www-data` (`uid=33`) thực thi `/usr/bin/crontab`.
+
 
 #### Kỹ thuật phân tích và Bảng nhận diện UID Service Account
 
@@ -653,12 +663,14 @@ index=linux_security sourcetype=auditd success=yes
 
 ![Rule 3 Splunk SPL Query và Kết Quả](assets/rules/rule03_sudo_spl.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1548.003` (Abuse Elevation Control Mechanism: Sudo)
-> - **Data Source**: `index=linux_security sourcetype=linux_secure` (`/var/log/auth.log`)
-> - **Pyramid of Pain**: ==TTPs / Behavior==
-> - **Risk Weight**: **60**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **246 sự kiện** trên `host=uf-ubuntu`, phát hiện `www-data` thực thi `sudo /usr/bin/find . -exec /bin/sh ; -quit` leo quyền `root`.
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1548.003` (Abuse Elevation Control Mechanism: Sudo)
+    - **Data Source**: `index=linux_security sourcetype=linux_secure` (`/var/log/auth.log`)
+    - **Pyramid of Pain**: ==TTPs / Behavior==
+    - **Risk Weight**: **60**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **246 sự kiện** trên `host=uf-ubuntu`, phát hiện `www-data` thực thi `sudo /usr/bin/find . -exec /bin/sh ; -quit` leo quyền `root`.
+
 
 #### Optimized Production SPL Query
 ```bash
@@ -688,12 +700,14 @@ index=linux_security sourcetype=linux_secure "sudo:"
 
 ![Rule 4 Splunk SPL Query và Kết Quả](assets/rules/rule04_config_spl.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1552.001` (Credentials In Files)
-> - **Data Source**: `index=linux_security sourcetype=auditd` (audit key `sensitive_config_read`)
-> - **Pyramid of Pain**: ==Host Artifacts / Behavior==
-> - **Risk Weight**: **35**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **24 sự kiện** trên `host=uf-ubuntu` phát hiện `/usr/bin/cat` đọc file cấu hình dưới `auid=4294967295` (non-interactive web shell session).
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1552.001` (Credentials In Files)
+    - **Data Source**: `index=linux_security sourcetype=auditd` (audit key `sensitive_config_read`)
+    - **Pyramid of Pain**: ==Host Artifacts / Behavior==
+    - **Risk Weight**: **35**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **24 sự kiện** trên `host=uf-ubuntu` phát hiện `/usr/bin/cat` đọc file cấu hình dưới `auid=4294967295` (non-interactive web shell session).
+
 
 #### Kỹ thuật phân tích `auid` và `tty`
 - `auid=4294967295` (`0xFFFFFFFF` - unset): Đại diện cho tiến trình khởi chạy bởi service/daemon không có phiên đăng nhập trực tiếp (thường là process sinh ra từ exploit hoặc web shell).
@@ -727,12 +741,14 @@ index=linux_security sourcetype=auditd key=sensitive_config_read success=yes typ
 
 ![Rule 5 Splunk SPL Query và Kết Quả](assets/rules/rule05_tunnel_spl.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1105` (Ingress Tool Transfer), `T1090.001` (Internal Proxy)
-> - **Data Source**: `index=linux_security sourcetype=auditd`
-> - **Pyramid of Pain**: ==Tools / TTPs==
-> - **Risk Weight**: **55**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **652 sự kiện** trên `host=uf-ubuntu` phát hiện binary `/tmp/chisel`, `/usr/bin/socat1`, `/usr/bin/wget`, `/usr/bin/curl`.
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1105` (Ingress Tool Transfer), `T1090.001` (Internal Proxy)
+    - **Data Source**: `index=linux_security sourcetype=auditd`
+    - **Pyramid of Pain**: ==Tools / TTPs==
+    - **Risk Weight**: **55**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **652 sự kiện** trên `host=uf-ubuntu` phát hiện binary `/tmp/chisel`, `/usr/bin/socat1`, `/usr/bin/wget`, `/usr/bin/curl`.
+
 
 #### Optimized Production SPL Query
 ```bash
@@ -760,11 +776,13 @@ index=linux_security sourcetype=auditd (key=exec_cmds OR key=net_connect OR comm
 
 ### Rule 06: Internal Reconnaissance và Multi-Port Scanning
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1046` (Network Service Discovery)
-> - **Data Source**: `index=windows_sysmon EventCode=3` (Network Connection)
-> - **Pyramid of Pain**: ==Network Artifacts==
-> - **Risk Weight**: **20**
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1046` (Network Service Discovery)
+    - **Data Source**: `index=windows_sysmon EventCode=3` (Network Connection)
+    - **Pyramid of Pain**: ==Network Artifacts==
+    - **Risk Weight**: **20**
+
 
 #### Optimized Production SPL Query
 ```bash
@@ -790,12 +808,14 @@ index=windows_sysmon EventCode=3 SourceIp="192.168.100.20"
 ![Rule 6 Splunk SPL Query](assets/rules/rule06_winrm_spl.png)
 ![Rule 6 Splunk Kết Quả Tìm Kiếm Thực Tế](assets/rules/rule06_results.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1021.006` (Remote Services: WinRM)
-> - **Data Source**: `index=windows_security EventCode=4624 Logon_Type=3`
-> - **Pyramid of Pain**: ==TTPs / Asset Context==
-> - **Risk Weight**: **75**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **2,808 sự kiện** Logon Type 3 trên `host=WIN-I370HR7VSPS`, nhận diện tài khoản `svc_backup` đăng nhập từ địa chỉ IP bàn đạp DMZ.
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1021.006` (Remote Services: WinRM)
+    - **Data Source**: `index=windows_security EventCode=4624 Logon_Type=3`
+    - **Pyramid of Pain**: ==TTPs / Asset Context==
+    - **Risk Weight**: **75**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **2,808 sự kiện** Logon Type 3 trên `host=WIN-I370HR7VSPS`, nhận diện tài khoản `svc_backup` đăng nhập từ địa chỉ IP bàn đạp DMZ.
+
 
 #### Phân tích Ý nghĩa Logon Types trên Windows
 - `Logon Type 2`: Interactive (Đăng nhập bàn phím trực tiếp tại máy).
@@ -829,12 +849,14 @@ index=windows_security EventCode=4624 Logon_Type=3 Logon_Process IN ("NtLmSsp", 
 
 ![Rule 7 Splunk SPL Query và Kết Quả](assets/rules/rule07_admin_spl.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1136.001` (Create Account: Local Account), `T1098` (Account Manipulation)
-> - **Data Source**: `index=windows_security (EventCode=4720 OR EventCode=4732)`
-> - **Pyramid of Pain**: ==TTPs / Behavior Pattern==
-> - **Risk Weight**: **80**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **18 sự kiện** trên `host=WIN-I370HR7VSPS`, phát hiện `svc_backup` tạo user `backdoor` và thêm vào nhóm `Administrators`.
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1136.001` (Create Account: Local Account), `T1098` (Account Manipulation)
+    - **Data Source**: `index=windows_security (EventCode=4720 OR EventCode=4732)`
+    - **Pyramid of Pain**: ==TTPs / Behavior Pattern==
+    - **Risk Weight**: **80**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **18 sự kiện** trên `host=WIN-I370HR7VSPS`, phát hiện `svc_backup` tạo user `backdoor` và thêm vào nhóm `Administrators`.
+
 
 #### Optimized Production SPL Query
 ```bash
@@ -866,12 +888,14 @@ index=windows_security (EventCode=4720 OR EventCode=4732)
 
 ![Rule 8 Splunk SPL Query và Kết Quả](assets/rules/rule08_defender_spl.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1562.001` (Impair Defenses: Disable or Modify Tools)
-> - **Data Source**: `windows_logs` (Defender 5001 / PowerShell 4104) và `windows_sysmon` (EventCode 1)
-> - **Pyramid of Pain**: ==TTPs / High Confidence==
-> - **Risk Weight**: **85**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **65 sự kiện** trên `host=WIN-I370HR7VSPS` ghi nhận `Set-MpPreference -DisableRealtimeMonitoring $true` (ScriptBlock 4104) và Defender Disabled (5001).
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1562.001` (Impair Defenses: Disable or Modify Tools)
+    - **Data Source**: `windows_logs` (Defender 5001 / PowerShell 4104) và `windows_sysmon` (EventCode 1)
+    - **Pyramid of Pain**: ==TTPs / High Confidence==
+    - **Risk Weight**: **85**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **65 sự kiện** trên `host=WIN-I370HR7VSPS` ghi nhận `Set-MpPreference -DisableRealtimeMonitoring $true` (ScriptBlock 4104) và Defender Disabled (5001).
+
 
 #### Optimized Production SPL Query
 ```bash
@@ -907,12 +931,14 @@ OR (index=windows_sysmon EventCode=1 (Image="*powershell.exe" OR Image="*cmd.exe
 
 ![Rule 9 Splunk SPL Query và Kết Quả](assets/rules/rule09_lsass_spl.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1003.001` (OS Credential Dumping: LSASS Memory)
-> - **Data Source**: `index=windows_sysmon EventCode=10` (ProcessAccess)
-> - **Pyramid of Pain**: ==TTPs / LOLBins==
-> - **Risk Weight**: **90**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **10 sự kiện** trên `host=WIN-I370HR7VSPS` phát hiện `C:\Windows\Temp\procdump64.exe` mở handle `0x1FFFFF` tới `lsass.exe` với `CallTrace` chứa `dbgcore.dll`.
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1003.001` (OS Credential Dumping: LSASS Memory)
+    - **Data Source**: `index=windows_sysmon EventCode=10` (ProcessAccess)
+    - **Pyramid of Pain**: ==TTPs / LOLBins==
+    - **Risk Weight**: **90**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **10 sự kiện** trên `host=WIN-I370HR7VSPS` phát hiện `C:\Windows\Temp\procdump64.exe` mở handle `0x1FFFFF` tới `lsass.exe` với `CallTrace` chứa `dbgcore.dll`.
+
 
 #### Kỹ thuật phân tích và Logic nâng cao
 - **Cơ chế Handle Access**: Khi một tiến trình gọi `OpenProcess()` tới `lsass.exe`, Sysmon ghi nhận cờ `GrantedAccess`. Các mask nguy hiểm như `0x1FFFFF` (PROCESS_ALL_ACCESS), `0x1010` (PROCESS_VM_READ), `0x1410`, `0x1438` cho phép đọc bộ nhớ để trích xuất hash NTLM và Kerberos tickets.
@@ -968,12 +994,14 @@ index=windows_sysmon (
 
 ![Rule 10 Splunk SPL Query và Kết Quả](assets/rules/rule10_vss_spl.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1490` (Inhibit System Recovery)
-> - **Data Source**: `index=windows_sysmon EventCode=1` / `windows_security EventCode=4688`
-> - **Pyramid of Pain**: ==TTPs / Critical Pre-Ransomware Indicator==
-> - **Risk Weight**: **95**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác **8 sự kiện** trên `host=WIN-I370HR7VSPS` ghi nhận `vssadmin.exe delete shadows /all /quiet` gọi bởi `wsmprovhost.exe`.
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1490` (Inhibit System Recovery)
+    - **Data Source**: `index=windows_sysmon EventCode=1` / `windows_security EventCode=4688`
+    - **Pyramid of Pain**: ==TTPs / Critical Pre-Ransomware Indicator==
+    - **Risk Weight**: **95**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác **8 sự kiện** trên `host=WIN-I370HR7VSPS` ghi nhận `vssadmin.exe delete shadows /all /quiet` gọi bởi `wsmprovhost.exe`.
+
 
 #### Optimized Production SPL Query
 ```bash
@@ -1002,12 +1030,14 @@ index=windows_sysmon EventCode=1 (Image="*vssadmin.exe" OR Image="*wmic.exe" OR 
 ![Rule 11 Splunk SPL Query](assets/rules/rule11_encryption_spl.png)
 ![Rule 11 Splunk Kết Quả Tìm Kiếm Thực Tế](assets/rules/rule11_results.png)
 
-> [!info] Metadata Box
-> - **MITRE ATT&CK**: `T1486` (Data Encrypted for Impact)
-> - **Data Source**: `index=windows_sysmon EventCode=11` (FileCreate / Rename)
-> - **Pyramid of Pain**: ==TTPs / High Velocity Impact==
-> - **Risk Weight**: **100**
-> - **Kiểm chứng Splunk Lab**: Bắt chính xác các đợt mã hóa **30 - 60 file** đồng loạt trong khung thời gian 5 phút trên `host=WIN-I370HR7VSPS` với phần mở rộng `.locked`.
+!!! info "Metadata Box"
+
+    - **MITRE ATT&CK**: `T1486` (Data Encrypted for Impact)
+    - **Data Source**: `index=windows_sysmon EventCode=11` (FileCreate / Rename)
+    - **Pyramid of Pain**: ==TTPs / High Velocity Impact==
+    - **Risk Weight**: **100**
+    - **Kiểm chứng Splunk Lab**: Bắt chính xác các đợt mã hóa **30 - 60 file** đồng loạt trong khung thời gian 5 phút trên `host=WIN-I370HR7VSPS` với phần mở rộng `.locked`.
+
 
 #### Optimized Production SPL Query
 ```bash
@@ -1040,8 +1070,10 @@ index=windows_sysmon EventCode=11
 
 ## 6. Chuyên Sâu Kỹ Thuật Bitmask Quyền Truy Cập LSASS (`GrantedAccess` Deep Dive)
 
-> [!important] Cơ chế hoạt động của `GrantedAccess` Mask
-> Khi một tiến trình gọi hàm Windows API `OpenProcess()` tới `lsass.exe`, trường `GrantedAccess` trong **Sysmon EventCode 10** lưu lại quyền hạn chính xác được cấp phát. Kẻ tấn công bắt buộc phải có các quyền đọc bộ nhớ ảo (`PROCESS_VM_READ`) để dump password hashes và Kerberos tickets.
+!!! warning "Cơ chế hoạt động của `GrantedAccess` Mask"
+
+    Khi một tiến trình gọi hàm Windows API `OpenProcess()` tới `lsass.exe`, trường `GrantedAccess` trong **Sysmon EventCode 10** lưu lại quyền hạn chính xác được cấp phát. Kẻ tấn công bắt buộc phải có các quyền đọc bộ nhớ ảo (`PROCESS_VM_READ`) để dump password hashes và Kerberos tickets.
+
 
 ```mermaid
 graph TD
@@ -1105,8 +1137,10 @@ graph BT
 
 ## 8. Cảnh Báo Dựa Trên Rủi Ro (Risk-Based Alerting - RBA)
 
-> [!important] Triết lý RBA trong Splunk Enterprise Security (ES 8)
-> Thay vì bắn alert đơn lẻ cho từng sự kiện khiến SOC quá tải (*Alert Fatigue*), cơ chế RBA gán **Risk Score** cho đối tượng rủi ro (*Risk Object*: host hoặc user). Một cảnh báo tổng hợp (*Notable Incident*) chỉ được tạo ra khi **tổng điểm rủi ro vượt ngưỡng (ngưỡng 100)** và xuất hiện chuỗi hành vi đa giai đoạn.
+!!! warning "Triết lý RBA trong Splunk Enterprise Security (ES 8)"
+
+    Thay vì bắn alert đơn lẻ cho từng sự kiện khiến SOC quá tải (*Alert Fatigue*), cơ chế RBA gán **Risk Score** cho đối tượng rủi ro (*Risk Object*: host hoặc user). Một cảnh báo tổng hợp (*Notable Incident*) chỉ được tạo ra khi **tổng điểm rủi ro vượt ngưỡng (ngưỡng 100)** và xuất hiện chuỗi hành vi đa giai đoạn.
+
 
 ```mermaid
 graph LR
@@ -1337,25 +1371,33 @@ graph LR
 
 ## 13. Bảng Hỏi - Đáp Chuyên Sâu Khi Bảo Vệ / Trình Bày (Presentation Defense và Q&A)
 
-> [!faq]- Q1: Tại sao Web Access Log chỉ bắt được request GET mà không bắt được nội dung POST body? Khắc phục thế nào?
-> - **Nguyên nhân**: Mặc định các web server (Apache/Nginx) chỉ ghi nhận HTTP Headers, URL Path và Query String trong `access.log` để tối ưu hóa I/O disk và tránh ghi nhận dữ liệu nhạy cảm của người dùng (như mật khẩu trong POST form).
-> - **Giải pháp khắc phục**:
-> 1. Sử dụng module WAF như **ModSecurity** trên Apache để log chi tiết request body vào `audit.log`.
-> 2. Giám sát hành vi tiến trình con ở tầng OS (Auditd Execve / Sysmon for Linux) khi webshell sinh ra tiến trình thực thi lệnh hệ điều hành.
+??? question "Q1: Tại sao Web Access Log chỉ bắt được request GET mà không bắt được nội dung POST body? Khắc phục thế nào?"
 
-> [!faq]- Q2: Giá trị `auid=4294967295` trong Auditd mang ý nghĩa gì trong điều tra số?
-> - **Ý nghĩa kỹ thuật**: `auid` (Audit User ID) bằng `4294967295` tương ứng với giá trị nhị phân `0xFFFFFFFF` (`-1` không dấu), đại diện cho trạng thái **"unset" (chưa đăng nhập)**.
-> - **Ý nghĩa phát hiện**: Bất kỳ tiến trình nào chạy bởi service daemon (như Apache/PHP-FPM) hoặc sinh ra từ một cuộc tấn công từ xa (như Web Shell / RCE) đều mang `auid` unset vì chúng không trải qua quá trình xác thực đăng nhập qua PAM/SSH/Console. Do đó, nếu một tiến trình có `auid=4294967295` mà thực hiện đọc file cấu hình quản trị thì đây là chỉ số bất thường cực kỳ đáng tin cậy.
+    - **Nguyên nhân**: Mặc định các web server (Apache/Nginx) chỉ ghi nhận HTTP Headers, URL Path và Query String trong `access.log` để tối ưu hóa I/O disk và tránh ghi nhận dữ liệu nhạy cảm của người dùng (như mật khẩu trong POST form).
+    - **Giải pháp khắc phục**:
+    1. Sử dụng module WAF như **ModSecurity** trên Apache để log chi tiết request body vào `audit.log`.
+    2. Giám sát hành vi tiến trình con ở tầng OS (Auditd Execve / Sysmon for Linux) khi webshell sinh ra tiến trình thực thi lệnh hệ điều hành.
 
-> [!faq]- Q3: Tại sao cần áp dụng Risk-Based Alerting (RBA) thay vì alert độc lập từng rule?
-> - **Vấn đề thực tế**: Nếu bắn alert đơn lẻ cho 12 rules, một cuộc tấn công sẽ tạo ra hàng chục thông báo rời rạc, làm phân mảnh bối cảnh điều tra và dẫn đến **Alert Fatigue** (quá tải cảnh báo).
-> - **Lợi ích của RBA**:
-> 1. Gán điểm rủi ro (*Risk Score*) cho từng thực thể (Entity: Host/User).
-> 2. Tự động tương quan nhiều giai đoạn tấn công khác nhau theo thời gian.
-> 3. Gom toàn bộ chuỗi tấn công thành **1 Notable Event duy nhất**, giúp SOC Analyst nắm bắt trọn vẹn câu chuyện tấn công (*Attack Story*) từ bước xâm nhập ban đầu đến đích cuối cùng.
 
-> [!faq]- Q4: Tại sao `GrantedAccess=0x1010` lại thường bị bỏ sót trong phát hiện LSASS Dumping?
-> - **Giải thích**: Nhiều SOC Analyst chỉ cấu hình bắt quyền tối đa `0x1fffff` (PROCESS_ALL_ACCESS) hoặc `0x1410`. Tuy nhiên, các kỹ thuật dump hiện đại (và một số biến thể Mimikatz/Dumpert) chỉ yêu cầu quyền tối thiểu `PROCESS_QUERY_LIMITED_INFORMATION` (`0x1000`) kết hợp với `PROCESS_VM_READ` (`0x0010`) $\rightarrow$ Tạo thành mask `0x1010`. Nếu luật phát hiện không bao gồm `0x1010`, kẻ tấn công có thể dễ dàng bypass hệ thống SIEM.
+??? question "Q2: Giá trị `auid=4294967295` trong Auditd mang ý nghĩa gì trong điều tra số?"
+
+    - **Ý nghĩa kỹ thuật**: `auid` (Audit User ID) bằng `4294967295` tương ứng với giá trị nhị phân `0xFFFFFFFF` (`-1` không dấu), đại diện cho trạng thái **"unset" (chưa đăng nhập)**.
+    - **Ý nghĩa phát hiện**: Bất kỳ tiến trình nào chạy bởi service daemon (như Apache/PHP-FPM) hoặc sinh ra từ một cuộc tấn công từ xa (như Web Shell / RCE) đều mang `auid` unset vì chúng không trải qua quá trình xác thực đăng nhập qua PAM/SSH/Console. Do đó, nếu một tiến trình có `auid=4294967295` mà thực hiện đọc file cấu hình quản trị thì đây là chỉ số bất thường cực kỳ đáng tin cậy.
+
+
+??? question "Q3: Tại sao cần áp dụng Risk-Based Alerting (RBA) thay vì alert độc lập từng rule?"
+
+    - **Vấn đề thực tế**: Nếu bắn alert đơn lẻ cho 12 rules, một cuộc tấn công sẽ tạo ra hàng chục thông báo rời rạc, làm phân mảnh bối cảnh điều tra và dẫn đến **Alert Fatigue** (quá tải cảnh báo).
+    - **Lợi ích của RBA**:
+    1. Gán điểm rủi ro (*Risk Score*) cho từng thực thể (Entity: Host/User).
+    2. Tự động tương quan nhiều giai đoạn tấn công khác nhau theo thời gian.
+    3. Gom toàn bộ chuỗi tấn công thành **1 Notable Event duy nhất**, giúp SOC Analyst nắm bắt trọn vẹn câu chuyện tấn công (*Attack Story*) từ bước xâm nhập ban đầu đến đích cuối cùng.
+
+
+??? question "Q4: Tại sao `GrantedAccess=0x1010` lại thường bị bỏ sót trong phát hiện LSASS Dumping?"
+
+    - **Giải thích**: Nhiều SOC Analyst chỉ cấu hình bắt quyền tối đa `0x1fffff` (PROCESS_ALL_ACCESS) hoặc `0x1410`. Tuy nhiên, các kỹ thuật dump hiện đại (và một số biến thể Mimikatz/Dumpert) chỉ yêu cầu quyền tối thiểu `PROCESS_QUERY_LIMITED_INFORMATION` (`0x1000`) kết hợp với `PROCESS_VM_READ` (`0x0010`) $\rightarrow$ Tạo thành mask `0x1010`. Nếu luật phát hiện không bao gồm `0x1010`, kẻ tấn công có thể dễ dàng bypass hệ thống SIEM.
+
 
 ---
 

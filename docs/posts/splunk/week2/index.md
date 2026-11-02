@@ -84,8 +84,10 @@ Windows ghi nhận các sự kiện hệ điều hành theo định dạng nhị
 
 ### 1.2 Kiến Trúc Event Tracing for Windows (ETW)
 
-> [!important] Cơ chế hoạt động của ETW
-> **ETW (Event Tracing for Windows)** là cơ chế tracing hiệu năng cao ở cấp độ kernel của Windows, cho phép ghi lại các sự kiện phần mềm và kernel mà không làm suy giảm hiệu năng hệ thống.
+!!! warning "Cơ chế hoạt động của ETW"
+
+    **ETW (Event Tracing for Windows)** là cơ chế tracing hiệu năng cao ở cấp độ kernel của Windows, cho phép ghi lại các sự kiện phần mềm và kernel mà không làm suy giảm hiệu năng hệ thống.
+
 
 ![Kiến trúc ETW trong Windows](assets/etw_architecture.png)
 
@@ -218,8 +220,10 @@ Hệ thống Linux sử dụng mô hình ghi log phân tán kết hợp giữa t
 
 ### 1.6 Kiến Trúc Linux Audit Subsystem (Auditd)
 
-> [!important] Tại sao Auditd là tiêu chuẩn vàng trên Linux?
-> `auditd` không phụ thuộc vào ứng dụng user-space. Nó hook trực tiếp vào **Linux Kernel System Call Interface**. Mọi lệnh thực thi (`execve`), mở file (`openat`), gán quyền (`setuid`, `chmod`) đều được ghi nhận nguyên vẹn kể cả khi kẻ tấn công xóa shell history.
+!!! warning "Tại sao Auditd là tiêu chuẩn vàng trên Linux?"
+
+    `auditd` không phụ thuộc vào ứng dụng user-space. Nó hook trực tiếp vào **Linux Kernel System Call Interface**. Mọi lệnh thực thi (`execve`), mở file (`openat`), gán quyền (`setuid`, `chmod`) đều được ghi nhận nguyên vẹn kể cả khi kẻ tấn công xóa shell history.
+
 
 ![Kiến trúc tổng thể Linux Auditd](assets/auditd_architecture.png)
 ![Luồng xử lý sự kiện Auditd trong Kernel](assets/auditd_kernel_flow.png)
@@ -402,12 +406,14 @@ Khác với Antivirus truyền thống chỉ quét chữ ký tĩnh, EDR cung c�
 
 ## 2. Tối Ưu Hóa Nguồn Log: Nguyên Tắc "Who, What, When" và Hardening
 
-> [!tip] Nguyên Tắc Lọc Bỏ Nhiễu "Who, What, When?"
-> Mỗi bản ghi log gửi về SIEM bắt buộc phải trả lời được 3 câu hỏi:
-> 1. **Who**: Tài khoản nào hoặc Tiến trình/Dịch vụ nào thực hiện?
-> 2. **What**: Hành động cụ thể là gì (Đọc file, nạp DLL, kết nối IP, sửa Registry)?
-> 3. **When**: Thời gian xảy ra chính xác (Timestamp đồng bộ qua NTP)?
-> *Nếu một loại log không trả lời được ít nhất 2/3 yếu tố trên thì đó là **Noise (Nhiễu)** và cần được loại bỏ.*
+!!! tip "Nguyên Tắc Lọc Bỏ Nhiễu 'Who, What, When?'"
+
+    Mỗi bản ghi log gửi về SIEM bắt buộc phải trả lời được 3 câu hỏi:
+    1. **Who**: Tài khoản nào hoặc Tiến trình/Dịch vụ nào thực hiện?
+    2. **What**: Hành động cụ thể là gì (Đọc file, nạp DLL, kết nối IP, sửa Registry)?
+    3. **When**: Thời gian xảy ra chính xác (Timestamp đồng bộ qua NTP)?
+    *Nếu một loại log không trả lời được ít nhất 2/3 yếu tố trên thì đó là **Noise (Nhiễu)** và cần được loại bỏ.*
+
 
 ---
 
@@ -758,22 +764,30 @@ Toàn bộ các tác vụ cấu hình và kịch bản triển khai tự động
 
 ## 6. Bảng Hỏi - Đáp Chuyên Sâu Khi Bảo Vệ / Trình Bày (Q&A Defense Guide)
 
-> [!faq]- Q1: Tại sao Security log của Windows mặc định không thấy được câu lệnh CommandLine của tiến trình? Khắc phục thế nào?
-> - **Nguyên nhân**: Mặc định Windows EventCode 4688 chỉ ghi nhận tên file thực thi (`NewProcessName`) và tiến trình cha (`ParentProcessName`) để tiết kiệm dung lượng đĩa và bảo vệ quyền riêng tư người dùng.
-> - **Khắc phục**: Cần kích hoạt chính sách GPO: `Computer Configuration > Administrative Templates > System > Audit Process Creation > Include command line in process creation events` (hoặc set Registry `ProcessCreationIncludeCmdLine_Enabled = 1`). Ngoài ra, triển khai **Sysmon EventCode 1** sẽ tự động thu thập đầy đủ CommandLine và Hash SHA256 mà không cần cấu hình phức tạp.
+??? question "Q1: Tại sao Security log của Windows mặc định không thấy được câu lệnh CommandLine của tiến trình? Khắc phục thế nào?"
 
-> [!faq]- Q2: Sự khác biệt bản chất giữa EventCode 4688 và Sysmon EventCode 1 là gì?
-> - **So sánh**:
-> 1. **Windows 4688**: Được sinh ra bởi hệ thống bảo mật gốc của Windows. Nếu không bật GPO CommandLine thì chỉ có thông tin tiến trình cơ bản, không có mã băm SHA256/MD5 của tệp thực thi.
-> 2. **Sysmon Event 1**: Do Sysmon Driver thu thập trực tiếp từ Kernel qua ETW, luôn bao gồm: Full CommandLine, Parent CommandLine, Hashes (MD5, SHA256, IMPHASH), User SID, Current Directory, LogonId. Sysmon hỗ trợ lọc loại trừ nhiễu (XML filter) cực kỳ linh hoạt trước khi ghi log.
+    - **Nguyên nhân**: Mặc định Windows EventCode 4688 chỉ ghi nhận tên file thực thi (`NewProcessName`) và tiến trình cha (`ParentProcessName`) để tiết kiệm dung lượng đĩa và bảo vệ quyền riêng tư người dùng.
+    - **Khắc phục**: Cần kích hoạt chính sách GPO: `Computer Configuration > Administrative Templates > System > Audit Process Creation > Include command line in process creation events` (hoặc set Registry `ProcessCreationIncludeCmdLine_Enabled = 1`). Ngoài ra, triển khai **Sysmon EventCode 1** sẽ tự động thu thập đầy đủ CommandLine và Hash SHA256 mà không cần cấu hình phức tạp.
 
-> [!faq]- Q3: Tại sao cần `auid!=4294967295` trong các rule Auditd trên Linux?
-> - **Giải thích**: `auid` (Audit User ID) mang giá trị `4294967295` tương ứng với giá trị nhị phân `0xFFFFFFFF` (`-1` không dấu), đại diện cho các tiến trình chạy ngầm bởi hệ thống/daemon (như `cron`, `systemd`, `apache`) không có phiên đăng nhập của con người. Lọc bỏ `auid=4294967295` giúp loại bỏ 95% lượng log rác định kỳ và tập trung 100% vào hành vi của user đăng nhập thực tế.
 
-> [!faq]- Q4: Tại sao trong Indexer Cluster cần thiết lập Replication Factor (RF) và Search Factor (SF)?
-> - **Giải thích**: 
-> - **Replication Factor (RF=2)**: Đảm bảo dữ liệu thô (raw data) của mỗi bucket được nhân bản sang ít nhất 2 Indexer khác nhau. Nếu 1 Indexer chết, dữ liệu không bị mất.
-> - **Search Factor (SF=2)**: Đảm bảo tệp chỉ mục tìm kiếm (`tsidx`) cũng được nhân bản sang 2 Indexer. Nếu 1 Indexer chết, các tìm kiếm vẫn thực thi ngay lập tức mà không cần tốn thời gian rebuild lại index.
+??? question "Q2: Sự khác biệt bản chất giữa EventCode 4688 và Sysmon EventCode 1 là gì?"
+
+    - **So sánh**:
+    1. **Windows 4688**: Được sinh ra bởi hệ thống bảo mật gốc của Windows. Nếu không bật GPO CommandLine thì chỉ có thông tin tiến trình cơ bản, không có mã băm SHA256/MD5 của tệp thực thi.
+    2. **Sysmon Event 1**: Do Sysmon Driver thu thập trực tiếp từ Kernel qua ETW, luôn bao gồm: Full CommandLine, Parent CommandLine, Hashes (MD5, SHA256, IMPHASH), User SID, Current Directory, LogonId. Sysmon hỗ trợ lọc loại trừ nhiễu (XML filter) cực kỳ linh hoạt trước khi ghi log.
+
+
+??? question "Q3: Tại sao cần `auid!=4294967295` trong các rule Auditd trên Linux?"
+
+    - **Giải thích**: `auid` (Audit User ID) mang giá trị `4294967295` tương ứng với giá trị nhị phân `0xFFFFFFFF` (`-1` không dấu), đại diện cho các tiến trình chạy ngầm bởi hệ thống/daemon (như `cron`, `systemd`, `apache`) không có phiên đăng nhập của con người. Lọc bỏ `auid=4294967295` giúp loại bỏ 95% lượng log rác định kỳ và tập trung 100% vào hành vi của user đăng nhập thực tế.
+
+
+??? question "Q4: Tại sao trong Indexer Cluster cần thiết lập Replication Factor (RF) và Search Factor (SF)?"
+
+    - **Giải thích**: 
+    - **Replication Factor (RF=2)**: Đảm bảo dữ liệu thô (raw data) của mỗi bucket được nhân bản sang ít nhất 2 Indexer khác nhau. Nếu 1 Indexer chết, dữ liệu không bị mất.
+    - **Search Factor (SF=2)**: Đảm bảo tệp chỉ mục tìm kiếm (`tsidx`) cũng được nhân bản sang 2 Indexer. Nếu 1 Indexer chết, các tìm kiếm vẫn thực thi ngay lập tức mà không cần tốn thời gian rebuild lại index.
+
 
 ---
 

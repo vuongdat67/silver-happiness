@@ -69,8 +69,10 @@ Khi vận hành SOC thực tế, dữ liệu đổ về từ hàng chục hãng 
 * Địa chỉ IP nguồn: Cisco ASA gọi là `src`, Palo Alto gọi là `sourceAddress`, Apache gọi là `clientip`, Checkpoint gọi là `orig_ip`.
 * Nếu không có CIM, Detection Engineer muốn viết một luật tương quan phát hiện tấn công sẽ phải viết câu lệnh SPL dài hàng trang chứa đầy các mệnh đề `OR` để bao quát mọi tên trường.
 
-> [!important] Nguyên lý Schema-on-the-fly của CIM
-> CIM không làm thay đổi dữ liệu thô (`_raw`) trên đĩa. Nó hoạt động như một **Schema động tại thời điểm tìm kiếm (Search-time)**, sử dụng **Field Aliases** và **Event Tags** để chuẩn hóa mọi tên trường về một chuẩn duy nhất (`src_ip`, `dest_ip`, `user`, `action`).
+!!! warning "Nguyên lý Schema-on-the-fly của CIM"
+
+    CIM không làm thay đổi dữ liệu thô (`_raw`) trên đĩa. Nó hoạt động như một **Schema động tại thời điểm tìm kiếm (Search-time)**, sử dụng **Field Aliases** và **Event Tags** để chuẩn hóa mọi tên trường về một chuẩn duy nhất (`src_ip`, `dest_ip`, `user`, `action`).
+
 
 #### 1.1.2 Danh Sách Các Data Models Trọng Yếu Trong Splunk CIM:
 
@@ -399,17 +401,25 @@ Chạy lệnh kiểm tra trên Máy 1 (`10.0.0.10`):
 
 ## 5. Bảng Thuật Ngữ và Q&A Defense Guide
 
-> [!faq]- Q1: Tại sao nên sử dụng Data Model và CIM thay vì tìm kiếm trực tiếp trên Index thô?
-> - **Trả lời**: Data Model đã được tối ưu hóa cấu trúc cây phân cấp và có thể kích hoạt **Data Model Acceleration** (sử dụng các tệp `.tsidx` nén sẵn). Truy vấn qua câu lệnh `| tstats` trên Data Model có tốc độ phản hồi nhanh hơn gấp 50 đến 100 lần so với câu truy vấn `search index=...` quét toàn bộ dữ liệu thô trên đĩa.
+??? question "Q1: Tại sao nên sử dụng Data Model và CIM thay vì tìm kiếm trực tiếp trên Index thô?"
 
-> [!faq]- Q2: Sự khác nhau bản chất giữa Eventtype và Tag là gì?
-> - **Trả lời**: Eventtype là **tên đại diện cho một câu truy vấn tìm kiếm (Search String)**; còn Tag là **nhãn ngữ nghĩa được gắn lên một giá trị của Field hoặc một Eventtype**. Eventtype tạo ra nhóm dữ liệu, còn Tag giúp nhóm các Eventtype hoặc Field khác nhau về cùng một danh mục logic.
+    **Trả lời**: Data Model đã được tối ưu hóa cấu trúc cây phân cấp và có thể kích hoạt **Data Model Acceleration** (sử dụng các tệp `.tsidx` nén sẵn). Truy vấn qua câu lệnh `| tstats` trên Data Model có tốc độ phản hồi nhanh hơn gấp 50 đến 100 lần so với câu truy vấn `search index=...` quét toàn bộ dữ liệu thô trên đĩa.
 
-> [!faq]- Q3: Tại sao cần cấu hình Alert Throttling khi gửi cảnh báo qua Email/Telegram?
-> - **Trả lời**: Khi hệ thống bị tấn công mạng (ví dụ DDoS hoặc Password Spraying với hàng chục nghìn lượt thử mỗi phút), nếu không có Throttling, Splunk sẽ gửi hàng nghìn email/tin nhắn liên tục gây ngập hòm thư (**Alert Fatigue**) và làm nghẽn máy chủ thông báo. Throttling giúp gộp và chỉ gửi cảnh báo 1 lần duy nhất cho mỗi đối tượng vi phạm trong khoảng thời gian định trước (ví dụ 30 phút).
 
-> [!faq]- Q4: Cluster Manager phân phối cấu hình cho các Indexer Peers bằng cách nào?
-> - **Trả lời**: Cluster Manager sử dụng cơ chế **Cluster Bundle**. Admin đặt các file cấu hình tại `/opt/splunk/etc/master-apps/`, sau đó chạy lệnh `splunk apply cluster-bundle`. Cluster Manager sẽ nén bundle và đẩy xuống thư mục `/opt/splunk/etc/slave-apps/` của tất cả các Indexer Peers đồng thời mà không cần cấu hình thủ công trên từng máy.
+??? question "Q2: Sự khác nhau bản chất giữa Eventtype và Tag là gì?"
+
+    **Trả lời**: Eventtype là **tên đại diện cho một câu truy vấn tìm kiếm (Search String)**; còn Tag là **nhãn ngữ nghĩa được gắn lên một giá trị của Field hoặc một Eventtype**. Eventtype tạo ra nhóm dữ liệu, còn Tag giúp nhóm các Eventtype hoặc Field khác nhau về cùng một danh mục logic.
+
+
+??? question "Q3: Tại sao cần cấu hình Alert Throttling khi gửi cảnh báo qua Email/Telegram?"
+
+    **Trả lời**: Khi hệ thống bị tấn công mạng (ví dụ DDoS hoặc Password Spraying với hàng chục nghìn lượt thử mỗi phút), nếu không có Throttling, Splunk sẽ gửi hàng nghìn email/tin nhắn liên tục gây ngập hòm thư (**Alert Fatigue**) và làm nghẽn máy chủ thông báo. Throttling giúp gộp và chỉ gửi cảnh báo 1 lần duy nhất cho mỗi đối tượng vi phạm trong khoảng thời gian định trước (ví dụ 30 phút).
+
+
+??? question "Q4: Cluster Manager phân phối cấu hình cho các Indexer Peers bằng cách nào?"
+
+    **Trả lời**: Cluster Manager sử dụng cơ chế **Cluster Bundle**. Admin đặt các file cấu hình tại `/opt/splunk/etc/master-apps/`, sau đó chạy lệnh `splunk apply cluster-bundle`. Cluster Manager sẽ nén bundle và đẩy xuống thư mục `/opt/splunk/etc/slave-apps/` của tất cả các Indexer Peers đồng thời mà không cần cấu hình thủ công trên từng máy.
+
 
 ---
 

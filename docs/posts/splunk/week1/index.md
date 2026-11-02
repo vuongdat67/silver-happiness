@@ -33,10 +33,12 @@ cssclasses:
 
 ### 1.1 Phân biệt nền tảng: Event vs Incident
 
-> [!important] Ranh giới giữa Event và Incident
-> - **Event (Sự kiện)**: Bất kỳ hành động hay biến đổi trạng thái nào quan sát được trong hệ thống hoặc lưu lượng mạng (VD: user gửi email, firewall chấp nhận kết nối TCP, file được đọc). Event mang tính trung lập, không mặc định chứa yếu tố nguy hại.
-> - **Incident (Sự cố an ninh)**: Một hoặc tập hợp các Event có tác động tiêu cực hoặc đe dọa trực tiếp đến tính Bảo mật (Confidentiality), Toàn vẹn (Integrity), hoặc Sẵn sàng (Availability) của hệ thống (CIA Triad).
-> - **Nguyên tắc SOC Analyst**: *"Mọi Alert đáng ngờ phải được coi là tiền đề của một Incident tiềm năng cho đến khi phân tích chứng minh điều ngược lại."*
+!!! warning "Ranh giới giữa Event và Incident"
+
+    - **Event (Sự kiện)**: Bất kỳ hành động hay biến đổi trạng thái nào quan sát được trong hệ thống hoặc lưu lượng mạng (VD: user gửi email, firewall chấp nhận kết nối TCP, file được đọc). Event mang tính trung lập, không mặc định chứa yếu tố nguy hại.
+    - **Incident (Sự cố an ninh)**: Một hoặc tập hợp các Event có tác động tiêu cực hoặc đe dọa trực tiếp đến tính Bảo mật (Confidentiality), Toàn vẹn (Integrity), hoặc Sẵn sàng (Availability) của hệ thống (CIA Triad).
+    - **Nguyên tắc SOC Analyst**: *"Mọi Alert đáng ngờ phải được coi là tiền đề của một Incident tiềm năng cho đến khi phân tích chứng minh điều ngược lại."*
+
 
 ```mermaid
 graph LR
@@ -129,10 +131,12 @@ flowchart LR
 
 ## 2. Phân Biệt và Tương Quan Bộ Ba Cốt Lõi: SIEM - SOAR - EDR
 
-> [!tip] Ẩn dụ kinh điển trong SOC Engineering
-> - **SIEM** là ==Đôi Mắt== của SOC: Nhìn thấy toàn cảnh bức tranh log trên toàn doanh nghiệp.
-> - **SOAR** là ==Đôi Tay== của SOC: Thực thi hành động tự động hóa và điều phối phản ứng với tốc độ phần nghìn giây.
-> - **EDR** là ==Kính Hiển Vi== của SOC: Soi chiếu tận tế bào (tiến trình, bộ nhớ, registry) trên từng endpoint.
+!!! tip "Ẩn dụ kinh điển trong SOC Engineering"
+
+    - **SIEM** là ==Đôi Mắt== của SOC: Nhìn thấy toàn cảnh bức tranh log trên toàn doanh nghiệp.
+    - **SOAR** là ==Đôi Tay== của SOC: Thực thi hành động tự động hóa và điều phối phản ứng với tốc độ phần nghìn giây.
+    - **EDR** là ==Kính Hiển Vi== của SOC: Soi chiếu tận tế bào (tiến trình, bộ nhớ, registry) trên từng endpoint.
+
 
 ---
 
@@ -552,24 +556,32 @@ graph LR
 
 ## 6. Bộ Câu Hỏi Bảo Vệ và Vấn Đáp Chuyên Sâu (Presentation Defense Q&A)
 
-> [!faq]- Q1: Tại sao mô hình Cyber Kill Chain được coi là "compass định hướng" thay vì "bản đồ tuyến tính"?
-> - **Trả lời**: Trong thực tế, các nhóm tấn công hiện đại (APT/Ransomware) không đi theo đường thẳng từ bước 1 đến bước 7. Sau khi xâm nhập thành công vào một máy chủ nội bộ (bước 4-5), họ thường **quay vòng lại bước 1 (Internal Reconnaissance)** và bước 4 (Internal Exploitation) để mở rộng sang các hệ thống khác. Do đó, Kill Chain giúp ta định vị trạng thái hiện tại chứ không phải một kịch bản cố định.
+??? question "Q1: Tại sao mô hình Cyber Kill Chain được coi là 'compass định hướng' thay vì 'bản đồ tuyến tính'?"
 
-> [!faq]- Q2: Sự khác biệt bản chất giữa NIST SP 800-61 Rev 2 và Rev 3 là gì?
-> - **Trả lời**: 
-> - **Rev 2**: Tập trung thuần túy vào quy trình kỹ thuật 4 pha (*Preparation $\rightarrow$ Detection/Analysis $\rightarrow$ Containment/Eradication/Recovery $\rightarrow$ Post-Incident*).
-> - **Rev 3 (2025)**: Mở rộng tiếp cận theo hướng **Quản trị rủi ro an ninh mạng**, ánh xạ trực tiếp vào 6 chức năng của **NIST CSF 2.0** (*Govern, Identify, Protect, Detect, Respond, Recover*), gia tăng tính thích ứng với môi trường Cloud, chuỗi cung ứng và yêu cầu tuân thủ pháp lý toàn cầu.
+    **Trả lời**: Trong thực tế, các nhóm tấn công hiện đại (APT/Ransomware) không đi theo đường thẳng từ bước 1 đến bước 7. Sau khi xâm nhập thành công vào một máy chủ nội bộ (bước 4-5), họ thường **quay vòng lại bước 1 (Internal Reconnaissance)** và bước 4 (Internal Exploitation) để mở rộng sang các hệ thống khác. Do đó, Kill Chain giúp ta định vị trạng thái hiện tại chứ không phải một kịch bản cố định.
 
-> [!faq]- Q3: Tại sao việc viết Rule phát hiện ở tầng TTPs (Pyramid of Pain) lại gây đau đớn nhất cho Attacker nhưng lại khó nhất cho Defender?
-> - **Trả lời**: 
-> - **Đối với Attacker**: TTPs là thói quen, quy trình và phương pháp luận vận hành. Để đổi TTPs, đối phương phải đào tạo lại hacker, nghiên cứu kỹ thuật mới, viết lại toàn bộ công cụ $\rightarrow$ Tốn kém hàng tháng trời và hàng trăm nghìn USD.
-> - **Đối với Defender**: TTPs sử dụng chính các tính năng và công cụ hợp pháp của OS (PowerShell, WMI, Sudo, SSH). Việc phân biệt đâu là hành vi quản trị hợp lệ của IT Admin và đâu là hành vi độc hại của Attacker đòi hỏi hiểu biết sâu về ngữ cảnh và rất dễ sinh **False Positive** nếu rule không được tinh chỉnh chuẩn xác.
 
-> [!faq]- Q4: Làm thế nào để giải quyết vấn đề Alert Fatigue trong SOC một cách triệt để?
-> - **Trả lời**:
-> 1. Áp dụng cơ chế **Risk-Based Alerting (RBA)**: Gán điểm rủi ro cho từng hành vi nhỏ và chỉ bắn Notable Event khi tổng điểm rủi ro của 1 thực thể (Host/User) vượt ngưỡng trong một khoảng thời gian.
-> 2. Triển khai **SOAR Playbooks**: Tự động hóa việc phân loại và làm giàu ngữ cảnh (Enrichment) cho các cảnh báo L1 lặp lại.
-> 3. Liên tục thực hiện **Detection Tuning**: Loại trừ các tiến trình/tài khoản IT hợp lệ có hành vi lặp lại đã được phê duyệt (Whitelisting có kiểm soát).
+??? question "Q2: Sự khác biệt bản chất giữa NIST SP 800-61 Rev 2 và Rev 3 là gì?"
+
+    **Trả lời**:
+    - **Rev 2**: Tập trung thuần túy vào quy trình kỹ thuật 4 pha (*Preparation $\rightarrow$ Detection/Analysis $\rightarrow$ Containment/Eradication/Recovery $\rightarrow$ Post-Incident*).
+    - **Rev 3 (2025)**: Mở rộng tiếp cận theo hướng **Quản trị rủi ro an ninh mạng**, ánh xạ trực tiếp vào 6 chức năng của **NIST CSF 2.0** (*Govern, Identify, Protect, Detect, Respond, Recover*), gia tăng tính thích ứng với môi trường Cloud, chuỗi cung ứng và yêu cầu tuân thủ pháp lý toàn cầu.
+
+
+??? question "Q3: Tại sao việc viết Rule phát hiện ở tầng TTPs (Pyramid of Pain) lại gây đau đớn nhất cho Attacker nhưng lại khó nhất cho Defender?"
+
+    **Trả lời**:
+    - **Đối với Attacker**: TTPs là thói quen, quy trình và phương pháp luận vận hành. Để đổi TTPs, đối phương phải đào tạo lại hacker, nghiên cứu kỹ thuật mới, viết lại toàn bộ công cụ $\rightarrow$ Tốn kém hàng tháng trời và hàng trăm nghìn USD.
+    - **Đối với Defender**: TTPs sử dụng chính các tính năng và công cụ hợp pháp của OS (PowerShell, WMI, Sudo, SSH). Việc phân biệt đâu là hành vi quản trị hợp lệ của IT Admin và đâu là hành vi độc hại của Attacker đòi hỏi hiểu biết sâu về ngữ cảnh và rất dễ sinh **False Positive** nếu rule không được tinh chỉnh chuẩn xác.
+
+
+??? question "Q4: Làm thế nào để giải quyết vấn đề Alert Fatigue trong SOC một cách triệt để?"
+
+    **Trả lời**:
+    1. Áp dụng cơ chế **Risk-Based Alerting (RBA)**: Gán điểm rủi ro cho từng hành vi nhỏ và chỉ bắn Notable Event khi tổng điểm rủi ro của 1 thực thể (Host/User) vượt ngưỡng trong một khoảng thời gian.
+    2. Triển khai **SOAR Playbooks**: Tự động hóa việc phân loại và làm giàu ngữ cảnh (Enrichment) cho các cảnh báo L1 lặp lại.
+    3. Liên tục thực hiện **Detection Tuning**: Loại trừ các tiến trình/tài khoản IT hợp lệ có hành vi lặp lại đã được phê duyệt (Whitelisting có kiểm soát).
+
 
 ---
 
