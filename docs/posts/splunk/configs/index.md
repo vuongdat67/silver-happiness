@@ -32,13 +32,13 @@ Hệ thống lab mô phỏng môi trường doanh nghiệp hoàn chỉnh gồm 2
 
 | Tên Máy Ảo | Địa Chỉ IP Lab | Hệ Điều Hành | Vai Trò Kiến Trúc Splunk | Tài Khoản / Mật Khẩu | Cổng Dịch Vụ Mở |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Máy 1: Splunk Management** | `10.0.0.10` (`192.168.100.10`) | Ubuntu 22.04 LTS | Search Head + Cluster Manager + Deployment Server | `splunk` / `hope` (`Admin123@`) | Web: `8000`, Management API: `8089`, Forwarding: `9997` |
-| **Máy 2: Splunk Indexer 1** | `10.0.0.20` (`192.168.100.20`) | Ubuntu 22.04 LTS | Indexer Peer 1 (Cluster ID: `idxc1`) | `id1` (`Admin123@`) | Management API: `8089`, Ingestion: `9997`, Replication: `9887` |
-| **Máy 3: Splunk Indexer 2** | `10.0.0.30` (`192.168.100.30`) | Ubuntu 22.04 LTS | Indexer Peer 2 (Cluster ID: `idxc1`) | `id2` (`Admin123@`) | Management API: `8089`, Ingestion: `9997`, Replication: `9887` |
-| **Máy 4: Linux Endpoint** | `10.0.0.40` (`192.168.50.20`) | Ubuntu 22.04 LTS | Universal Forwarder (UF) + Apache Web + Auditd | `splunkf` (`Admin123@`) | HTTP: `80`, SSH: `22` |
-| **Máy 5: Domain Controller** | `10.0.0.50` (`192.168.100.30`) | Windows Server 2022 | Universal Forwarder + Active Directory Domain Services | `Administrator` / `hope` (`Admin123@`) | Kerberos: `88`, LDAP: `389`, SMB: `445`, WinRM: `5985` |
-| **Máy 6: Windows Client** | `192.168.100.40` | Windows 10 Enterprise | Universal Forwarder + Sysmon Modular (Joined Domain) | `victim_user` (`Admin123@`) | RDP: `3389`, WinRM: `5985` |
-| **Máy 7: Network Sensor** | `192.168.100.50` / `192.168.50.50` | Ubuntu 22.04 LTS | Universal Forwarder + Zeek NSM + Suricata NIDS | `sensor` (`Admin123@`) | Cổng lắng nghe SPAN / TAP giám sát lưu lượng |
+| **Máy 1: Splunk Management** | `10.0.0.10` (`192.168.100.10`) | Ubuntu 22.04 LTS | Search Head + Cluster Manager + Deployment Server | `splunk` / `User@` (`Password@`) | Web: `8000`, Management API: `8089`, Forwarding: `9997` |
+| **Máy 2: Splunk Indexer 1** | `10.0.0.20` (`192.168.100.20`) | Ubuntu 22.04 LTS | Indexer Peer 1 (Cluster ID: `idxc1`) | `id1` (`Password@`) | Management API: `8089`, Ingestion: `9997`, Replication: `9887` |
+| **Máy 3: Splunk Indexer 2** | `10.0.0.30` (`192.168.100.30`) | Ubuntu 22.04 LTS | Indexer Peer 2 (Cluster ID: `idxc1`) | `id2` (`Password@`) | Management API: `8089`, Ingestion: `9997`, Replication: `9887` |
+| **Máy 4: Linux Endpoint** | `10.0.0.40` (`192.168.50.20`) | Ubuntu 22.04 LTS | Universal Forwarder (UF) + Apache Web + Auditd | `splunkf` (`Password@`) | HTTP: `80`, SSH: `22` |
+| **Máy 5: Domain Controller** | `10.0.0.50` (`192.168.100.30`) | Windows Server 2022 | Universal Forwarder + Active Directory Domain Services | `Administrator` / `User@` (`Password@`) | Kerberos: `88`, LDAP: `389`, SMB: `445`, WinRM: `5985` |
+| **Máy 6: Windows Client** | `192.168.100.40` | Windows 10 Enterprise | Universal Forwarder + Sysmon Modular (Joined Domain) | `victim_user` (`Password@`) | RDP: `3389`, WinRM: `5985` |
+| **Máy 7: Network Sensor** | `192.168.100.50` / `192.168.50.50` | Ubuntu 22.04 LTS | Universal Forwarder + Zeek NSM + Suricata NIDS | `sensor` (`Password@`) | Cổng lắng nghe SPAN / TAP giám sát lưu lượng |
 | **Máy 8: Attacker Box** | `192.168.50.100` | Kali Linux 2024.x | Máy phát động kịch bản diễn tập tấn công | `kali` (`kali`) | SSH: `22`, Netcat Listener: `4444`, Chisel: `8080` |
 
 ---
@@ -168,7 +168,7 @@ Kích hoạt cấu hình:
 
 Trên Search Head hoặc Indexer, kích hoạt cổng lắng nghe ingestion bằng CLI:
 ```bash
-/home/splunk/splunk/bin/splunk enable listen 9997 -auth hope:'Admin123@'
+/home/splunk/splunk/bin/splunk enable listen 9997 -auth User@:'Password@'
 ```
 
 ### 3.5 Cài đặt và cấu hình Universal Forwarder trên Ubuntu Endpoint (Máy 4)
@@ -199,8 +199,8 @@ exit
 sudo /home/splunkf/splunkforwarder/bin/splunk enable boot-start -user splunkf
 sudo su - splunkf
 ~/splunkforwarder/bin/splunk start
-~/splunkforwarder/bin/splunk add forward-server 10.0.0.10:9997 -auth hope:'Admin123@'
-~/splunkforwarder/bin/splunk add monitor "/var/log/apache2/access.log" -sourcetype access_combined -index web_logs -auth hope:'Admin123@'
+~/splunkforwarder/bin/splunk add forward-server 10.0.0.10:9997 -auth User@:'Password@'
+~/splunkforwarder/bin/splunk add monitor "/var/log/apache2/access.log" -sourcetype access_combined -index web_logs -auth User@:'Password@'
 ~/splunkforwarder/bin/splunk restart
 ```
 
@@ -228,7 +228,7 @@ openssl rand -hex 16
 /home/splunk/splunk/bin/splunk edit cluster-config -mode manager \
   -replication_factor 2 -search_factor 2 \
   -secret '078a6b5e4974c5ad58f5b3656838023b' -cluster_label idxc1 \
-  -auth hope:'Admin123@'
+  -auth User@:'Password@'
 
 /home/splunk/splunk/bin/splunk restart
 ```
@@ -242,14 +242,14 @@ Thực hiện trên Máy 2 (tài khoản `id1`):
   -manager_uri https://10.0.0.10:8089 \
   -replication_port 9887 \
   -secret '078a6b5e4974c5ad58f5b3656838023b' \
-  -auth id1:'Admin123@'
+  -auth id1:'Password@'
 
 # 2. Tắt giao diện Web trên Indexer để tối ưu hiệu năng
-/home/id1/splunk/bin/splunk disable webserver -auth id1:'Admin123@'
+/home/id1/splunk/bin/splunk disable webserver -auth id1:'Password@'
 /home/id1/splunk/bin/splunk restart
 
 # 3. Bật cổng nhận dữ liệu từ Forwarder
-/home/id1/splunk/bin/splunk enable listen 9997 -auth id1:'Admin123@'
+/home/id1/splunk/bin/splunk enable listen 9997 -auth id1:'Password@'
 ```
 
 Thực hiện tương tự trên Máy 3 (tài khoản `id2`):
@@ -258,11 +258,11 @@ Thực hiện tương tự trên Máy 3 (tài khoản `id2`):
   -manager_uri https://10.0.0.10:8089 \
   -replication_port 9887 \
   -secret '078a6b5e4974c5ad58f5b3656838023b' \
-  -auth id2:'Admin123@'
+  -auth id2:'Password@'
 
-/home/id2/splunk/bin/splunk disable webserver -auth id2:'Admin123@'
+/home/id2/splunk/bin/splunk disable webserver -auth id2:'Password@'
 /home/id2/splunk/bin/splunk restart
-/home/id2/splunk/bin/splunk enable listen 9997 -auth id2:'Admin123@'
+/home/id2/splunk/bin/splunk enable listen 9997 -auth id2:'Password@'
 ```
 
 ### 4.4 Kiểm tra trạng thái cụm Indexer
@@ -270,7 +270,7 @@ Thực hiện tương tự trên Máy 3 (tài khoản `id2`):
 Trên Máy 1 (Search Head / Manager), kiểm tra kết nối API và trạng thái:
 ```bash
 curl -k https://10.0.0.10:8089/services/cluster/master/peers
-/home/splunk/splunk/bin/splunk show cluster-status -auth hope:'Admin123@'
+/home/splunk/splunk/bin/splunk show cluster-status -auth User@:'Password@'
 ```
 
 ---
@@ -338,7 +338,7 @@ maxTotalDataSizeMB = 20000
 
 Lệnh áp dụng Bundle từ Cluster Manager xuống các Indexer:
 ```bash
-/home/splunk/splunk/bin/splunk apply cluster-bundle -auth hope:'Admin123@'
+/home/splunk/splunk/bin/splunk apply cluster-bundle -auth User@:'Password@'
 ```
 
 ---

@@ -277,8 +277,7 @@ New-Item -ItemType Directory -Path "C:\Users\Public\LabData" -Force
 }
 ```
 
-![Tạo thư mục và file dữ liệu mô phỏng LabData](assets/Script/8_creat_window_folder_file.png)
-*Hình 2.1: Khởi tạo thư mục và tệp tin dữ liệu mô phỏng LabData trên Windows Server.*
+
 
 Cấu hình file `C:\Program Files\SplunkUniversalForwarder\etc\system\local\inputs.conf`:
 
@@ -559,8 +558,11 @@ sc.exe start DumpService
 - **MITRE ATT&CK**: `T1490` (Inhibit System Recovery), `T1486` (Data Encrypted for Impact)
 - **Mục tiêu**: Xóa toàn bộ điểm khôi phục hệ thống (VSS) nhằm triệt tiêu khả năng cứu dữ liệu, sau đó thực thi script PowerShell mã hóa toàn bộ file trong `C:\Users\Public\LabData` bằng thuật toán XOR byte và đổi phần mở rộng thành `.locked`.
 
+![Khởi tạo dữ liệu giả lập nạn nhân LabData](assets/Script/8_creat_window_folder_file.png)
+*Hình 4.23: Khởi tạo thư mục C:\Users\Public\LabData chứa 30 tệp tin tài chính nội bộ phục vụ mô phỏng mã hóa.*
+
 ![Trạng thái file trước khi bị mã hóa](assets/Script/26_before_encrypted.png)
-*Hình 4.23: Trạng thái nguyên vẹn của các tệp tin dữ liệu trước khi mã hóa tống tiền.*
+*Hình 4.24: Trạng thái nguyên vẹn của 30 tệp tin dữ liệu trước khi mã hóa tống tiền.*
 
 ```powershell
 # 1. Xóa sạch Volume Shadow Copies
@@ -577,537 +579,555 @@ Get-ChildItem -Path "C:\Users\Public\LabData" -Recurse -File | ForEach-Object {
 ```
 
 ![Trạng thái file sau khi bị mã hóa đổi đuôi .locked](assets/Script/27_after_encrypted.png)
-*Hình 4.24: Toàn bộ tệp tin trong thư mục dữ liệu bị mã hóa và đổi phần mở rộng thành .locked.*
+*Hình 4.25: Toàn bộ tệp tin trong thư mục dữ liệu bị mã hóa và đổi phần mở rộng thành .locked.*
 
 ---
 
-## 5. Bộ Quy Tắc Phát Hiện Splunk SIEM Chuẩn Hóa (12 Detection Rules)
+## 5. Bộ Quy Tắc Phát Hiện Splunk SIEM Chuẩn Hóa (16 Production Detection Rules)
 
-!!! tip "Chuẩn hóa Splunk SPL kết hợp Kiểm chứng Thực tế trên Splunk MCP Server"
-
-    Tất cả các luật phát hiện dưới đây đã được kiểm tra trực tiếp trên môi trường Splunk Lab thực tế (`host: uf-ubuntu` và `host: WIN-I370HR7VSPS`).
+!!! tip "Chuẩn hóa Splunk SPL kết hợp Kiểm chứng Thực tế trên Splunk Lab"
+    Toàn bộ 16 luật phát hiện dưới đây được thiết kế và kiểm chứng thực nghiệm trên cụm Splunk Enterprise phân tích hơn 9.6 triệu sự kiện thực tế trong đợt diễn tập tháng 07/2026. Mỗi luật tuân thủ đường ống phân tích chuẩn (Pipeline Detection), tích hợp cơ chế loại trừ nhiễu (Whitelisting), phân tầng rủi ro (Risk Scoring) và cung cấp câu lệnh điều tra sâu (Drill-down SPL) cho L2/L3 SOC Analyst.
 
 
 ---
 
-### Rule 01: Web Shell RCE và Malicious URI Query Execution
+### Rule 00: Web Application Scanning / Reconnaissance (T1595.003)
 
-![Rule 1 Splunk SPL Query](assets/rules/rule01_webshell_spl.png)
-*Hình 5.1a: Cú pháp truy vấn Splunk SPL phát hiện Web Shell RCE.*
-![Rule 1 Splunk Kết Quả Tìm Kiếm Thực Tế](assets/rules/rule01_results.png)
-*Hình 5.1b: Kết quả bắt được 52 sự kiện truy vấn shell.php trên Splunk.*
+![Rule 00: Web Application Scanning / Reconnaissance (T1595.003)](assets/pic/R00_web_scanning.png)
+*Hình 5.0: Kết quả Splunk SPL phát hiện quét trinh sát ứng dụng web bằng công cụ tự động (Gobuster, Feroxbuster, Nikto).*
 
-??? note "Metadata Box"
+> **Không cần Suricata/IDS** — phát hiện qua Apache access log pattern:  
+> gobuster UA, 100% error rate, >500 unique paths/30s  
+> **Verified:** 514,812 req từ 192.168.50.100 (gobuster 454K + feroxbuster 30K + behavioral 30K)
 
-    - **MITRE ATT&CK**: `T1190` (Exploit Public-Facing App), `T1505.003` (Web Shell)
-    - **Data Source**: `index=web_logs` (Apache / Nginx Access Logs)
-    - **Pyramid of Pain**: ==Host Artifacts / Tools==
-    - **Risk Weight**: **20**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **52 sự kiện** trên `host=uf-ubuntu` từ `clientip=192.168.50.100` gọi tới `/dvwa/hackable/uploads/shell.php`.
-
-
-#### Kỹ thuật phân tích và Logic phát hiện
-- `urldecode(urldecode(uri_query))`: Giải mã 2 lần (double-decode) để vô hiệu hóa kỹ thuật né tránh kiểm duyệt URL encoding.
-- `match(...)`: Bắt các chuỗi reverse shell kinh điển (`/dev/tcp/`, `bash -i`, `nc -e`, `powershell -enc`) hoặc các tham số thực thi command (`cmd=`, `exec=`, `shell=`, `x=`).
-- `extracted_cmd`: Bóc tách trực tiếp lệnh để SOC triage nhanh.
-
-#### Optimized Production SPL Query
-```bash
-index=web_logs method IN ("GET","POST") status=200
-    file IN ("*.php","*.phtml","*.asp","*.aspx","*.jsp")
-| eval decoded_query=urldecode(urldecode(uri_query))
-| where match(decoded_query, "(?i)(/dev/tcp/|/dev/udp/|bash\s+-i|sh\s+-i|python[0-9]?\s+-c\s|perl\s+-e\s|(nc|ncat)\s+-e|powershell\s+-enc)")
-   OR match(decoded_query, "(?i)(^|[?&])(cmd|c|exec|execute|shell|x)=\s*(chmod|chown|rm|cp|mv|wget|curl|nc|ncat|bash|sh|php|python[0-9]?|perl|powershell|cmd\.exe|echo|systeminfo|wmic|net\s+user|net\s+localgroup|reg\s+|sc\s+|vssadmin)")
-| rex field=decoded_query "(?i)(?:cmd|c|exec|execute|shell|x)=(?<extracted_cmd>[^&]+)"
-| fillnull value="unauthenticated" user
-| table _time clientip user host extracted_cmd decoded_query uri_path useragent status
-| sort -_time
-```
-
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Công cụ Pentest/Vulnerability Scanner nội bộ (Burp Suite, Nessus, Acunetix) quét kiểm thử tự động nhưng không khai thác thành công.
- - Traffic từ Honeypot hoặc WAF simulation bị cấu hình lẫn vào index sản xuất.
-- **False Negative (FN)**:
- - Payload được mã hóa dạng khác (Base64, Hex) hoặc truyền qua `POST body` (Apache mặc định chỉ log URI trong `access.log`).
- - Response status khác 200 (ví dụ 302 Redirect hoặc 500 Internal Server Error nhưng lệnh hệ điều hành vẫn được thực thi ngầm).
- - Tệp web shell sử dụng extension lạ không nằm trong danh sách whitelist lọc ban đầu.
-
----
-
-### Rule 02: Linux Cron Persistence via Service Accounts
-
-![Rule 2 Splunk SPL Query và Kết Quả](assets/rules/rule02_cron_spl.png)
-*Hình 5.2: Kết quả Splunk SPL phát hiện tạo Cron Job duy trì truy cập ngầm.*
-
-??? note "Metadata Box"
-
-    - **MITRE ATT&CK**: `T1053.003` (Scheduled Task/Job: Cron)
-    - **Data Source**: `index=linux_security sourcetype=auditd`
-    - **Pyramid of Pain**: ==TTPs / Behavior==
-    - **Risk Weight**: **50**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **105 sự kiện** trên `host=uf-ubuntu` ghi nhận user `www-data` (`uid=33`) thực thi `/usr/bin/crontab`.
-
-
-#### Kỹ thuật phân tích và Bảng nhận diện UID Service Account
-
-| Numeric UID | Hệ điều hành thường gặp | Tài khoản dịch vụ tương ứng |
-| :---: | :--- | :--- |
-| **33** | Debian / Ubuntu | `www-data` |
-| **48** | RHEL / CentOS / Fedora | `apache` |
-| **80** | Một số bản phân phối Unix/BSD | `www` / `http` |
-| **99** | RHEL / CentOS cũ / System Account | `nobody` / `system` |
-
-#### Optimized Production SPL Query
-```bash
-index=linux_security sourcetype=auditd success=yes
-    (comm IN ("crontab","at")
-     OR exe IN ("/usr/bin/crontab","/usr/bin/at")
-     OR key=cron_file_write)
-| rex field=_raw "\buid=(?<uid>\d+)"
-| rex field=_raw "\bUID=\"(?<account>[^\"]+)\""
-| rex field=_raw "\bpid=(?<pid>\d+)"
-| where match(account, "(?i)^(www-data|apache|nginx|httpd)$")
-    OR uid IN (33,48,80,99)
-| stats values(account) as account,
-        values(comm) as comm,
-        values(key) as audit_keys,
-        dc(pid) as unique_pids,
-        count as event_count,
-        earliest(_time) as first_seen,
-        latest(_time) as last_seen
-  by host
-| convert ctime(first_seen) ctime(last_seen)
-| table first_seen last_seen host account comm unique_pids audit_keys event_count
-```
-
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Ứng dụng CMS (như WordPress, Moodle) tự động cập nhật cronjob thông qua user `www-data` theo thiết kế kiến trúc.
- - Quản trị viên sử dụng dải UID 33-99 cho các script tự động hóa hệ thống hợp lệ.
-- **False Negative (FN)**:
- - Kẻ tấn công ghi đè trực tiếp vào `/etc/cron.d/`, `/etc/cron.daily/`, hoặc sử dụng `systemd timer` thay vì gọi lệnh `crontab`/`at`.
- - Service account chạy dưới UID tùy biến nằm ngoài danh sách (custom UID).
-
----
-
-### Rule 03: Sudo Privilege Escalation và GTFOBins Abuse
-
-![Rule 3 Splunk SPL Query và Kết Quả](assets/rules/rule03_sudo_spl.png)
-*Hình 5.3: Kết quả Splunk SPL phát hiện leo thang đặc quyền qua lệnh Sudo bất thường.*
-
-??? note "Metadata Box"
-
-    - **MITRE ATT&CK**: `T1548.003` (Abuse Elevation Control Mechanism: Sudo)
-    - **Data Source**: `index=linux_security sourcetype=linux_secure` (`/var/log/auth.log`)
-    - **Pyramid of Pain**: ==TTPs / Behavior==
-    - **Risk Weight**: **60**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **246 sự kiện** trên `host=uf-ubuntu`, phát hiện `www-data` thực thi `sudo /usr/bin/find . -exec /bin/sh ; -quit` leo quyền `root`.
-
-
-#### Optimized Production SPL Query
-```bash
-index=linux_security sourcetype=linux_secure "sudo:"
-| rex field=_raw "sudo:\s+(?<src_user>\S+)\s+:\s+PWD=(?<pwd>[^\s;]+)\s+;\s+USER=(?<dest_user>[^\s;]+)\s+;\s+COMMAND=(?<command>.*)"
-| where isnotnull(src_user) AND isnotnull(dest_user) AND isnotnull(command)
-| where match(command, "(?i)(/bin/sh|/bin/bash|bash\s+-i|sh\s+-i|find\s+.*-exec|vim|vi|nano|less|more|awk|perl|python|ruby|php|lua|nmap|man|ftp|tar|zip|env|socat|cp|chmod|chown)") OR dest_user="root"
-| stats values(dest_user) as target_users, values(pwd) as working_dirs, values(command) as executed_cmds, count as event_count,
-        earliest(_time) as first_seen, latest(_time) as last_seen
-  by host, src_user
-| convert ctime(first_seen) ctime(last_seen)
-| table first_seen last_seen host src_user target_users working_dirs executed_cmds event_count
-| sort -first_seen
-```
-
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Quản trị viên chạy `sudo` hợp lệ với các binary như `find`, `vim`, `less` để phục vụ tác vụ vận hành thường nhật.
- - Lệnh match với tất cả thao tác `dest_user="root"`, bao gồm cả quản trị chuẩn.
-- **False Negative (FN)**:
- - Kẻ tấn công sử dụng binary nguy hiểm mới chưa được cập nhật vào regex hoặc file lookup `gtfobins_lookup.csv`.
- - Log sudo từ máy chủ chuyển qua syslog từ xa có định dạng khác chuẩn khiến regex trích xuất trường bị lỗi.
-
----
-
-### Rule 04: Sensitive Configuration File Access in Non-Interactive Sessions
-
-![Rule 4 Splunk SPL Query và Kết Quả](assets/rules/rule04_config_spl.png)
-*Hình 5.4: Kết quả Splunk SPL phát hiện đọc trộm tệp tin cấu hình nhạy cảm.*
-
-??? note "Metadata Box"
-
-    - **MITRE ATT&CK**: `T1552.001` (Credentials In Files)
-    - **Data Source**: `index=linux_security sourcetype=auditd` (audit key `sensitive_config_read`)
-    - **Pyramid of Pain**: ==Host Artifacts / Behavior==
-    - **Risk Weight**: **35**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **24 sự kiện** trên `host=uf-ubuntu` phát hiện `/usr/bin/cat` đọc file cấu hình dưới `auid=4294967295` (non-interactive web shell session).
-
-
-#### Kỹ thuật phân tích `auid` và `tty`
-- `auid=4294967295` (`0xFFFFFFFF` - unset): Đại diện cho tiến trình khởi chạy bởi service/daemon không có phiên đăng nhập trực tiếp (thường là process sinh ra từ exploit hoặc web shell).
-- `tty=(none)`: Tiến trình không gắn liền với cửa sổ terminal tương tác của người dùng.
-
-#### Optimized Production SPL Query
-```bash
-index=linux_security sourcetype=auditd key=sensitive_config_read success=yes type=SYSCALL
-| where NOT match(exe, "(?i)(apache2|php-fpm|httpd|nginx)")
-| where syscall!=89 AND syscall!=2
-| eval session_type=if(auid=4294967295 OR tty="(none)", "non_interactive", "interactive")
-| stats values(uid) as uids, values(auid) as auids, values(tty) as ttys, values(comm) as tools, values(exe) as exes, values(session_type) as session_types, count as event_count,
-        earliest(_time) as first_seen, latest(_time) as last_seen
-  by host
-| convert ctime(first_seen) ctime(last_seen)
-| table first_seen last_seen host uids auids ttys tools exes session_types event_count
-| sort -first_seen
-```
-
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Script backup hoặc agent monitoring tự động đọc cấu hình theo lịch (cron chạy dưới quyền root).
- - Các container hoặc worker process được khởi tạo bởi `systemd` đều mang `auid` unset.
-- **False Negative (FN)**:
- - Kẻ tấn công đọc trộm file bằng cách lạm dụng chính tiến trình đã được whitelist (`php-fpm`, `apache2`).
- - File cấu hình bị đọc không nằm trong danh mục audit rule đã cấu hình trước (`key=sensitive_config_read`).
-
----
-
-### Rule 05: Suspicious Ingress Tool Execution và Tunneling
-
-![Rule 5 Splunk SPL Query và Kết Quả](assets/rules/rule05_tunnel_spl.png)
-*Hình 5.5: Kết quả Splunk SPL phát hiện khởi chạy công cụ tạo đường hầm Chisel.*
-
-??? note "Metadata Box"
-
-    - **MITRE ATT&CK**: `T1105` (Ingress Tool Transfer), `T1090.001` (Internal Proxy)
-    - **Data Source**: `index=linux_security sourcetype=auditd`
-    - **Pyramid of Pain**: ==Tools / TTPs==
-    - **Risk Weight**: **55**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **652 sự kiện** trên `host=uf-ubuntu` phát hiện binary `/tmp/chisel`, `/usr/bin/socat1`, `/usr/bin/wget`, `/usr/bin/curl`.
-
-
-#### Optimized Production SPL Query
-```bash
-index=linux_security sourcetype=auditd (key=exec_cmds OR key=net_connect OR comm IN ("wget","curl","chisel","socat","proxychains","ncat","nc"))
-| eval suspicious_path=if(match(exe, "^/(tmp|var/tmp|dev/shm)/"), 1, 0)
-| eval known_tool=if(match(comm, "(?i)^(chisel|socat|proxychains|ncat|nc|curl|wget)$"), 1, 0)
-| where suspicious_path=1 OR known_tool=1
-| stats values(uid) as uids, values(key) as audit_keys, count as event_count,
-        earliest(_time) as first_seen, latest(_time) as last_seen
-  by host, comm, exe
-| convert ctime(first_seen) ctime(last_seen)
-| table first_seen last_seen host uids comm exe audit_keys event_count
-| sort -first_seen
-```
-
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Quản trị viên sử dụng `curl`/`wget`/`nc` cho các tác vụ kiểm tra mạng thông thường.
- - Các phần mềm cài đặt tự động (CI/CD runner, Docker build) xả nén file thực thi vào `/tmp` để chạy tạm thời.
-- **False Negative (FN)**:
- - Kẻ tấn công đổi tên binary (ví dụ đổi `chisel` thành `update_svc`).
- - Thực thi từ các thư mục có quyền ghi khác ngoài 3 thư mục trên (ví dụ `/home/user/.cache/`, `/dev/mqueue/`).
-
----
-
-### Rule 06: Internal Reconnaissance và Multi-Port Scanning
-
-??? note "Metadata Box"
-
-    - **MITRE ATT&CK**: `T1046` (Network Service Discovery)
-    - **Data Source**: `index=windows_sysmon EventCode=3` (Network Connection)
-    - **Pyramid of Pain**: ==Network Artifacts==
-    - **Risk Weight**: **20**
-
-
-#### Optimized Production SPL Query
-```bash
-index=windows_sysmon EventCode=3 SourceIp="192.168.100.20"
-| bin _time span=1m
-| stats dc(DestinationPort) as unique_ports, values(DestinationPort) as targeted_ports, count as connection_count
-  by SourceIp, DestinationIp, _time
-| where unique_ports >= 3 OR connection_count > 15
+```spl
+index=web_logs sourcetype=access_combined
+| eval scanner_ua=case(
+    match(useragent,"(?i)(gobuster|feroxbuster|nikto|masscan|sqlmap|dirb|dirbuster|wfuzz|ffuf|nuclei|zap|burp)"),"known_scanner",
+    match(useragent,"(?i)(nmap|zgrab|shodan|censys|curl/[0-9]+\.[0-9]+\.[0-9]+$)"),"probe_tool",
+    1=1,null())
+| bin _time span=30s
+| stats count as reqs,
+        dc(uri_path) as unique_paths,
+        sum(eval(if(status>=400,1,0))) as errors,
+        values(useragent) as agents,
+        max(scanner_ua) as ua_type
+  by clientip, _time
+| eval error_rate=round(errors/reqs*100,1)
+| eval path_rate=round(unique_paths/reqs*100,1)
+| eval is_scanner=case(
+    isnotnull(ua_type), 1,
+    reqs >= 1000 AND error_rate >= 90, 1,
+    unique_paths >= 500 AND path_rate >= 95, 1,
+    1=1, 0)
+| where is_scanner=1
+    ua_type="known_scanner" AND reqs >= 10000, 70,
+    ua_type="known_scanner", 55,
+    ua_type="probe_tool", 50,
+    error_rate >= 98, 60,
+    1=1, 35)
+| eval scan_type=case(
+    isnotnull(ua_type), ua_type + " (" + tostring(reqs) + " req)",
+    error_rate>=98, "blind_fuzzing (" + tostring(reqs) + " req)",
+    1=1, "behavioral_scan (" + tostring(reqs) + " req)")
 | convert ctime(_time)
-| table _time SourceIp DestinationIp unique_ports targeted_ports connection_count
+| table _time clientip scan_type unique_paths error_rate
+| sort -reqs
 ```
 
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Máy quét lỗ hổng bảo mật nội bộ hợp pháp (Nessus, Qualys) quét định kỳ.
-- **False Negative (FN)**:
- - Quét phân tán thời gian cực chậm (*Slow Scan / Stealth Scan* vượt ngoài khung thời gian 1 phút của `bin _time`).
+**ES Throttle:** `window=3600s group=clientip`
+
+**Drill-down (sau khi alert):**
+```spl
+index=web_logs clientip=$clientip$ earliest=$_time$ latest=+5m
+| stats count by useragent uri_path status
+| sort -count | head 20
+```
+
+**FP Mitigation:**
+```spl
+NOT match(useragent,"(?i)(bot|crawl|spider|googlebot|bingbot)")
+NOT clientip IN ("10.0.0.0/8","ci_server_ip")
+```
 
 ---
 
-### Rule 07: Suspicious Windows Remote Access / WinRM Authentication
+---
 
-![Rule 6 Splunk SPL Query](assets/rules/rule06_winrm_spl.png)
-*Hình 5.6a: Cú pháp Splunk SPL phát hiện đăng nhập WinRM từ xa.*
-![Rule 6 Splunk Kết Quả Tìm Kiếm Thực Tế](assets/rules/rule06_results.png)
-*Hình 5.6b: Kết quả phân tích xác thực WinRM LogonType 3 trên Splunk.*
+### Rule 01: Web File Upload Attack (T1190)
 
-??? note "Metadata Box"
+![Rule 01: Web File Upload Attack (T1190)](assets/pic/R01_file_upload.png)
+*Hình 5.1: Kết quả Splunk SPL phát hiện tải lên tệp web shell qua phương thức HTTP POST.*
 
-    - **MITRE ATT&CK**: `T1021.006` (Remote Services: WinRM)
-    - **Data Source**: `index=windows_security EventCode=4624 Logon_Type=3`
-    - **Pyramid of Pain**: ==TTPs / Asset Context==
-    - **Risk Weight**: **75**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **2,808 sự kiện** Logon Type 3 trên `host=WIN-I370HR7VSPS`, nhận diện tài khoản `svc_backup` đăng nhập từ địa chỉ IP bàn đạp DMZ.
-
-
-#### Phân tích Ý nghĩa Logon Types trên Windows
-- `Logon Type 2`: Interactive (Đăng nhập bàn phím trực tiếp tại máy).
-- `Logon Type 3`: Network (Truy cập qua mạng: WinRM, SMB file share, RPC, PsExec).
-- `Logon Type 10`: RemoteInteractive (Đăng nhập giao diện từ xa qua RDP).
-
-#### Optimized Production SPL Query
-```bash
-index=windows_security EventCode=4624 Logon_Type=3 Logon_Process IN ("NtLmSsp", "Kerberos")
-| rex field=_raw "New Logon:[\s\S]*?Account Name:\s*(?<user_raw>[^\r\n]+)"
-| eval user=replace(user_raw, ".*\\\\", "")
-| where user!="-" AND NOT match(user, "\$$")
-| bin _time span=15m
-| stats values(Logon_Process) as auth_packages, count as event_count,
-        earliest(_time) as first_seen, latest(_time) as last_seen
-  by host, user, _time
+```spl
+index=web_logs sourcetype=access_combined method=POST status=200
+  uri_path=*upload* NOT (uri_path=*login* OR uri_path=*api/v*)
+| rex field=uri_path "(?<script_ext>\.(php|php3|phtml|asp|aspx|jsp|cgi|pl))(\?|$)"
+| eval has_script=if(isnotnull(script_ext), 1, 0)
+| bin _time span=10m
+| stats count as upload_count, max(has_script) as script_detected,
+        earliest(_time) as first_seen, latest(_time) as last_seen,
+        values(uri_path) as paths
+  by clientip, host, _time
 | convert ctime(first_seen) ctime(last_seen)
-| table _time host user auth_packages event_count
+| table _time clientip host upload_count paths first_seen last_seen
 | sort -_time
 ```
 
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Mọi hoạt động truy cập File Share (SMB) hoặc xác thực dịch vụ nội bộ đều sinh Event 4624 Type 3 $\rightarrow$ Gây nhiễu rất cao nếu không lọc IP nguồn.
-- **False Negative (FN)**:
- - Nếu không kiểm tra port (`5985/5986`) hoặc tiến trình đích `wsmprovhost.exe`, rule sẽ không phân biệt được WinRM với các traffic SMB/RPC khác.
+**ES Throttle:** `window=3600s group=clientip`
+
+**Drill-down:**
+```spl
+index=web_logs method=POST clientip=$clientip$ earliest=$first_seen$ latest=$last_seen$
+| table _time uri_path uri_query status bytes useragent
+| sort -_time
+```
 
 ---
 
-### Rule 08: Local Admin Account Creation và Privilege Escalation
+---
 
-![Rule 7 Splunk SPL Query và Kết Quả](assets/rules/rule07_admin_spl.png)
-*Hình 5.7: Kết quả Splunk SPL phát hiện tạo tài khoản ngầm và gán quyền Administrators.*
+### Rule 02: Web Shell RCE Command Execution (T1505.003)
 
-??? note "Metadata Box"
+![Rule 02: Web Shell RCE Command Execution (T1505.003)](assets/pic/R02_webshell_rce.png)
+*Hình 5.2: Kết quả Splunk SPL phát hiện thực thi lệnh hệ điều hành từ xa (RCE) qua Web Shell.*
 
-    - **MITRE ATT&CK**: `T1136.001` (Create Account: Local Account), `T1098` (Account Manipulation)
-    - **Data Source**: `index=windows_security (EventCode=4720 OR EventCode=4732)`
-    - **Pyramid of Pain**: ==TTPs / Behavior Pattern==
-    - **Risk Weight**: **80**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **18 sự kiện** trên `host=WIN-I370HR7VSPS`, phát hiện `svc_backup` tạo user `backdoor` và thêm vào nhóm `Administrators`.
+> **Lưu ý:** Nếu field `cmd` rỗng (thiếu field extraction), thêm dòng đầu:  
+> `| rex field=uri_query "cmd=(?<cmd>[^&]+)"`
 
+```spl
+index=web_logs sourcetype=access_combined method=GET status=200 file=*.php
+| rex field=uri_query "cmd=(?<cmd>[^&]+)"
+| where isnotnull(cmd) AND len(cmd) > 0
+| eval rce_type=case(
+    match(cmd,"(?i)(/dev/tcp/|bash\s+-i|sh\s+-i|nc\s+-e|python.+-c.+socket)"),"revshell",
+    match(cmd,"(?i)(wget|curl)\s+http"),"staged_download",
+    match(cmd,"(?i)(chmod|chown|rm\s+-rf|passwd|shadow|sudoers|/etc/)"),"filesystem_tamper",
+    match(cmd,"(?i)^(id|whoami|uname|hostname|pwd|ifconfig|ipconfig|netstat|ps\s+aux|ls\s+-la)$"),"recon",
+    match(cmd,"(?i)^(cat|type)\s+.*(config|passwd|shadow|\.php|\.env|\.conf)$"),"file_read",
+    1=1,"other")
+| where rce_type != "other"
+| bin _time span=5m
+| stats count as attempts, values(cmd) as commands, dc(rce_type) as cmd_variety,
+        earliest(_time) as first_seen, latest(_time) as last_seen
+  by clientip, uri_path, rce_type, _time
+    rce_type="revshell", 80,
+    rce_type="staged_download", 65,
+    rce_type="filesystem_tamper", 60,
+    rce_type="file_read", 50,
+    rce_type="recon", 35,
+    1=1, 20)
+| convert ctime(first_seen) ctime(last_seen)
+| table _time clientip uri_path rce_type attempts first_seen last_seen
+| sort -_time
+```
 
-#### Optimized Production SPL Query
-```bash
-index=windows_security (EventCode=4720 OR EventCode=4732)
-| rex field=_raw "Subject:[\s\S]*?Security ID:\s*(?<creator_raw>[^\r\n]+)"
-| rex field=_raw "(?:New Account|Member):[\s\S]*?Security ID:\s*(?<target_raw>[^\r\n]+)"
-| rex field=_raw "Group Name:\s*(?<group_name>[^\r\n]+)"
-| eval creator=replace(creator_raw, ".*\\\\", "")
-| eval target=replace(target_raw, ".*\\\\", "")
-| eval action=case(EventCode=4720, "User_Created", EventCode=4732, "Group_Member_Added")
+**ES Throttle:** `window=3600s group=clientip`
+
+---
+
+---
+
+### Rule 03: Reverse Shell from Web Server (T1059.004)
+
+![Rule 03: Reverse Shell from Web Server (T1059.004)](assets/pic/R03_reverse_shell.png)
+*Hình 5.3: Kết quả Splunk SPL phát hiện Reverse Shell từ tiến trình máy chủ web bằng auditd.*
+
+> **Key insight:** `key=net_connect` giảm noise từ 138 → 53 events (62% reduction)
+
+```spl
+index=linux_security sourcetype=auditd type=SYSCALL
+  comm IN ("bash","sh","dash")
+  key=net_connect
+| eval non_interactive=if(auid=4294967295 OR tty="(none)", 1, 0)
+| where non_interactive=1
+| bin _time span=5m
+| stats count as connections, dc(pid) as unique_pids,
+        values(exe) as shells, values(auid) as uids, values(pid) as pids, values(ppid) as ppids,
+        earliest(_time) as first_seen, latest(_time) as last_seen
+  by host, comm, _time
+| where connections >= 1
+| convert ctime(first_seen) ctime(last_seen)
+| table _time host uids comm shells connections unique_pids pids ppids first_seen last_seen
+| sort -connections
+```
+
+**ES Throttle:** `window=1800s group=host` (cron reverse shell lặp mỗi 5 phút)
+
+---
+
+---
+
+### Rule 04: Linux Cron Job Persistence (T1053.003)
+
+![Rule 04: Linux Cron Job Persistence (T1053.003)](assets/pic/R04_cron_persistence.png)
+*Hình 5.4: Kết quả Splunk SPL phát hiện tạo Cron Job định kỳ duy trì quyền truy cập ngầm.*
+
+```spl
+index=linux_security sourcetype=auditd
+  (comm=crontab OR exe="/usr/bin/crontab")
+  success=yes key=cron_persistence
+| where uid=33 OR auid=33
+| stats count as cron_events, values(key) as audit_keys,
+        dc(pid) as invocation_count, values(uid) as uids, values(pid) as pids, values(ppid) as ppids,
+        earliest(_time) as first_seen, latest(_time) as last_seen
+  by host, comm
+| convert ctime(first_seen) ctime(last_seen)
+| table host uids comm pids ppids cron_events invocation_count first_seen last_seen
+```
+
+**ES Throttle:** `window=3600s group=host`
+
+---
+
+---
+
+### Rule 05: Sudo GTFOBins Privilege Escalation (T1548.003)
+
+![Rule 05: Sudo GTFOBins Privilege Escalation (T1548.003)](assets/pic/R05_sudo_gtfobins.png)
+*Hình 5.5: Kết quả Splunk SPL phát hiện leo thang đặc quyền Root qua Sudo GTFOBins.*
+
+> **REX justified:** `linux_secure` là text log, `COMMAND` field không được extract sẵn.
+
+```spl
+index=linux_security sourcetype=linux_secure "sudo:" 
+| rex field=_raw "sudo:\s+(?<sudo_user>\S+).*COMMAND=(?<sudo_cmd>.*)$"
+| eval is_gtfobin=if(match(sudo_cmd,"(?i)/(find|vim|awk|less|nmap|python[23]?|perl|ruby|php|tar|gdb|strace|nano|vi|more|git|zip|unzip|curl|wget|bash|sh)\b"),1,0)
+| eval spawns_shell=if(match(sudo_cmd,"(?i)(-exec\s+/bin/(sh|bash)|/bin/(sh|bash)\s*$|\s+(sh|bash)\s+-[ic])"),1,0)
+| where (is_gtfobin=1 OR spawns_shell=1) AND sudo_user!="root"
+| stats count as events, values(sudo_cmd) as cmds, values(pid) as pids, values(ppid) as ppids,
+        earliest(_time) as first_seen, latest(_time) as last_seen
+  by host, sudo_user
+| convert ctime(first_seen) ctime(last_seen)
+| table host sudo_user events cmds pids ppids first_seen last_seen
+| sort -_time
+```
+
+**ES Throttle:** `window=3600s group=host`
+
+---
+
+---
+
+### Rule 06: Credential Access via Configuration File (T1552.001)
+
+![Rule 06: Credential Access via Configuration File (T1552.001)](assets/pic/R06_config_credentials.png)
+*Hình 5.6: Kết quả Splunk SPL phát hiện đọc trích xuất tài khoản đăng nhập từ file cấu hình.*
+
+```spl
+index=linux_security sourcetype=auditd key=sensitive_config_read success=yes type=SYSCALL
+| where NOT match(exe,"(?i)(apache2|php-fpm|httpd|nginx)")
+| where NOT (syscall=89 OR syscall=2)
+| eval non_interactive=if(auid=4294967295 OR tty="(none)", 1, 0)
+| where non_interactive=1
 | bin _time span=15m
-| stats values(creator) as creators, values(target) as targets, values(group_name) as groups, values(action) as actions, count as event_count,
+| stats count as read_events, values(comm) as tools, values(exe) as exes, values(uid) as uids, values(pid) as pids, values(ppid) as ppids,
         earliest(_time) as first_seen, latest(_time) as last_seen
   by host, _time
+| eval is_root=if(mvfind(uids,"0")>=0, 1, 0)
 | convert ctime(first_seen) ctime(last_seen)
-| table _time host creators targets groups actions event_count
+| table _time host uids tools exes pids ppids read_events first_seen last_seen
 | sort -_time
 ```
 
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Quản trị viên IT thực hiện onboarding nhân sự mới hoặc thêm user vào nhóm không nhạy cảm (như `Remote Desktop Users`).
-- **False Negative (FN)**:
- - Kẻ tấn công sử dụng tài khoản Domain Admin tạo tài khoản trên Domain Controller (**Event 4728** - Global Group) thay vì local group.
+**ES Throttle:** `window=3600s group=host`
 
 ---
 
-### Rule 09: Windows Defender Tampering và Security Evasion
-
-![Rule 8 Splunk SPL Query và Kết Quả](assets/rules/rule08_defender_spl.png)
-*Hình 5.8: Kết quả Splunk SPL phát hiện hành vi tắt tính năng bảo vệ của Windows Defender.*
-
-??? note "Metadata Box"
-
-    - **MITRE ATT&CK**: `T1562.001` (Impair Defenses: Disable or Modify Tools)
-    - **Data Source**: `windows_logs` (Defender 5001 / PowerShell 4104) và `windows_sysmon` (EventCode 1)
-    - **Pyramid of Pain**: ==TTPs / High Confidence==
-    - **Risk Weight**: **85**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **65 sự kiện** trên `host=WIN-I370HR7VSPS` ghi nhận `Set-MpPreference -DisableRealtimeMonitoring $true` (ScriptBlock 4104) và Defender Disabled (5001).
-
-
-#### Optimized Production SPL Query
-```bash
-(index=windows_logs EventCode=5001 source="WinEventLog:Microsoft-Windows-Windows Defender/Operational")
-OR (index=windows_logs source="WinEventLog:Microsoft-Windows-PowerShell/Operational" EventCode=4104 (Message="*DisableRealtimeMonitoring*" OR Message="*Set-MpPreference*Disable*" OR Message="*Disable*Defender*"))
-OR (index=windows_sysmon EventCode=1 (Image="*powershell.exe" OR Image="*cmd.exe") (CommandLine="*Set-MpPreference*" OR CommandLine="*DisableRealtimeMonitoring*"))
-| eval detection_source=case(EventCode=5001, "Defender_Operational_5001", EventCode=4104, "PowerShell_ScriptBlock_4104", EventCode=1, "Sysmon_ProcessCreate_1", 1=1, "Other")
-| rex field=_raw "(?i)(?:CommandLine|Message):\s*(?<cmd_raw>[^\r\n]+)"
-| rex field=_raw "(?i)ParentImage:\s*(?<parent_raw>[^\r\n]+)"
-| rex field=_raw "(?i)(?:User|Subject):\s*(?:Security ID:\s*)?(?<user_raw>[^\r\n]+)"
-| eval user=replace(user_raw, ".*\\\\", "")
-| eval parent=mvindex(split(parent_raw, "\\"), -1)
-| eval cmd=if(detection_source="Defender_Operational_5001", "Realtime Protection Disabled", substr(cmd_raw, 1, 80))
-| bin _time span=15m
-| stats values(user) as users, values(EventCode) as event_codes, values(cmd) as cmds, values(parent) as parent_images, count as event_count
-  by host, detection_source, _time
-| convert ctime(_time)
-| table _time host detection_source users event_codes cmds parent_images event_count
-| sort -_time
-```
-
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Quản trị viên tắt tạm thời Defender để cài đặt phần mềm đặc thù.
- - Phần mềm EDR/Antivirus bên thứ 3 khi cài đặt tự động tắt Defender để tránh xung đột tài nguyên.
-- **False Negative (FN)**:
- - Kẻ tấn công sửa trực tiếp Registry (`HKLM\SOFTWARE\Policies\Microsoft\Windows Defender`) mà không qua lệnh PowerShell hoặc CLI.
- - Script PowerShell bị mã hóa Obfuscation (Base64, chuỗi phân mảnh) làm ẩn từ khóa `Set-MpPreference`.
-
 ---
 
-### Rule 10: LSASS Memory Dumping và Credential Extraction
+### Rule 07: C2 Reverse Tunnel & Ingress Tool Transfer (T1090.001 + T1105)
 
-![Rule 9 Splunk SPL Query và Kết Quả](assets/rules/rule09_lsass_spl.png)
-*Hình 5.9: Kết quả Splunk SPL phát hiện truy cập trái phép vào bộ nhớ tiến trình LSASS.*
+![Rule 07: C2 Reverse Tunnel & Ingress Tool Transfer (T1090.001 + T1105)](assets/pic/R07_c2_tunnel.png)
+*Hình 5.7: Kết quả Splunk SPL phát hiện mở đường hầm C2 Chisel và chuyển công cụ tấn công.*
 
-??? note "Metadata Box"
-
-    - **MITRE ATT&CK**: `T1003.001` (OS Credential Dumping: LSASS Memory)
-    - **Data Source**: `index=windows_sysmon EventCode=10` (ProcessAccess)
-    - **Pyramid of Pain**: ==TTPs / LOLBins==
-    - **Risk Weight**: **90**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **10 sự kiện** trên `host=WIN-I370HR7VSPS` phát hiện `C:\Windows\Temp\procdump64.exe` mở handle `0x1FFFFF` tới `lsass.exe` với `CallTrace` chứa `dbgcore.dll`.
-
-
-#### Kỹ thuật phân tích và Logic nâng cao
-- **Cơ chế Handle Access**: Khi một tiến trình gọi `OpenProcess()` tới `lsass.exe`, Sysmon ghi nhận cờ `GrantedAccess`. Các mask nguy hiểm như `0x1FFFFF` (PROCESS_ALL_ACCESS), `0x1010` (PROCESS_VM_READ), `0x1410`, `0x1438` cho phép đọc bộ nhớ để trích xuất hash NTLM và Kerberos tickets.
-- **Kỹ thuật Attacker "Giả Lập" User `SYSTEM` qua Service**: Attacker ban đầu xâm nhập dưới user `svc_backup` qua WinRM. Để dump LSASS với quyền cao nhất, attacker dùng `sc.exe create DumpService` để kích hoạt tiến trình chạy dưới danh nghĩa **`NT AUTHORITY\SYSTEM`**. Do đó, **tuyệt đối không được loại trừ `user="SYSTEM"`** vì sẽ gây False Negative nghiêm trọng. Thay vào đó, phải đánh giá **thư mục thực thi bất thường (`is_suspicious_path`)** kết hợp chữ ký **`CallTrace`**.
-- **Chữ ký CallTrace và MiniDump API**: Phân tích stack trace để nhận diện lời gọi hàm từ `dbgcore.dll` / `dbghelp.dll` (`MiniDumpWriteDump`), `comsvcs.dll` (LOLBin), hoặc địa chỉ bộ nhớ `UNKNOWN` (dấu hiệu của Direct Syscalls / EDR Unhooking).
-
-#### Optimized Production SPL Query (Next-Gen LSASS Detection)
-```bash
-index=windows_sysmon EventCode=10 TargetImage="*lsass.exe"
-| eval user=replace(SourceUser, ".*\\\\", "")
-| eval is_suspicious_path=if(match(SourceImage, "(?i)^C:\\\\(Windows\\\\Temp|Users|ProgramData|AppData|Temp)\\\\"), "YES", "NO")
-| eval dump_api=case(
-    match(CallTrace, "(?i)(dbgcore\.dll|dbghelp\.dll)"), "MiniDumpWriteDump (API Call)",
-    match(CallTrace, "(?i)comsvcs\.dll"), "comsvcs.dll (LOLBin)",
-    match(CallTrace, "(?i)UNKNOWN"), "Direct Syscall / Memory Injection",
-    1=1, "Standard Handle Access"
-  )
-| where GrantedAccess IN ("0x1010","0x1410","0x1438","0x143a","0x1f0fff","0x1f1fff","0x1fffff","0x1FFFFF")
-| where NOT match(SourceImage, "(?i)(MsMpEng|Sense|lsass)\.exe$")
-| stats count as access_count,
-        values(user) as users,
-        values(GrantedAccess) as granted_accesses,
-        values(is_suspicious_path) as from_suspicious_path,
-        values(dump_api) as detected_dump_apis,
-        earliest(_time) as first_seen,
-        latest(_time) as last_seen
-  by host, SourceImage
-| convert ctime(first_seen) ctime(last_seen)
-| table first_seen last_seen host SourceImage users from_suspicious_path granted_accesses detected_dump_apis access_count
-```
-
-#### Truy Vấn Tương Quan Toàn Diện Vòng Đời Dump LSASS (End-to-End Correlation)
-```bash
-index=windows_sysmon (
-    (EventCode=1 (Image="*procdump*" OR CommandLine="*lsass*"))
-    OR (EventCode=10 TargetImage="*lsass.exe")
-    OR (EventCode=11 TargetFilename="*lsass*.dmp")
-)
-| eval activity_stage=case(
-    EventCode=1, "1. Process/Service Execution (" . Image . ")",
-    EventCode=10, "2. LSASS Memory Handle Opened (" . GrantedAccess . ")",
-    EventCode=11, "3. Memory Dump File Written (" . TargetFilename . ")"
-  )
-| eval executed_detail=coalesce(CommandLine, TargetFilename, GrantedAccess)
-| eval actor=coalesce(User, SourceUser)
-| table _time host activity_stage actor executed_detail
-| sort _time
-```
-
----
-
-### Rule 11: Volume Shadow Copies (VSS) Deletion
-
-![Rule 10 Splunk SPL Query và Kết Quả](assets/rules/rule10_vss_spl.png)
-*Hình 5.10: Kết quả Splunk SPL phát hiện lệnh xóa bản sao lưu Volume Shadow Copies.*
-
-??? note "Metadata Box"
-
-    - **MITRE ATT&CK**: `T1490` (Inhibit System Recovery)
-    - **Data Source**: `index=windows_sysmon EventCode=1` / `windows_security EventCode=4688`
-    - **Pyramid of Pain**: ==TTPs / Critical Pre-Ransomware Indicator==
-    - **Risk Weight**: **95**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác **8 sự kiện** trên `host=WIN-I370HR7VSPS` ghi nhận `vssadmin.exe delete shadows /all /quiet` gọi bởi `wsmprovhost.exe`.
-
-
-#### Optimized Production SPL Query
-```bash
-index=windows_sysmon EventCode=1 (Image="*vssadmin.exe" OR Image="*wmic.exe" OR Image="*wbadmin.exe" OR Image="*bcdedit.exe")
-| where match(CommandLine, "(?i)(vssadmin.*delete.*shadows|wmic.*shadowcopy.*delete|wbadmin.*delete|bcdedit.*(recoveryenabled.*no|bootstatuspolicy.*ignoreallfailures))")
-| eval user_raw=if(User="NOT_TRANSLATED" OR isnull(User), ParentUser, User)
-| eval user=replace(user_raw, ".*\\\\", "")
-| eval parent=mvindex(split(ParentImage, "\\"), -1)
-| stats values(user) as users, values(parent) as parents, values(CommandLine) as commands, count as event_count,
+```spl
+index=linux_security sourcetype=auditd
+  ((comm IN ("wget","curl") key="exec_cmds")
+   OR (comm IN ("chisel","socat"))
+   OR exe="/tmp/chisel")
+| eval is_tunnel=if(match(exe,"(?i)(chisel|socat)") OR comm IN ("chisel","socat"), 1, 0)
+| eval is_download=if(comm IN ("wget","curl") AND key="exec_cmds", 1, 0)
+| eval is_susp_path=if(match(exe,"(?i)/tmp/|/dev/shm/|/var/tmp/"), 1, 0)
+| bin _time span=10m
+| stats count as events, values(comm) as tools_used, values(exe) as binaries, values(auid) as uids, values(pid) as pids, values(ppid) as ppids,
+        max(is_tunnel) as has_tunnel, max(is_download) as has_dl, max(is_susp_path) as has_susp,
         earliest(_time) as first_seen, latest(_time) as last_seen
-  by host, Image
+  by host, _time
+    has_tunnel=1 AND has_dl=1, 82,
+    has_tunnel=1, 68,
+    has_dl=1 AND has_susp=1, 55,
+    has_dl=1, 38,
+    1=1, 20)
+| where >= 38
 | convert ctime(first_seen) ctime(last_seen)
-| table first_seen last_seen host users Image parents commands event_count
-```
-
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Phần mềm sao lưu doanh nghiệp (*Veeam, Commvault, Acronis*) xóa các snapshot cũ theo chính sách xoay vòng lưu trữ.
-- **False Negative (FN)**:
- - Xóa Shadow Copies thông qua lệnh PowerShell WMI (`Get-CimInstance Win32_ShadowCopy | Remove-CimInstance`) hoặc qua trực tiếp COM API.
-
----
-
-### Rule 12: Ransomware Mass File Encryption Activity
-
-![Rule 11 Splunk SPL Query](assets/rules/rule11_encryption_spl.png)
-*Hình 5.11a: Cú pháp Splunk SPL phát hiện hành vi mã hóa hàng loạt tệp tin.*
-![Rule 11 Splunk Kết Quả Tìm Kiếm Thực Tế](assets/rules/rule11_results.png)
-*Hình 5.11b: Kết quả phát hiện tạo hàng loạt tệp có phần mở rộng .locked.*
-
-??? note "Metadata Box"
-
-    - **MITRE ATT&CK**: `T1486` (Data Encrypted for Impact)
-    - **Data Source**: `index=windows_sysmon EventCode=11` (FileCreate / Rename)
-    - **Pyramid of Pain**: ==TTPs / High Velocity Impact==
-    - **Risk Weight**: **100**
-    - **Kiểm chứng Splunk Lab**: Bắt chính xác các đợt mã hóa **30 - 60 file** đồng loạt trong khung thời gian 5 phút trên `host=WIN-I370HR7VSPS` với phần mở rộng `.locked`.
-
-
-#### Optimized Production SPL Query
-```bash
-index=windows_sysmon EventCode=11
-| where match(TargetFilename, "(?i)\.(locked|encrypted|crypt|crypto|enc|locked_[^\.]+)$")
-| eval user_raw=if(User="NOT_TRANSLATED" OR isnull(User), "unknown", User)
-| eval user=replace(user_raw, ".*\\\\", "")
-| bin _time span=5m
-| stats dc(TargetFilename) as files_encrypted,
-        values(TargetFilename) as sample_files,
-        count as total_events,
-        earliest(_time) as first_seen,
-        latest(_time) as last_seen
-  by host, Image, user, _time
-| where files_encrypted >= 3
-| convert ctime(first_seen) ctime(last_seen)
-| table _time host user Image files_encrypted sample_files total_events first_seen last_seen
+| table _time host uids tools_used binaries pids ppids events first_seen last_seen
 | sort -_time
 ```
 
-#### Phân tích Giới hạn Phát hiện (False Positives và False Negatives)
-- **False Positive (FP)**:
- - Các phần mềm nén file hoặc mã hóa dữ liệu hợp lệ được người dùng sử dụng (*7-Zip AES, VeraCrypt, GPG*).
-- **False Negative (FN)**:
- - Ransomware mã hóa trực tiếp nội dung file mà **không đổi tên hoặc phần mở rộng**.
- - Kịch bản mã hóa chậm (*Low-and-Slow Ransomware*) phân tán thời gian ghi file vượt ngoài khung 5 phút để tránh vượt ngưỡng threshold.
- - Các biến thể mã hóa hiện đại sử dụng phần mở rộng ngẫu nhiên (*Random Extension* theo Victim ID).
+**ES Throttle:** `window=3600s group=host`
+
+---
+
+---
+
+### Rule 08: Network Discovery from Non-Interactive Context (T1046)
+
+![Rule 08: Network Discovery from Non-Interactive Context (T1046)](assets/pic/R08_network_discovery.png)
+*Hình 5.8: Kết quả Splunk SPL phát hiện dò quét mạng nội bộ từ ngữ cảnh phi tương tác.*
+
+```spl
+index=linux_security sourcetype=auditd type=SYSCALL
+  comm IN ("ip","ifconfig","arp","ss","netstat","route","hostname","nmap","traceroute","ping","arp-scan")
+| eval non_interactive=if(auid=4294967295 OR tty="(none)", 1, 0)
+| where non_interactive=1
+| bin _time span=5m
+| stats values(comm) as tools_used, dc(comm) as tool_types, values(auid) as uids, values(pid) as pids, values(ppid) as ppids,
+        count as tool_calls, earliest(_time) as first_seen, latest(_time) as last_seen
+  by host, _time
+| where tool_calls >= 5 AND tool_types >= 2
+| convert ctime(first_seen) ctime(last_seen)
+| table _time host uids tools_used tool_types tool_calls pids ppids first_seen last_seen
+| sort -tool_calls
+```
+
+**ES Throttle:** `window=3600s group=host`
+
+---
+
+---
+
+### Rule 09: WinRM Lateral Movement from Pivot Host (T1021.006)
+
+![Rule 09: WinRM Lateral Movement from Pivot Host (T1021.006)](assets/pic/R09_winrm_lateral.png)
+*Hình 5.9: Kết quả Splunk SPL phát hiện di chuyển ngang WinRM qua máy trung gian Pivot Host.*
+
+> **Lab finding:** `Source_Network_Address="-"` do socat tunnel ẩn IP. Filter theo NtLmSsp pattern.
+
+```spl
+index=windows_security EventCode=4624 Logon_Type=3 Logon_Process IN ("NtLmSsp", "Kerberos")
+| eval acct=if(mvcount(Account_Name)>1, mvindex(Account_Name, -1), Account_Name)
+| where NOT match(acct,"(?i)(anonymous|^-$|\$$)")
+| bin _time span=15m
+| stats count as logon_count, values(Source_Network_Address) as src_ips,
+        earliest(_time) as first_seen, latest(_time) as last_seen
+  by host, acct, _time
+| convert ctime(first_seen) ctime(last_seen)
+| table _time host acct src_ips logon_count first_seen last_seen
+| sort -logon_count
+```
+
+**Confirm WinRM via Sysmon:**
+```spl
+index=windows_sysmon EventCode=1 ParentImage="*wsmprovhost.exe" host=$host$
+| table _time Image CommandLine User ParentImage
+| sort -_time
+```
+
+**ES Throttle:** `window=1800s group=host`
+
+---
+
+---
+
+### Rule 10: New Local Administrator Account Creation (T1136.001)
+
+![Rule 10: New Local Administrator Account Creation (T1136.001)](assets/pic/R10_admin_account.png)
+*Hình 5.10: Kết quả Splunk SPL phát hiện tạo tài khoản ngầm và gán quyền Administrators.*
+
+> **Note:** TargetUserName/Group_Name field unreliable → dùng rex từ _raw hoặc Sysmon approach.
+
+```spl
+index=windows_security (EventCode=4720 OR EventCode=4732)
+| rex field=_raw "Account Name:\s+(?<creator_user>\S+)\s+Account Domain:\s+(?<subj_domain>\S+)"
+| rex field=_raw "Group Name:\s+(?<group_name>[^\r\n]+)"
+| eval event_type=case(EventCode=4720,"UserCreated",EventCode=4732,"AddedToGroup",1=1,"Other")
+| bin _time span=30m
+| stats values(event_type) as types, dc(EventCode) as evt_count,
+        values(group_name) as groups, values(creator_user) as creators,
+        earliest(_time) as first_seen, latest(_time) as last_seen
+  by host, _time
+| where evt_count >= 2
+| eval admin_add=if(mvfind(groups,"Administrators")>=0, 1, 0)
+| convert ctime(first_seen) ctime(last_seen)
+| table _time host creators types groups first_seen last_seen
+| sort -_time
+```
+
+**ES Throttle:** `window=3600s group=host`
+
+**Alternative (Sysmon, không cần rex):**
+```spl
+index=windows_sysmon EventCode=1 Image="*net.exe"
+| where match(CommandLine,"(?i)user\s+\w+\s+.+/add") OR match(CommandLine,"(?i)localgroup\s+administrators")
+| bin _time span=5m
+| stats values(CommandLine) as cmds, count as events, values(User) as users by host, _time
+| table _time host cmds users events
+```
+
+---
+
+---
+
+### Rule 11: Windows Defender Real-time Protection Disabled (T1562.001)
+
+![Rule 11: Windows Defender Real-time Protection Disabled (T1562.001)](assets/pic/R11_defender_disabled.png)
+*Hình 5.11: Kết quả Splunk SPL phát hiện vô hiệu hóa cơ chế phòng thủ Windows Defender.*
+
+> **Tại sao không có Sysmon EID=1:** Set-MpPreference chạy in-process, không spawn child process.  
+> **Prerequisite:** Forward `Microsoft-Windows-Windows Defender/Operational` channel.
+
+```spl
+(index=windows_logs EventCode=5001 source="WinEventLog:Microsoft-Windows-Windows Defender/Operational")
+OR (index=windows_logs source="WinEventLog:Microsoft-Windows-PowerShell/Operational" EventCode=4104
+    (Message="*DisableRealtimeMonitoring*" OR Message="*Set-MpPreference*Disable*" OR Message="*Disable*Defender*"))
+OR (index=windows_sysmon EventCode=1 (Image="*powershell.exe" OR Image="*cmd.exe") (CommandLine="*Set-MpPreference*" OR CommandLine="*DisableRealtimeMonitoring*"))
+| eval alert_source=case(EventCode=5001,"Defender_Operational_5001",EventCode=4104,"PowerShell_ScriptBlock_4104",EventCode=1,"Sysmon_ProcessCreate_1",1=1,"Other")
+| bin _time span=15m
+| stats count as events, values(EventCode) as event_codes, values(ParentImage) as parent_images, values(ProcessId) as pids, values(User) as users by host, ComputerName, alert_source, _time
+| convert ctime(_time)
+| table _time host ComputerName alert_source users event_codes events parent_images pids
+| sort -_time
+```
+
+**ES Throttle:** `window=3600s group=host`
+
+---
+
+---
+
+### Rule 12: LSASS Process Memory Dump (T1003.001)
+
+![Rule 12: LSASS Process Memory Dump (T1003.001)](assets/pic/R12_lsass_dump.png)
+*Hình 5.12: Kết quả Splunk SPL phát hiện trích xuất bộ nhớ tiến trình LSASS qua Sysmon Event 10.*
+
+> **0x1010 mask thường bị miss** — Mimikatz variant. Đã thêm vào coverage.
+
+```spl
+index=windows_sysmon EventCode=10 TargetImage="*lsass.exe"
+| eval ga=lower(GrantedAccess)
+| where ga IN ("0x1010","0x1410","0x1438","0x143a","0x1fffff","0x1f0fff","0x1f1fff")
+| eval whitelisted=if(match(lower(SourceImage),"(?i)(msmpe|windowssecurityhealthservice|sense\.exe|antimalware)"),1,0)
+| where whitelisted=0
+| eval is_procdump=if(match(CallTrace,"(?i)(dbgcore|dbghelp)\.dll"),1,0)
+| eval is_susp_path=if(match(lower(SourceImage),"(?i)\\\\(temp|appdata|users\\\\public|programdata|downloads)\\\\"),1,0)
+| stats count as access_count, values(GrantedAccess) as ga_masks,
+        max(is_procdump) as procdump_detected,
+        max(is_susp_path) as susp_path
+  by host, SourceImage, SourceUser
+| table host SourceImage SourceUser access_count ga_masks procdump_detected susp_path
+| sort -_time
+```
+
+**ES Throttle:** `window=3600s group=host`
+
+---
+
+---
+
+### Rule 13: Volume Shadow Copy Deletion (T1490)
+
+![Rule 13: Volume Shadow Copy Deletion (T1490)](assets/pic/R13_vss_deletion.png)
+*Hình 5.13: Kết quả Splunk SPL phát hiện xóa Volume Shadow Copies ngăn chặn khôi phục.*
+
+```spl
+index=windows_sysmon EventCode=1 Image="*vssadmin.exe"
+| where match(CommandLine,"(?i)(vssadmin.*delete.*shadows|wmic.*shadowcopy.*delete|wbadmin.*delete|bcdedit.*(recoveryenabled.*no|bootstatuspolicy.*ignoreallfailures))")
+| eval parent=mvindex(split(ParentImage,"\\"),-1)
+| eval via_winrm=if(match(lower(parent),"wsmprovhost"),1,0)
+| stats count as events, values(CommandLine) as cmd,
+        max(via_winrm) as winrm_confirmed,
+        values(parent) as parents, earliest(_time) as first_seen, latest(_time) as last_seen
+  by host, User
+| convert ctime(first_seen) ctime(last_seen)
+| table host User cmd parents winrm_confirmed events first_seen last_seen
+| sort -_time
+```
+
+**ES Throttle:** `window=3600s group=host`
+
+---
+
+---
+
+### Rule 14: Mass File Encryption / Ransomware Activity (T1486)
+
+![Rule 14: Mass File Encryption / Ransomware Activity (T1486)](assets/pic/R14_ransomware_encryption.png)
+*Hình 5.14: Kết quả Splunk SPL phát hiện hoạt động mã hóa tống tiền hàng loạt file .locked.*
+
+```spl
+index=windows_sysmon EventCode=11
+| where like(TargetFilename,"%.locked") OR like(TargetFilename,"%.encrypted") OR like(TargetFilename,"%.crypt")
+| bin _time span=2m
+| stats dc(TargetFilename) as files_encrypted, count as total_events,
+        values(TargetFilename) as samples
+  by host, Image, _time
+| where files_encrypted > 5
+| eval via_winrm=if(match(lower(Image),"wsmprovhost"),1,0)
+| convert ctime(_time)
+| table _time host Image files_encrypted total_events via_winrm
+| sort -_time
+```
+
+**ES Throttle:** `window=3600s group=host`
+
+---
+
+---
+
+### Rule 15: Multi-Stage Attack Chain Correlation & RBA
+
+![Rule 15: Multi-Stage Attack Chain Correlation & RBA](assets/pic/R15_attack_chain_correlation.png)
+*Hình 5.15: Kết quả Splunk SPL tương quan chuỗi tấn công đa tầng và tính điểm rủi ro RBA.*
+
+> ⚠️ **Performance note:** Rule nặng — chỉ chạy trong ES với Risk Framework.  
+> Trong Splunk core: giới hạn `earliest=-4h`.
+
+```spl
+| union
+    [search index=web_logs method=POST status=200 uri_path=*upload* NOT uri_path=*login*
+     | stats count by host | eval stage="R01-WebUpload" | eval risk=25 | eval entity=host]
+    [search index=web_logs method=GET status=200 file=*.php cmd=*
+     | eval entity=clientip | stats count by entity | eval stage="R02-WebShell" | eval risk=55]
+    [search index=linux_security sourcetype=auditd comm IN ("bash","sh","dash") key=net_connect (auid=4294967295 OR tty="(none)")
+     | stats count by host | eval stage="R03-RevShell" | eval risk=75 | eval entity=host]
+    [search index=linux_security sourcetype=auditd comm=crontab success=yes key=cron_persistence (uid=33 OR auid=33)
+     | stats count by host | eval stage="R04-CronPersist" | eval risk=55 | eval entity=host]
+    [search index=linux_security sourcetype=linux_secure "sudo:" "www-data"
+     | stats count by host | eval stage="R05-SudoEsc" | eval risk=75 | eval entity=host]
+    [search index=linux_security sourcetype=auditd key=sensitive_config_read success=yes (auid=4294967295 OR tty="(none)")
+     | stats count by host | eval stage="R06-CredRead" | eval risk=70 | eval entity=host]
+    [search index=linux_security sourcetype=auditd (comm="chisel" OR exe="/tmp/chisel" OR (comm="socat" AND key="net_connect"))
+     | stats count by host | eval stage="R07-C2Tunnel" | eval risk=75 | eval entity=host]
+    [search index=windows_security EventCode=4624 Logon_Type=3 Logon_Process IN ("NtLmSsp", "Kerberos")
+     | stats count by host | eval stage="R09-WinRM" | eval risk=72 | eval entity=host]
+    [search index=windows_security (EventCode=4720 OR EventCode=4732)
+     | stats count by host | eval stage="R10-AdminAcct" | eval risk=80 | eval entity=host]
+    [search index=windows_logs EventCode=5001 source="WinEventLog:Microsoft-Windows-Windows Defender/Operational"
+     | stats count by host | eval stage="R11-DefenderOff" | eval risk=90 | eval entity=host]
+    [search index=windows_sysmon EventCode=10 TargetImage="*lsass.exe" GrantedAccess="0x1FFFFF"
+     | stats count by host | eval stage="R12-LSASSDump" | eval risk=95 | eval entity=host]
+    [search index=windows_sysmon EventCode=1 Image="*vssadmin.exe" CommandLine="*delete*shadows*"
+     | stats count by host | eval stage="R13-VSSDelete" | eval risk=95 | eval entity=host]
+    [search index=windows_sysmon EventCode=11 (TargetFilename="*.locked" OR TargetFilename="*.encrypted")
+     | bin _time span=2m | stats dc(TargetFilename) as f by host | where f>5
+     | eval stage="R14-Ransomware" | eval risk=100 | eval entity=host]
+| dedup entity, stage
+| stats sum(risk) as , dc(stage) as stage_count, max(risk) as max_risk,
+        values(stage) as stages_active, earliest(_time) as attack_start, latest(_time) as attack_end
+  by entity
+| eval duration_min=round((attack_end-attack_start)/60, 1)
+    stage_count>=6 AND max_risk>=85, "CRITICAL - Full Kill-Chain Confirmed",
+    stage_count>=4 AND max_risk>=70, "HIGH - Multi-Stage Attack",
+    stage_count>=2, "MEDIUM - Correlated Indicators",
+    1=1, "INFO")
+| where stage_count >= 2
+| eval suppress_key=entity + "|" + tostring(round(attack_start/3600)*3600)
+| dedup suppress_key
+| convert ctime(attack_start) ctime(attack_end)
+| table entity  stage_count stages_active duration_min attack_start attack_end
+| sort -
+```
 
 ---
 

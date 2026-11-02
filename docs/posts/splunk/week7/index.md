@@ -13,8 +13,11 @@ tags:
 # Tuần 7: Báo Cáo Điều Tra Sự Cố An Ninh Mạng BOTSv1
 
 **Dự án:** Boss of the SOC Version 1 (BOTSv1 - 2015/2016) 
+
 **Đơn vị thực hiện:** Wayne Enterprises Security Operations Center (SOC) 
+
 **Thực tập sinh thực hiện:** Vương Thành Đạt | **Vai trò:** SOC Analyst 
+
 **Thời gian lập báo cáo:** 28/08/2016 (Cập nhật chuẩn hóa: 04/09/2026) 
 
 | Thông Tin Chung | Chi Tiết |
