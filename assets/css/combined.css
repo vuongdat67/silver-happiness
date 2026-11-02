@@ -1,0 +1,262 @@
+/* ============================================================
+   COMBINED CSS
+   Gộp từ: blue.css · test.css · width.css
+   ============================================================ */
+
+
+/* ============================================================
+   blue.css — Màu chủ đạo (primary color) theo color scheme
+   ============================================================ */
+
+/* :root  > *  {
+    --md-primary-fg-color:        #0054A6;
+    --md-primary-fg-color--light: rgba(0, 51, 160, 0.267);
+    --md-primary-fg-color--dark:  #0054A6;
+  } */
+
+/* Màu cho chế độ Sáng */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color:        #0054A6;
+  --md-primary-fg-color--light: rgba(0, 51, 160, 0.267);
+  --md-primary-fg-color--dark:  #0054A6;
+}
+
+/* Màu cho chế độ Tối (Slate) */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #0363b1; /* Một tông xanh sáng hơn cho nền tối */
+  --md-primary-fg-color--light: rgba(12, 48, 77, 0.2);
+  --md-primary-fg-color--dark:  #1e88e5;
+}
+
+/* Cỡ chữ nhỏ hơn cho admonition: note, danger, warning */
+.md-typeset details.note {
+    font-size: 90%;
+  }
+
+.md-typeset details.danger {
+    font-size: 90%;
+  }
+
+.md-typeset details.warning {
+    font-size: 90%;
+  }
+
+/* In đậm các heading h1, h2, h3 */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  font-weight: bold;
+}
+
+/* Tăng chiều rộng tooltip */
+:root {
+  --md-tooltip-width: 600px;
+}
+
+
+/* ============================================================
+   test.css — Tuỳ chỉnh blog, layout 2 cột, code block
+   ============================================================ */
+
+/* Wrap code thay vì tràn ngang */
+code {
+    white-space: pre-wrap;
+}
+
+/* Ẩn grid tags của plugin blogging */
+.md-typeset .blogging-tags-grid {
+  display: none;
+}
+
+/* Cỡ chữ nhỏ cho extra info của bài blog */
+.blog-post-extra {
+  font-size: 0.75rem;
+}
+
+/* Giảm margin-top cho description bài blog */
+p.blog-post-description {
+  margin-top: 5px;
+}
+
+/* Màu highlight dòng code được đánh dấu */
+.highlight .hll {
+  background-color: #007cff29;
+}
+
+/* Container info: khối thông tin inline, full width, có padding */
+.container-info {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding: 25px;
+  text-align: center;
+}
+
+/* Container main: khối nội dung chính, có chiều cao tối thiểu */
+.container-main {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding: 25px;
+  min-height: 490px;
+}
+
+/* Font weight tiêu đề bài blog */
+.md-typeset .blog-post-title {
+  font-weight: 500;
+}
+
+/* Cỡ chữ mặc định toàn trang */
+.md-typeset {
+  font-size: 0.7rem;
+}
+
+/* Heading styles */
+.md-typeset h1 {
+  font-weight: 600;
+  margin-bottom: 0.7em;
+}
+
+.md-typeset h2 {
+  font-weight: 600;
+}
+
+.md-typeset h3 {
+  font-weight: 600;
+}
+
+/* Code block: scroll ngang + giới hạn chiều cao */
+.md-typeset pre > code {
+  overflow-x: scroll;
+  max-height: 500px;
+  padding-bottom: 0;
+}
+
+/* Ảnh cao: scroll dọc, giới hạn chiều cao */
+.tall_image {
+  overflow-y: scroll;
+  max-height: 500px;
+}
+
+/* Responsive mobile (≤ 500px): bỏ padding, reset margin heading */
+@media (max-width: 500px) {
+    .container-info{
+      padding: 0px;
+    }
+    .container-main {
+      padding: 0px;
+    }
+    .md-typeset h2 {
+      margin:0px;
+    }
+    .md-typeset {
+      font-size: .7rem;
+    }
+    .md-header__inner {
+      padding: 0;
+    }
+  }
+
+/* Responsive desktop (≥ 1000px): layout 2 cột trái/phải 50-50 */
+  @media (min-width: 1000px) {
+    .container-info {
+      float: left;
+      /*position: fixed;*/
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 50%;
+    }
+    .container-main {
+      float: right;
+      /*position: fixed;*/
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 50%;
+    }
+  }
+
+
+/* ============================================================
+   width.css — Bảng, layout full-width, màu bảng, hình ảnh
+   ============================================================ */
+
+/* Border bảng: chỉ giữ viền phải của cột, bỏ bottom/left/top */
+th, td {
+    border: 1px solid var(--md-typeset-table-color);
+    border-spacing: 0;
+    border-bottom: none;
+    border-left: none;
+    border-top: none;
+}
+
+/* Bảng: line-height nhỏ, full width */
+.md-typeset__table {
+    line-height: 1;
+	  width: 100%;
+}
+
+/* Bảng không có class: font nhỏ, bỏ viền phải, hiển thị dạng table */
+.md-typeset__table table:not([class]) {
+    font-size: .74rem;
+    border-right: none;
+	  display: table
+}
+
+/* Mở rộng content area ra hết chiều ngang (bỏ max-width mặc định) */
+.md-grid {
+    max-width: initial; 
+    /* max-width: 1440px; */
+  }
+
+/* Header bảng: nền màu primary, chữ trắng */
+/* .md-typeset__table table:not([class]) td, */
+.md-typeset__table table:not([class]) th {
+    background-color: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+}
+
+/* Light mode: màu xen kẽ dòng chẵn trong bảng */
+.md-typeset__table tr:nth-child(2n) {
+    background-color: #f8f8f8;
+}
+
+/* Dark mode (slate): màu xen kẽ dòng chẵn trong bảng */
+[data-md-color-scheme="slate"] .md-typeset__table tr:nth-child(2n) {
+    background-color: hsla(var(--md-hue),25%,25%,1)
+}
+
+/* [data-md-color-scheme="slate"] img[src$="#only-dark"]
+[data-md-color-scheme="slate"] img[src$="#gh-dark-mode-only"] {
+  display: none; 
+}  */
+
+/* [data-md-color-scheme="gfz-dark"] img[src$="#only-light"],
+[data-md-color-scheme="gfz-dark"] img[src$="#gh-light-mode-only"] {
+  display: none; 
+} */
+
+/* Override màu primary (dùng màu GFZ) */
+:root {
+    --md-primary-fg-color:        #00589c;
+    --md-primary-fg-color--light: #00589c;
+    --md-primary-fg-color--dark:  #00589c;
+  }
+
+/* Ảnh trong figure: hiển thị inline thay vì block */
+.md-typeset figure img {
+    display: inline;
+}
+
+/* custom data line colors */
+/* .datalines {
+  color: #EE0F0F;
+} */
+
+/* Timeago: hiển thị thời gian tương đối, chữ nghiêng màu xám */
+.timeago {
+    color: #555;
+    font-style: italic;
+    font-size: 0.9em;
+}

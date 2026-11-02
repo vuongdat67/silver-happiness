@@ -1,0 +1,117 @@
+:root {
+      --ink: #f9efe1;
+      --muted: #c7ae93;
+      --coffee: #3a2118;
+      --espresso: #140d0a;
+      --wood: #6d3f27;
+      --cream: #f3d2a3;
+      --amber: #e3a33a;
+      --mint: #80c7a7;
+      --berry: #d66b75;
+      --blue: #7ea9c9;
+      --shadow: rgba(8, 4, 2, 0.55);
+      --coffee-level: 100%;
+      --coffee-liquid-offset: 0%;
+      --coffee-liquid-opacity: 1;
+      --coffee-volume: 72%;
+      --coffee-volume-glow: 0.28;
+      --steam-opacity: 0.72;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--espresso);
+    }
+
+    body {
+      margin: 0;
+      min-height: 70vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 74% 42%, rgba(243, 210, 163, 0.08), transparent 26%),
+        linear-gradient(180deg, #17191d 0%, #15100f 58%, #090706 100%);
+    }
+
+    body.is-playing .key.white {
+      animation-name: keyDance;
+      animation-duration: calc(var(--tempo) * 3.4);
+      animation-iteration-count: infinite;
+      animation-timing-function: ease-in-out;
+    }
+
+    body.is-playing .key.black {
+      animation-name: blackKeyDance;
+      animation-duration: calc(var(--tempo) * 3.1);
+      animation-iteration-count: infinite;
+      animation-timing-function: ease-in-out;
+    }
+
+
+
+    body.is-playing .brand-mark {
+      animation-duration: 2.8s;
+    }
+
+    body.is-playing .vinyl-record {
+      animation-play-state: running;
+    }
+
+    @keyframes spinRecord {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes brandRecordSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .track-trigger-marquee {
+      display: block;
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .track-trigger strong {
+      display: inline-block;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    @keyframes marqueeScroll {
+      0%, 15% { transform: translateX(0); }
+      45%, 55% { transform: translateX(calc(-100% + 140px)); }
+      85%, 100% { transform: translateX(0); }
+    }
+
+    body.overdose {
+      animation: slightShake 0.15s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+
+      .dial-center.tick-bump {
+        animation: none !important;
+      }
+
+      .brand-mark {
+        animation: none !important;
+      }
+
+    }

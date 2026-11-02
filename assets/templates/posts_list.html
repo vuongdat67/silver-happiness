@@ -1,0 +1,44 @@
+{% extends "main.html" %}
+{% block content %}
+  {{ page.content }}
+  {% for p in nav.pages %}
+    {% if p.url.startswith("posts/") and p.meta.get("date") %}
+      <hr>
+      <h2 class="post-title"><a href="{{ p.url | url }}">{{ p.title }}</a></h2>
+      <span class="post-date">{{ p.meta.date.strftime("%b %d, %Y") }}</span>
+      {{ p.content.split("<!--more-->", 1)[0] }}
+      {% if p.meta.get("image") and p.meta.image.get("show_in_list") %}
+        <div class="post-excerpt-image crop-excerpt">
+          <a href="{{ p.url | url }}"><img src="{{ p.meta.image.src | url }}"/></a>
+        </div>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endblock %}
+{% block styles %}
+  {{ super() }}
+  <style>
+    .post-excerpt-image.crop-excerpt {
+      width: 100%;
+      max-height: 200px;
+      overflow: hidden;
+      mask-image: linear-gradient(to bottom, #000, transparent);
+    }
+    .post-excerpt-image img {
+      width: 100%;
+      max-width: 100%;
+      vertical-align: middle;
+    }
+    .post-date {
+      font-size: 0.8em;
+      text-decoration: underline;
+    }
+    .post-title {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+    .md-main__inner {
+      margin-bottom: 1.5rem;
+    }
+  </style>
+{% endblock %}

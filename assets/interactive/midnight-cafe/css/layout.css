@@ -1,0 +1,589 @@
+.scene {
+      position: relative;
+      min-height: 100svh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      isolation: isolate;
+    }
+
+    .scene::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.18), transparent 20%, transparent 80%, rgba(0, 0, 0, 0.2)),
+        linear-gradient(180deg, transparent 0 70%, rgba(0, 0, 0, 0.34) 100%);
+      mix-blend-mode: soft-light;
+      z-index: -1;
+    }
+
+    .topbar {
+  position: sticky;
+  top: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 16px;
+      padding: 16px clamp(18px, 4vw, 56px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      position: relative;
+      display: grid;
+      place-items: center;
+      color: #f9efe1;
+      font-weight: 900;
+      font-size: 12px;
+      background:
+        radial-gradient(circle at 50% 50%, #e3a33a 0 17%, #1b1110 18% 21%, transparent 22%),
+        repeating-radial-gradient(circle at 50% 50%, #171312 0 4px, #0b0908 5px 7px, #201a18 8px 9px),
+        linear-gradient(135deg, #292522, #060505);
+      box-shadow:
+        0 10px 32px rgba(227, 163, 58, 0.24),
+        inset 0 0 0 1px rgba(255, 239, 217, 0.1);
+      flex: 0 0 auto;
+      isolation: isolate;
+      animation: brandRecordSpin 9s linear infinite;
+    }
+
+    .brand-mark::before {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 239, 217, 0.1);
+      box-shadow: inset 0 0 0 5px rgba(255, 239, 217, 0.03);
+      z-index: -1;
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      width: 8px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255, 239, 217, 0.24);
+      transform: rotate(-35deg);
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-name {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .now-playing {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      max-width: min(46vw, 520px);
+      transform: translate(-50%, -50%);
+      color: #f3d2a3;
+      font-size: 14px;
+      font-weight: 850;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-status {
+      display: contents;
+    }
+
+    .vietnam-clock {
+      position: absolute;
+      right: clamp(18px, 4vw, 56px);
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #f3d2a3;
+      font-size: 20px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      text-shadow: 0 0 18px rgba(243, 210, 163, 0.24);
+    }
+
+    .hero {
+      position: relative;
+      z-index: 3;
+      width: min(1160px, calc(100% - 36px));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(280px, 0.96fr);
+      align-items: center;
+      gap: clamp(20px, 4vw, 56px);
+      padding: clamp(8px, 2.5vh, 24px) 0 14px;
+    }
+
+    .copy {
+      max-width: 620px;
+    }
+
+    .copy.no-title .intro {
+      margin-top: 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 12px;
+      color: var(--cream);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 32px;
+      height: 2px;
+      background: var(--mint);
+    }
+
+    h1 {
+      max-width: 10ch;
+      margin: 0;
+      font-size: clamp(48px, 8.4vw, 96px);
+      line-height: 0.88;
+      letter-spacing: 0;
+    }
+
+    .intro {
+      margin: 16px 0 0;
+      max-width: 56ch;
+      color: #e8d4bd;
+      font-size: clamp(16px, 1.6vw, 19px);
+      line-height: 1.5;
+    }
+
+    .footer-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 8px;
+      background: transparent;
+      border: none;
+      z-index: 50;
+      backdrop-filter: none;
+    }
+
+    .footer-disclaimer {
+      font-size: 10px;
+      color: #7a6e67;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .footer-disclaimer strong {
+      color: #9c8e87;
+    }
+
+    .hint {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .cafe-table {
+      position: relative;
+      min-height: 300px;
+      display: grid;
+      place-items: center;
+    }
+
+    .storefront,
+    .sidewalk,
+    .lamp,
+    .menu-board {
+      display: none;
+    }
+
+    .storefront {
+      position: absolute;
+      right: 0;
+      bottom: 12%;
+      width: min(470px, 92%);
+      height: min(390px, 75vw);
+      border-radius: 10px 10px 4px 4px;
+      background:
+        linear-gradient(90deg, rgba(255, 239, 217, 0.08) 0 1px, transparent 1px 58px),
+        linear-gradient(180deg, #6b3b24, #321b13);
+      box-shadow: 0 26px 80px var(--shadow), inset 0 0 0 1px rgba(255, 239, 217, 0.14);
+      overflow: hidden;
+      animation: cafeFloat 11s ease-in-out infinite;
+    }
+
+    .storefront::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 58px;
+      background: linear-gradient(180deg, #8c5635, #4b281b);
+    }
+
+    .awning {
+      position: absolute;
+      left: -18px;
+      right: -18px;
+      top: 0;
+      height: 86px;
+      background: repeating-linear-gradient(90deg, #f0c784 0 44px, #743923 44px 88px);
+      border-radius: 10px 10px 18px 18px;
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28);
+      z-index: 4;
+    }
+
+    .awning::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -13px;
+      height: 18px;
+      background: radial-gradient(circle at 22px 0, #743923 0 21px, transparent 22px) repeat-x;
+      background-size: 88px 18px;
+    }
+
+    .cafe-sign {
+      position: absolute;
+      left: 50%;
+      top: 100px;
+      transform: translateX(-50%) rotate(-1deg);
+      z-index: 5;
+      width: 220px;
+      min-height: 62px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 10px 16px;
+      color: #24120c;
+      font-weight: 950;
+      font-size: 18px;
+      background: linear-gradient(180deg, #f3d2a3, #d19556);
+      border-radius: 6px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32), inset 0 0 0 2px rgba(71, 35, 21, 0.18);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(18, 12, 10, 0.96);
+      color: var(--mint);
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(128, 199, 167, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      font-size: 13px;
+      font-weight: 800;
+      transform: translateX(150%);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    @media (max-width: 820px) {
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .now-playing {
+        max-width: 38vw;
+        font-size: 12px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 6px;
+      }
+
+      .copy {
+        max-width: none;
+      }
+
+      h1 {
+        max-width: 8ch;
+      }
+
+      .cafe-table {
+        min-height: 240px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar {
+        padding: 18px;
+      }
+
+      .brand-subtitle {
+        display: none;
+      }
+
+      .now-playing {
+        max-width: 34vw;
+        font-size: 11px;
+      }
+
+      .vietnam-clock {
+        font-size: 16px;
+      }
+
+      h1 {
+        font-size: clamp(48px, 18vw, 76px);
+      }
+
+      .controls {
+        align-items: stretch;
+      }
+
+      button,
+      .switch-label,
+      .track-picker,
+      .track-trigger,
+      .volume-control {
+        width: 100%;
+        max-width: none;
+      }
+
+      .volume-control {
+        justify-content: space-between;
+      }
+
+      .volume-knob-control {
+        grid-template-columns: auto 74px;
+        justify-content: space-between;
+      }
+
+      .volume-control input {
+        flex: 1;
+      }
+
+      .seek-panel {
+        width: 100%;
+      }
+
+      .cafe-table {
+        min-height: 200px;
+      }
+
+      .coffee {
+        width: 180px;
+        height: 180px;
+      }
+
+      .piano {
+        padding: 10px;
+      }
+
+      .keyboard {
+        gap: 3px;
+        height: 108px;
+      }
+
+      .ticker {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+/* Half-Circle Dial (Track Picker) */
+
+/* Nostalgic Mode */
+body.nostalgic-mode .scene::before {
+  filter: sepia(0.6) contrast(1.1) brightness(0.9);
+  transition: filter 2s ease;
+}
+
+body.nostalgic-mode .hint {
+  color: #e0b48f; /* Warmer tone */
+  font-style: italic;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(224, 180, 143, 0.4);
+  transition: all 1s ease;
+}
+
+body {
+  transition: all 2s ease;
+}
+
+body.nostalgic-mode {
+  filter: sepia(0.3) saturate(0.8);
+}
+
+
+/* Transition Overlay */
+.transition-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.transition-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Nostalgic / Cinema Mode Layout Changes */
+body.nostalgic-mode .piano-stage,
+body.nostalgic-mode .window-scene,
+body.nostalgic-mode .street-background {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 1.5s ease-in-out;
+}
+
+/* Film Grain Overlay */
+body.nostalgic-mode .scene::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.08%22/%3E%3C/svg%3E');
+  pointer-events: none;
+  z-index: 90;
+  opacity: 1;
+}
+
+
+body.nostalgic-mode .half-dial-container {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+
+/* Polaroid Container */
+.polaroid-container {
+  position: absolute;
+  right: 15vw;
+  top: 50%;
+  transform: translateY(-50%) rotate(3deg);
+  width: 300px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 2.5s ease-in-out;
+  z-index: 5;
+  filter: sepia(0.5);
+}
+
+.polaroid {
+  background: #fdfdfd;
+  padding: 15px 15px 50px 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  border-radius: 2px;
+}
+
+.polaroid-photo {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #2a2520 0%, #151210 100%);
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Subtle glow / vignette inside the photo */
+.polaroid-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.9);
+  pointer-events: none;
+}
+
+.typewriter-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  color: #e0b48f;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  text-align: center;
+  opacity: 1;
+  text-shadow: 0 0 5px rgba(224, 180, 143, 0.4);
+  z-index: 10;
+}
+
+.polaroid-caption {
+  font-family: 'Brush Script MT', 'Caveat', cursive, sans-serif;
+  color: #2c2825;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+  transform: rotate(-3deg);
+  opacity: 0.8;
+}
+
+body.nostalgic-mode .polaroid-container {
+  opacity: 1;
+  transform: translateY(-50%) rotate(-4deg);
+}
+
+
+

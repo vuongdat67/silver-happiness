@@ -1,0 +1,127 @@
+{% extends "main.html" %}
+
+{% block styles %}
+  {{ super() }}
+  <style>
+    .ctf-hero {
+      position: relative;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      margin-bottom: 0;
+      /* box-shadow đổ xuống dưới theo màu ảnh */
+      box-shadow: 10px 10px 20px var(--hero-color, rgba(0,0,0,0.4));
+    }
+
+    .ctf-hero__image {
+      width: 100%;
+      max-height: 380px;
+      object-fit: contain;
+      display: block;
+      border-radius: 0.75rem;
+      background-color: rgba(0,0,0,0.05);
+    }
+
+    /* gradient fade xuống dưới cuối ảnh */
+    .ctf-hero__fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        var(--hero-color, rgba(0,0,0,0.6)) 100%
+      );
+      border-radius: 0 0 0.75rem 0.75rem;
+      pointer-events: none;
+    }
+
+    .ctf-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+      margin: 1.2rem 0 0.5rem;
+      font-size: 0.75rem;
+      color: var(--md-default-fg-color--light);
+    }
+
+    .ctf-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .ctf-meta__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    /* tags dùng <a> để clickable */
+    .ctf-meta__tag {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.65rem;
+      border-radius: 1rem;
+      border: 1px solid var(--md-default-fg-color--lighter);
+      color: var(--md-default-fg-color--light);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .ctf-meta__tag:hover {
+      border-color: var(--md-accent-fg-color);
+      color: var(--md-accent-fg-color);
+    }
+
+    .ctf-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0.5rem 0 0.3rem;
+      line-height: 1.2;
+    }
+
+    hr.ctf-divider {
+      margin: 1rem 0 1.5rem;
+      border-color: var(--md-default-fg-color--lightest);
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% if page.meta.get("cover") %}
+    <div class="ctf-hero" {% if page.meta.get("cover_color") %}style="--hero-color: {{ page.meta.cover_color }}; box-shadow: 0 20px 60px -10px {{ page.meta.cover_color }};"{% endif %}>
+      <img class="ctf-hero__image" src="{{ page.meta.cover | url }}" alt="{{ page.title }}">
+      <div class="ctf-hero__fade"></div>
+    </div>
+  {% endif %}
+
+  <div class="ctf-meta">
+    {% if page.meta.get("date") %}
+      <span>📅 {{ page.meta.date.strftime("%b %d, %Y") }}</span>
+    {% endif %}
+    {% if page.meta.get("read_time") %}
+      <span>⏱ {{ page.meta.read_time }}</span>
+    {% endif %}
+    {% if page.meta.get("language") %}
+      <span>🌐 {{ page.meta.language }}</span>
+    {% endif %}
+    {% if page.meta.get("tags") %}
+      <div class="ctf-meta__tags">
+        {% for tag in page.meta.tags %}
+          <a class="ctf-meta__tag" href="{{ ('tags/#' + tag.lower()) | url }}">{{ tag }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <h1 class="ctf-title">{{ page.title }}</h1>
+  {% if page.meta.get("description") %}
+    <p style="color: var(--md-default-fg-color--light); font-style: italic; margin-top: 0;">"{{ page.meta.description }}"</p>
+  {% endif %}
+
+  <hr class="ctf-divider">
+
+  {{ page.content }}
+{% endblock %}

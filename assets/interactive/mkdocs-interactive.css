@@ -1,0 +1,842 @@
+.interactive-shell {
+  --cafe-bg: #120d12;
+  --cafe-panel: rgba(28, 23, 30, 0.76);
+  --cafe-panel-strong: rgba(38, 31, 42, 0.9);
+  --cafe-border: rgba(255, 225, 186, 0.18);
+  --cafe-text: #fff4e8;
+  --cafe-muted: rgba(255, 244, 232, 0.68);
+  --cafe-accent: #ffbf74;
+  --cafe-pink: #f1a7bd;
+  --cafe-blue: #7fc7ff;
+  --cafe-green: #77d7aa;
+  color: var(--cafe-text);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(241, 167, 189, 0.22), transparent 32rem),
+    radial-gradient(circle at 82% 10%, rgba(127, 199, 255, 0.17), transparent 28rem),
+    linear-gradient(135deg, #100b10 0%, #17131f 54%, #111a18 100%);
+  border: 1px solid var(--cafe-border);
+  border-radius: 8px;
+  min-height: 680px;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+
+.interactive-shell * {
+  box-sizing: border-box;
+}
+
+.interactive-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.interactive-stage {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  padding: clamp(18px, 4vw, 40px);
+  position: relative;
+  z-index: 1;
+}
+
+.seasonal-cafe {
+  min-height: 760px;
+}
+
+.seasonal-wrap {
+  margin: 0 auto;
+  max-width: 1040px;
+  padding: clamp(18px, 4vw, 34px);
+  position: relative;
+  z-index: 1;
+}
+
+.seasonal-top {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.seasonal-date {
+  color: var(--cafe-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.seasonal-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.seasonal-layout {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.season-card {
+  background: var(--cafe-panel);
+  border: 1px solid var(--cafe-border);
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+  min-height: 170px;
+  padding: 20px;
+  backdrop-filter: blur(18px);
+}
+
+.season-hero {
+  align-content: space-between;
+  display: grid;
+  gap: 26px;
+  grid-column: span 3;
+  min-height: 360px;
+}
+
+.piano-card {
+  grid-column: span 2;
+}
+
+.clock-face {
+  color: var(--cafe-text);
+  font-size: clamp(2.4rem, 6vw, 4.4rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin: 18px 0 8px;
+  text-shadow: 0 0 30px var(--cafe-accent);
+}
+
+.cafe-panel,
+.voxel-panel {
+  background: var(--cafe-panel);
+  border: 1px solid var(--cafe-border);
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.cafe-main {
+  display: grid;
+  align-content: space-between;
+  gap: 28px;
+  min-height: 600px;
+  padding: clamp(20px, 4vw, 36px);
+}
+
+.cafe-kicker,
+.widget-label {
+  color: var(--cafe-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cafe-title {
+  color: var(--cafe-text);
+  font-size: clamp(2rem, 5vw, 4.8rem);
+  line-height: 0.96;
+  margin: 10px 0 16px;
+}
+
+.cafe-copy {
+  color: var(--cafe-muted);
+  font-size: 1rem;
+  max-width: 62ch;
+}
+
+.cafe-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cafe-button,
+.season-button,
+.model-button {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--cafe-border);
+  border-radius: 8px;
+  color: var(--cafe-text);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-weight: 700;
+  gap: 8px;
+  min-height: 42px;
+  padding: 9px 14px;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.cafe-button:hover,
+.season-button:hover,
+.model-button:hover,
+.cafe-button[aria-pressed="true"],
+.season-button.is-active,
+.model-button.is-active {
+  background: rgba(255, 191, 116, 0.16);
+  border-color: rgba(255, 191, 116, 0.48);
+}
+
+.cafe-button:active,
+.season-button:active,
+.model-button:active {
+  transform: translateY(1px);
+}
+
+.cafe-now {
+  display: grid;
+  gap: 6px;
+  min-width: min(100%, 320px);
+}
+
+.cafe-track {
+  color: var(--cafe-text);
+  font-weight: 800;
+}
+
+.cafe-time {
+  color: var(--cafe-muted);
+  font-size: 0.85rem;
+}
+
+.cafe-seek,
+.cafe-volume {
+  accent-color: var(--cafe-accent);
+  width: min(100%, 420px);
+}
+
+.piano-board {
+  display: grid;
+  gap: 4px;
+}
+
+.piano-keys {
+  align-items: end;
+  display: grid;
+  gap: 3px;
+  grid-template-columns: repeat(18, minmax(10px, 1fr));
+  height: 112px;
+}
+
+.piano-key {
+  --lift: 0;
+  --glow: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 236, 205, 0.72));
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  border-radius: 5px 5px 8px 8px;
+  height: calc(56px + var(--lift) * 44px);
+  min-height: 56px;
+  transform: translateY(calc(var(--lift) * -11px));
+  box-shadow: 0 calc(var(--glow) * -8px) calc(10px + var(--glow) * 22px) rgba(255, 191, 116, calc(0.08 + var(--glow) * 0.32));
+  transition: height 70ms linear, transform 70ms linear, box-shadow 70ms linear;
+}
+
+.piano-key:nth-child(3n),
+.piano-key:nth-child(7n) {
+  background: linear-gradient(180deg, #211923, #09070a);
+  border-color: rgba(255, 191, 116, 0.24);
+  height: calc(44px + var(--lift) * 38px);
+}
+
+.cafe-sidebar {
+  display: grid;
+  gap: 14px;
+}
+
+.cafe-widget,
+.voxel-copy {
+  background: var(--cafe-panel);
+  border: 1px solid var(--cafe-border);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.season-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.season-button {
+  justify-content: center;
+}
+
+.mini-calendar {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(7, 1fr);
+  margin-top: 12px;
+}
+
+.mini-calendar span {
+  align-items: center;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  color: var(--cafe-muted);
+  display: grid;
+  font-size: 0.72rem;
+  justify-items: center;
+}
+
+.mini-calendar .is-today {
+  background: var(--cafe-accent);
+  color: #1a1010;
+  font-weight: 800;
+}
+
+.moon-row,
+.zodiac-row {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.moon-disc {
+  align-items: center;
+  background: radial-gradient(circle at 34% 35%, #fff6be, #d7b972 62%, #3a2b25 63%);
+  border-radius: 50%;
+  box-shadow: 0 0 28px rgba(255, 236, 180, 0.34);
+  display: grid;
+  flex: 0 0 70px;
+  height: 70px;
+  justify-items: center;
+  overflow: hidden;
+  position: relative;
+  width: 70px;
+}
+
+.moon-disc::after {
+  background: rgba(8, 10, 18, 0.82);
+  border-radius: 50%;
+  content: "";
+  height: 74px;
+  position: absolute;
+  transform: translateX(var(--moon-shadow, 32px));
+  width: 74px;
+}
+
+.zodiac-mark {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--cafe-border);
+  border-radius: 8px;
+  display: grid;
+  flex: 0 0 70px;
+  font-size: 2.1rem;
+  height: 70px;
+  justify-items: center;
+}
+
+.voxel-page {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+  min-height: 680px;
+  padding: clamp(18px, 4vw, 34px);
+}
+
+.voxel-viewer-wrap {
+  min-height: 620px;
+  overflow: hidden;
+  position: relative;
+}
+
+model-viewer.voxel-viewer {
+  background:
+    radial-gradient(circle at 50% 78%, rgba(255, 191, 116, 0.28), transparent 24rem),
+    linear-gradient(180deg, #87cfcc, #e9d7b6);
+  height: 100%;
+  min-height: 620px;
+  width: 100%;
+}
+
+.voxel-copy {
+  align-content: start;
+  display: grid;
+  gap: 14px;
+}
+
+.voxel-copy h1 {
+  color: var(--cafe-text);
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1;
+  margin: 0;
+}
+
+.model-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.credit-line {
+  color: var(--cafe-muted);
+  font-size: 0.8rem;
+}
+
+.seasonal-dashboard {
+  --season-surface: rgba(255, 255, 255, 0.07);
+  --season-glass: rgba(255, 255, 255, 0.11);
+  --season-border: rgba(255, 255, 255, 0.18);
+  --season-accent-soft: rgba(255, 191, 116, 0.15);
+  min-height: 100vh;
+  transition: background 1s ease, color 1s ease;
+}
+
+.seasonal-dashboard-inner {
+  margin: 0 auto;
+  max-width: 960px;
+  padding: 28px 18px;
+  position: relative;
+  z-index: 1;
+}
+
+.seasonal-dashboard::before,
+.seasonal-dashboard::after {
+  background: radial-gradient(circle, var(--cafe-accent) 0%, transparent 68%);
+  border-radius: 999px;
+  content: "";
+  filter: blur(62px);
+  height: 360px;
+  opacity: 0.16;
+  pointer-events: none;
+  position: absolute;
+  width: 360px;
+}
+
+.seasonal-dashboard::before {
+  left: 24%;
+  top: -90px;
+}
+
+.seasonal-dashboard::after {
+  bottom: -90px;
+  right: 8%;
+}
+
+.seasonal-dashboard-top {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.seasonal-overline {
+  color: var(--cafe-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.seasonal-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: flex-end;
+}
+
+.seasonal-dashboard-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.seasonal-card {
+  background: var(--season-glass);
+  border: 1px solid var(--season-border);
+  border-radius: 20px;
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.22);
+  min-height: 230px;
+  padding: 22px 20px;
+  transition: background 1s ease, border-color 1s ease, box-shadow 220ms ease;
+  backdrop-filter: blur(16px);
+}
+
+.clock-music-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.live-clock {
+  color: var(--cafe-text);
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 30px var(--cafe-accent);
+}
+
+.clock-seconds {
+  color: var(--cafe-muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.season-divider {
+  background: linear-gradient(to right, transparent, var(--season-border), transparent);
+  height: 1px;
+}
+
+.season-quote {
+  color: var(--cafe-muted);
+  font-size: 0.72rem;
+  font-style: italic;
+  letter-spacing: 0.05em;
+  margin: 0;
+  text-align: center;
+}
+
+.music-strip {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.music-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.file-button input {
+  block-size: 1px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+.track-title {
+  color: var(--cafe-text);
+  display: block;
+  font-size: 0.86rem;
+  margin-top: 3px;
+}
+
+.track-time,
+.track-status {
+  color: var(--cafe-muted);
+  font-size: 0.68rem;
+}
+
+.cafe-button.compact {
+  min-height: 34px;
+  padding: 6px 12px;
+}
+
+.piano-header {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.piano-visualizer {
+  align-items: end;
+  display: flex;
+  gap: 2px;
+  height: 60px;
+  padding: 0 4px;
+}
+
+.piano-bar {
+  --lift: 0;
+  --glow: 0;
+  background: linear-gradient(to top, var(--cafe-accent), var(--season-accent-soft));
+  border: 1px solid var(--season-border);
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 -4px 14px rgba(255, 191, 116, calc(var(--glow) * 0.35));
+  flex: 1;
+  height: calc(6px + var(--lift) * 42px);
+  min-width: 0;
+  opacity: 0.72;
+  transition: height 60ms linear, box-shadow 60ms linear;
+}
+
+.piano-bar.is-black {
+  background: #101012;
+  border-color: color-mix(in srgb, var(--cafe-accent) 38%, transparent);
+  opacity: 0.95;
+}
+
+.calendar-control-row {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.calendar-nav {
+  background: transparent;
+  border: 0;
+  color: var(--cafe-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1;
+  min-height: 32px;
+  padding: 3px 8px;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.calendar-nav:hover {
+  color: var(--cafe-accent);
+  transform: translateY(-1px);
+}
+
+.calendar-title {
+  color: var(--cafe-text);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.dashboard-calendar span {
+  font-size: 0.64rem;
+  padding: 4px 0;
+}
+
+.dashboard-calendar .is-dayname {
+  color: var(--cafe-muted);
+  font-weight: 800;
+  opacity: 0.82;
+}
+
+.dashboard-calendar .is-sunday:not(.is-today) {
+  color: var(--cafe-accent);
+}
+
+.dashboard-calendar span:not(.is-dayname):not(.is-empty):not(.is-today):hover {
+  background: var(--season-accent-soft);
+}
+
+.moon-dashboard-row,
+.zodiac-dashboard-row {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.moon-canvas,
+.zodiac-canvas {
+  display: block;
+  flex: 0 0 72px;
+  height: 72px;
+  width: 72px;
+}
+
+.moon-name,
+.zodiac-name {
+  color: var(--cafe-text);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.moon-emoji {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.zodiac-year {
+  color: var(--cafe-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.moon-phase-icons {
+  color: var(--cafe-muted);
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin: 14px 0 5px;
+}
+
+.moon-phase-icons span {
+  display: grid;
+  font-size: 0.86rem;
+  gap: 2px;
+  opacity: 0.34;
+  text-align: center;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.moon-phase-icons span.is-active {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.moon-phase-icons small {
+  color: var(--cafe-muted);
+  font-size: 0.56rem;
+  font-weight: 700;
+}
+
+.moon-progress {
+  background: var(--season-surface);
+  border: 1px solid var(--season-border);
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.moon-progress span {
+  background: linear-gradient(to right, var(--season-accent-soft), var(--cafe-accent));
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  width: 0;
+}
+
+.moon-countdown {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.moon-countdown div {
+  background: var(--season-surface);
+  border: 1px solid var(--season-border);
+  border-radius: 10px;
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.moon-countdown strong {
+  color: var(--cafe-accent);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.moon-countdown span {
+  color: var(--cafe-muted);
+  font-size: 0.62rem;
+}
+
+.zodiac-cycle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 14px;
+}
+
+.zodiac-cycle span {
+  color: var(--cafe-muted);
+  font-size: 0.88rem;
+  opacity: 0.38;
+}
+
+.zodiac-cycle .is-active {
+  color: var(--cafe-accent);
+  opacity: 1;
+  text-shadow: 0 0 12px var(--cafe-accent);
+  transform: scale(1.2);
+}
+
+@media (max-width: 900px) {
+  .interactive-stage,
+  .voxel-page {
+    grid-template-columns: 1fr;
+  }
+
+  .seasonal-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .seasonal-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .seasonal-dashboard-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .seasonal-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .season-hero,
+  .piano-card {
+    grid-column: span 2;
+  }
+
+  .cafe-main,
+  .voxel-viewer-wrap,
+  model-viewer.voxel-viewer {
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 560px) {
+  .interactive-shell {
+    border-radius: 0;
+    margin-left: -0.8rem;
+    margin-right: -0.8rem;
+  }
+
+  .interactive-stage,
+  .voxel-page,
+  .seasonal-wrap {
+    padding: 14px;
+  }
+
+  .seasonal-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .season-hero,
+  .piano-card {
+    grid-column: span 1;
+  }
+
+  .piano-keys {
+    grid-template-columns: repeat(12, minmax(9px, 1fr));
+  }
+
+  .piano-key:nth-child(n+13) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interactive-canvas {
+    display: none;
+  }
+
+  .piano-key,
+  .cafe-button,
+  .season-button,
+  .model-button {
+    transition: none;
+  }
+}
