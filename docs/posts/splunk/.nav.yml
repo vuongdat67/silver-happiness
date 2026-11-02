@@ -12,3 +12,10 @@ nav:
       - "Tuần 6: Active Directory": week6/index.md
       - "Tuần 7: Điều Tra BOTSv1": week7/index.md
       - "Tuần 8: Giám Sát Mạng SPL": week8/index.md
+    - Sổ Tay & Runbook:
+      - "Runbook Vận Hành SOC (T1-T2-T3)": runbook/index.md
+      - "EventID & Field Reference": eventid-logs/index.md
+      - "Sysmon EventID Thực Chiến": sysmon/index.md
+      - "Cẩm Nang Cú Pháp SPL": spl-guide/index.md
+      - "Sổ Tay Điều Tra DFIR": dfir/index.md
+      - "Giám Sát Mạng & NIDS": network-forensics/index.md

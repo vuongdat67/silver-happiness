@@ -103,7 +103,7 @@ Mọi thành phần trong hạ tầng CNTT (máy trạm, máy chủ, thiết b�
 ![Luồng luân chuyển dữ liệu giữa các thành phần](assets/splunk_architecture_flow.png)
 
 ```mermaid
-flowchart TD
+flowchart LR
     subgraph TIER_FORWARDER ["1. Data Collection Tier"]
         UF["Universal Forwarder (UF) \n (Lightweight ~10MB RAM, No local parsing)"]
         HF["Heavy Forwarder (HF) \n (Full instance, Local parsing và routing)"]

@@ -230,3 +230,4 @@ Kỹ thuật WMI Persistence (T1546.003) yêu cầu sự phối hợp chặt ch�
 | **Quan trọng (High-Value)** | **17, 18, 19, 20, 21, 25** | Giám sát Named Pipe tấn công, cơ chế duy trì WMI, phát hiện làm xáo trộn tiến trình. | Thấp (ít phát sinh sự kiện giả). |
 | **Điều tra sâu (Forensic-Only)** | **2, 7, 9, 12, 14, 15, 23, 26, 29** | Chỉ bật nạp DLL cho tiến trình nhạy cảm; giám sát xóa tệp tin và ADS chọn lọc. | Cao (nếu không cấu hình whitelist sẽ gây tràn log). |
 | **Quản trị sensor (Health)** | **4, 6, 16, 255** | Bắt buộc thu thập 100% để phát hiện hành vi vô hiệu hóa sensor và lỗi phân tích. | Rất thấp. |
+

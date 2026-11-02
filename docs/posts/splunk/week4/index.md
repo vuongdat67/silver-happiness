@@ -34,7 +34,7 @@ cssclasses:
 ## 1. Các Khái Niệm Nâng Cao Trong Splunk (Advanced Knowledge Objects)
 
 ```mermaid
-graph TD
+graph LR
     subgraph KO_CORE ["Splunk Knowledge Objects Hierarchy"]
         CIM["Splunk CIM và Data Models \n (Schema-on-the-fly, Normalization)"]
         ET["Eventtypes (Gom nhóm sự kiện theo logic)"]

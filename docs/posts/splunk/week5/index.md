@@ -86,7 +86,7 @@ flowchart LR
 > - **Splunk Server** đặt tại mạng quản trị/nội bộ, tiếp nhận log tập trung từ Universal Forwarder (UF) trên tất cả các node thông qua cổng TCP `9997`.
 
 ```mermaid
-graph TB
+graph LR
     subgraph DMZ_Network ["Vùng DMZ (Host-Only: 192.168.50.0/24)"]
         KALI["Kali Linux (Attacker)\nIP: 192.168.50.100\nTools: Nmap, Chisel, Evil-WinRM"]
         WEB_NIC1["Web Server (NIC 1)\nIP: 192.168.50.20"]
@@ -1238,7 +1238,7 @@ ip,hostname,is_admin_ws,authorized_department
 ## 11. Khuyến Nghị Phòng Thủ và Khắc Phục (Mitigation và Hardening)
 
 ```mermaid
-graph TD
+graph LR
     subgraph L1 ["Lớp 1: Ứng dụng và Vùng biên (Perimeter và Web)"]
         W1["WAF và Input Validation (Chặn upload file thực thi)"]
         W2["Least Privilege cho Web User (www-data nologin)"]

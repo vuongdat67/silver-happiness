@@ -72,9 +72,9 @@ graph LR
 ![Mô hình phân tầng SOC L1 L2 L3](assets/soc_tier_l1_l2_l3.jpeg)
 
 ```mermaid
-flowchart TB
-    subgraph L1["L1 · Alert Triage"]
-        direction LR
+flowchart LR
+    subgraph L1["L1: Alert Triage"]
+        direction TB
         A1["Monitor SIEM"]
         A2["Enrich Context"]
         A3["Filter FP"]
@@ -82,8 +82,8 @@ flowchart TB
         A1 --> A2 --> A3 --> A4
     end
 
-    subgraph L2["L2 · Incident Response"]
-        direction LR
+    subgraph L2["L2: Incident Response"]
+        direction TB
         B1["Correlation"]
         B2["Investigation"]
         B3["Containment"]
@@ -91,8 +91,8 @@ flowchart TB
         B1 --> B2 --> B3 --> B4
     end
 
-    subgraph L3["L3 · Advanced Security"]
-        direction LR
+    subgraph L3["L3: Advanced Security"]
+        direction TB
         C1["Threat Hunting"]
         C2["Digital Forensics"]
         C3["Malware RE"]
@@ -324,7 +324,7 @@ graph BT
 ![4 Pha NIST SP 800-61 Rev 2](assets/nist_sp800_61_4_phases.png)
 
 ```mermaid
-flowchart TD
+flowchart LR
     subgraph P1 ["Pha 1: Preparation (Chuẩn bị)"]
         P1_A["Xây dựng CSIRT và Jump Bag"]
         P1_B["Triển khai DMARC / MFA / EDR"]
@@ -516,7 +516,7 @@ index=windows_sysmon EventCode=1 (Image="*\\powershell.exe" OR Image="*\\pwsh.ex
 ## 5. Tổng Kết và Ma Trận Đối Chiếu Giữa Các Khung Bảo Mật
 
 ```mermaid
-graph TD
+graph LR
     subgraph MACRO ["Tầm Nhìn Vĩ Mô (Macro View)"]
         CKC["Cyber Kill Chain \n (Định vị giai đoạn chiến dịch)"]
     end

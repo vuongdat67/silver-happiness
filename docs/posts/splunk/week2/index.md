@@ -33,7 +33,7 @@ cssclasses:
 ## 1. Cấu trúc và Bản Chất Các Nguồn Log Trong Hệ Thống SOC
 
 ```mermaid
-graph TD
+graph LR
     subgraph LOG_SOURCES ["Nguồn Dữ Liệu Thu Thập Tập Trung (Data Ingestion)"]
         WIN["Windows OS \n (Security, System, PowerShell, Sysmon)"]
         LNX["Linux OS \n (Auth, Syslog, Journald, Auditd)"]
@@ -250,7 +250,7 @@ Sysmon là công cụ miễn phí mạnh mẽ nhất từ bộ công cụ Micros
 #### 1.7.1 Kiến Trúc Sysmon Internals (Theo Nghiên Cứu Chuyên Sâu Exatrack)
 
 ```mermaid
-graph TD
+graph LR
     subgraph KERNEL_SPACE ["Kernel Space (Ring 0)"]
         DRV["SysmonDrv.sys (Minifilter Driver)"]
         FLT["FltMgr.sys (Filter Manager)"]
@@ -443,7 +443,7 @@ Script cài đặt và nạp tự động vào nhân Linux đã được lưu tr
 ### 3.1 Kiến Trúc 3 Thành Phần Cốt Lõi Của Splunk
 
 ```mermaid
-graph TD
+graph LR
     subgraph FORWARDERS ["Data Collection Layer"]
         UF["Universal Forwarder (UF) \n (Lightweight ~10MB RAM, No local parsing)"]
         HF["Heavy Forwarder (HF) \n (Full Splunk instance, Parse/Filter/Route)"]
@@ -546,7 +546,7 @@ index=windows_sysmon EventCode=3
 ### 4.1 Mô Hình Mạng và Bảng Phân Bổ Địa Chỉ IP (Lab Topology)
 
 ```mermaid
-flowchart TD
+flowchart LR
     subgraph CLUSTER_MGMT ["Quản Lý và Tìm Kiếm (Management Tier)"]
         M1["Máy 1: 10.0.0.10 \n - Search Head (Port 8000) \n - Cluster Manager / Master (Port 8089) \n - Deployment Server \n (User: splunk / hope)"]
     end

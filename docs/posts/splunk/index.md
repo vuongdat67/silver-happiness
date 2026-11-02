@@ -36,9 +36,15 @@ Hệ thống tài liệu được biên soạn chi tiết theo lộ trình đào
 
 ---
 
-## Tài Liệu Tham Chiếu và Cấu Hình Hệ Thống
+## Hệ Thống Sổ Tay Vận Hành, Runbook và Tài Liệu Tham Chiếu Chuyên Sâu
 
-Toàn bộ cấu hình hệ thống lab, tệp tin cấu hình thu thập dữ liệu và phương pháp luận truy vết được chuẩn hóa tại các tài liệu tham chiếu chuyên sâu:
+Hệ thống tài liệu tham chiếu kỹ thuật và sổ tay thực chiến được chuẩn hóa phục vụ toàn diện các cấp độ SOC từ L1 Triage đến L3 Threat Hunting:
 
+* **[Sổ Tay Runbook Vận Hành SOC Toàn Diện (T1 - T2 - T3)](runbook/index.md):** Khung quy trình xử lý sự cố hoàn chỉnh từ Triage 15 phút (Tier 1), Điều tra sâu, khoanh vùng lây lan, cô lập mạng bằng PowerShell/iptables (Tier 2), đến Săn lùng mối đe dọa chủ động, phân tích mã độc và kỹ nghệ phát hiện khép kín (Tier 3).
+* **[Sổ Tay Tra Cứu Chi Tiết EventID và Danh Mục Trường Dữ Liệu](eventid-logs/index.md):** Từ điển trường dữ liệu (Field Dictionary) chuyên sâu, ma trận ánh xạ Splunk CIM chuẩn hóa, phân tích chi tiết các trường dữ liệu trên Windows Security/System, Linux Auditd Syscall, Tường lửa Palo Alto/Fortinet và cảm biến EDR (CrowdStrike, Defender, Wazuh).
+* **[Sổ Tay Tra Cứu Sysmon EventID Thực Chiến](sysmon/index.md):** Cẩm nang chi tiết Sysmon EventID từ 1 đến 29 và 255, các trường dữ liệu cốt lõi, ma trận phát hiện TTPs và chuỗi tương quan từ sinh tiến trình đến kết nối C2.
+* **[Cẩm Nang Cú Pháp và Cách Dùng SPL Thực Chiến](spl-guide/index.md):** Hướng dẫn 15 lệnh SPL cốt lõi trong SOC, kỹ thuật tối ưu hóa đường ống tìm kiếm bằng tstats/fields và 5 mẫu truy vấn Threat Hunting thực chiến.
+* **[Sổ Tay Điều Tra Kỹ Thuật Số và Phân Tích Dấu Vết DFIR](dfir/index.md):** Phương pháp trích xuất và phân tích chứng cứ thực thi (Prefetch, Shimcache, Amcache), chứng cứ tương tác tệp (Shellbags, Jumplists, LNK), phát hiện Timestomping trên NTFS , điều tra bộ nhớ RAM với Volatility 3 và live forensics trên Linux.
+* **[Cẩm Nang Giám Sát Lưu Lượng Mạng, Tường Lửa và NIDS](network-forensics/index.md):** Phân tích nhật ký Tường lửa thế hệ mới (NGFW), bóc tách metadata cảm biến mạng Zeek NSM (conn.log, dns.log, ssl.log), so khớp cảnh báo Suricata NIDS, kỹ thuật TLS JA3 Fingerprinting và công thức toán học Jitter Ratio / Shannon Entropy.
 * **[Cẩm Nang Nguyên Tắc Trace Log Đa Tầng Trong SOC](trace-logs/index.md):** Đúc kết 3 nguyên tắc cốt tử (Host-First, Statistics trước Events sau, khử nhiễu chủ động), ma trận khóa liên kết đa tầng (Cross-Tier Pivot Keys) và bộ câu hỏi vấn đáp chuyên sâu SOC thực chiến.
-* **[Tổng Hợp Cấu Hình Hệ Thống Splunk SOC Lab](configs/index.md):** Toàn bộ tệp tin cấu hình triển khai cụm Splunk đa thành phần (`server.conf`, `indexes.conf`, `inputs.conf`, `props.conf`), kịch bản tự động hóa cài đặt Auditd, Sysmon và chính sách kiểm toán Windows.
+* **[Tổng Hợp Cấu Hình Hệ Thống Splunk SOC Lab](configs/index.md):** Toàn bộ tệp tin cấu hình triển khai cụm Splunk đa thành phần (server.conf, indexes.conf, inputs.conf, props.conf), kịch bản tự động hóa cài đặt Auditd, Sysmon và chính sách kiểm toán Windows.

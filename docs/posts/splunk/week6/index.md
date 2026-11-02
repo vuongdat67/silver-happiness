@@ -36,7 +36,7 @@ cssclasses:
 ## 1. Kiến Trúc Nền Tảng Active Directory Domain Services (AD DS)
 
 ```mermaid
-graph TD
+graph LR
     subgraph LOGICAL_ARCH ["Kiến Trúc Phân Cấp Logic (Logical Structure)"]
         FOREST["Forest (Ranh giới bảo mật tối cao)"]
         TREE["Domain Tree (Cấu trúc namespace liên tục)"]
