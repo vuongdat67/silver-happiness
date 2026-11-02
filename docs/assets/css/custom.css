@@ -31,3 +31,48 @@
 .md-main__inner {
   margin-bottom: 1.5rem;
 }
+
+
+/* ============================================================
+   CAN GIUA HINH ANH VA CHU THICH (IMAGE & CAPTION CENTERING)
+   ============================================================ */
+
+/* 1. Tu dong can giua toan bo anh va dong chu thich *Hinh X.Y:* */
+.md-typeset p:has(> a.glightbox),
+.md-typeset p:has(> img) {
+  text-align: center;
+}
+
+.md-typeset p:has(> a.glightbox) img,
+.md-typeset p:has(> img) img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.md-typeset p:has(> a.glightbox) em,
+.md-typeset p:has(> img) em {
+  display: block;
+  margin-top: 0.6em;
+  font-size: 0.85em;
+  color: var(--md-default-fg-color--light);
+}
+
+/* 2. Can giua cho khoi <figure markdown> (Snippet imgc / imgcap) */
+.md-typeset figure {
+  margin: 1.5em auto;
+  text-align: center;
+}
+
+.md-typeset figure img {
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.md-typeset figure figcaption {
+  text-align: center;
+  font-size: 0.85em;
+  font-style: italic;
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.5em;
+}
