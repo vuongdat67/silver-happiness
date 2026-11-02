@@ -232,7 +232,7 @@ sequenceDiagram
   * `Ticket_Options` mang cờ đặc thù của tool tấn công: `0x40810010` (Rubeus/Impacket) hoặc `0x40800000`.
 
 #### SPL Query Chuẩn Hóa & Bằng Chứng Thực Nghiệm
-```splunk
+```bash
 index=windows_security earliest=-24h EventCode=4769 Ticket_Encryption_Type=0x17 Failure_Code=0x0
 | eval src_ip = replace(src_ip, "::ffff:", "")
 | search NOT user="*$" NOT Service_Name="*$" src_ip!="::1" src_ip!="127.0.0.1" NOT src_ip="fe80*"
@@ -315,7 +315,7 @@ sequenceDiagram
   * Không xuất hiện Event 4769 hoặc Event 4624 tiếp nối cho tài khoản này (vì mục đích chỉ lấy hash để crack offline).
 
 #### SPL Query Chuẩn Hóa & Bằng Chứng Thực Nghiệm
-```splunk
+```bash
 index=windows_security earliest=-24h EventCode=4768 Pre_Authentication_Type=0 Result_Code=0x0
 | eval src_ip = replace(src_ip, "::ffff:", "")
 | search src_ip!="::1" src_ip!="127.0.0.1" NOT src_ip="fe80*"
@@ -402,7 +402,7 @@ sequenceDiagram
   * 1 IP máy trạm sử dụng NTLM đăng nhập vào nhiều máy chủ (`Target_Count >= 2`).
 
 #### SPL Query Chuẩn Hóa & Bằng Chứng Thực Nghiệm
-```splunk
+```bash
 index=windows_security earliest=-24h EventCode=4624 Logon_Type=3 Logon_Process=NtLmSsp
 | eval src_ip = replace(src_ip, "::ffff:", "")
 | search NOT user="*$" NOT (user="ANONYMOUS LOGON" OR user="-" OR user="SYSTEM") src_ip!="::1" src_ip!="127.0.0.1" NOT src_ip="fe80*"
@@ -483,7 +483,7 @@ sequenceDiagram
   * **IP Mismatch**: Địa chỉ IP yêu cầu TGS (Event 4769) khác với danh sách địa chỉ IP đã từng xin TGT (Event 4768) cho cùng một tài khoản trong vòng 10 giờ (`MaxTicketAge`).
 
 #### SPL Query Chuẩn Hóa & Bằng Chứng Thực Nghiệm
-```splunk
+```bash
 index=windows_security earliest=-24h (EventCode=4768 OR EventCode=4769) NOT user="*$" NOT user="*$@*" NOT Service_Name="krbtgt"
 | eval src_ip = replace(src_ip, "::ffff:", "")
 | search src_ip!="::1" src_ip!="127.0.0.1" NOT src_ip="fe80*"
@@ -566,7 +566,7 @@ sequenceDiagram
   * `EventCode=4768`, `Ticket_Encryption_Type=0x17`, `Result_Code=0x0`, **`Pre_Authentication_Type!=0`** (để phân biệt với AS-REP Roasting).
 
 #### SPL Query Chuẩn Hóa & Bằng Chứng Thực Nghiệm
-```splunk
+```bash
 index=windows_security earliest=-24h EventCode=4768 Ticket_Encryption_Type=0x17 Result_Code=0x0 Pre_Authentication_Type!=0
 | eval src_ip = replace(src_ip, "::ffff:", "")
 | search NOT user="*$" src_ip!="::1" src_ip!="127.0.0.1" NOT src_ip="fe80*"
@@ -649,7 +649,7 @@ sequenceDiagram
   * Tài khoản không tồn tại trong AD hoặc đã bị disabled mà vẫn xin được TGS thành công.
 
 #### SPL Query Chuẩn Hóa & Bằng Chứng Thực Nghiệm
-```splunk
+```bash
 index=windows_security earliest=-10h (EventCode=4768 OR EventCode=4769) NOT user="*$" NOT user="*$@*" NOT Service_Name="krbtgt"
 | eval src_ip = replace(src_ip, "::ffff:", "")
 | search src_ip!="::1" NOT src_ip="fe80*"
@@ -729,7 +729,7 @@ sequenceDiagram
   * Có sự kiện Event 4624 Logon Type 3 dùng Kerberos trên Server đích, nhưng **KHÔNG có Event 4769 tương ứng trên toàn bộ DC** cho host đó trong cùng khung thời gian.
 
 #### SPL Query Chuẩn Hóa & Bằng Chứng Thực Nghiệm
-```splunk
+```bash
 index=windows_security earliest=-10h (EventCode=4624 Logon_Type=3 Authentication_Package=Kerberos) OR (EventCode=4769 NOT Service_Name="krbtgt") NOT user="*$" NOT user="*$@*"
 | eval src_ip = replace(src_ip, "::ffff:", "")
 | search src_ip!="::1" src_ip!="127.0.0.1" NOT src_ip="fe80*"
@@ -814,7 +814,7 @@ sequenceDiagram
   * `Account_Name` **không kết thúc bằng dấu `$`** (không phải tài khoản máy của Domain Controller thật) và không phải tài khoản Azure AD Sync (`MSOL_*`).
 
 #### SPL Query Chuẩn Hóa & Bằng Chứng Thực Nghiệm
-```splunk
+```bash
 index=windows_security earliest=-7d (EventCode=4662 Access_Mask=0x100 Object_Type=domainDNS) OR (EventCode=4624 Logon_Type=3) NOT Account_Name="*$" NOT Account_Name="MSOL_*"
 | eval is_dcsync_raw = if(EventCode==4662 AND match(_raw, "(?i)Replicating Directory Changes|1131f6aa|1131f6ad|89e95b76"), 1, 0)
 | eval Match_Logon_ID = if(EventCode==4662, Logon_ID, mvindex(Logon_ID, 1))
@@ -900,7 +900,7 @@ sequenceDiagram
   * Chuỗi hành vi: Tạo Server Object $\to$ Đăng ký SPN DRS $\to$ Xóa Server Object trong vòng vài giây.
 
 #### SPL Query Chuẩn Hóa & Bằng Chứng Thực Nghiệm
-```splunk
+```bash
 index=windows_security earliest=-7d
 ( EventCode=4662 Object_Type=serversContainer Access_Mask=0x1 ) OR ( EventCode=4624 Logon_Type=3 )
 NOT Account_Name="*$"
