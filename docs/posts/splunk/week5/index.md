@@ -355,6 +355,10 @@ sequenceDiagram
 ---
 
 ### Bước 1: Trinh sát mục tiêu công khai (Reconnaissance)
+
+![Trình diễn trinh sát mục tiêu từ Slide](assets/slides/slide_06.png)
+*Hình 4.1: Sơ đồ tác chiến và mục tiêu quét mạng Bước 1 từ slide bài giảng.*
+
 - **MITRE ATT&CK**: `T1595.002` (Active Scanning: Vulnerability Scanning)
 - **Mục tiêu**: Xác định các cổng mở, phiên bản dịch vụ Web Apache/PHP và các endpoint upload có thể khai thác.
 - **Lệnh thực thi trên Kali**:
@@ -364,13 +368,17 @@ nikto -h http://192.168.50.20/dvwa/
 ```
 
 ![Nmap quét dải mạng DMZ](assets/Script/2_nmap_subnet.png)
-*Hình 4.1: Quét thăm dò dải mạng DMZ bằng công cụ Nmap từ Kali Linux.*
+*Hình 4.2: Quét thăm dò dải mạng DMZ bằng công cụ Nmap từ Kali Linux.*
 ![Nmap quét dịch vụ Web Server Apache](assets/Script/3_nmap_victim_apache.png)
-*Hình 4.2: Quét chi tiết các dịch vụ đang mở trên máy chủ mục tiêu Ubuntu Web Server.*
+*Hình 4.3: Quét chi tiết các dịch vụ đang mở trên máy chủ mục tiêu Ubuntu Web Server.*
 
 ---
 
 ### Bước 2: Khai thác Upload và Kích hoạt Web Shell RCE (Initial Access và Execution)
+
+![Khai thác Web Shell Upload từ Slide](assets/slides/slide_07.png)
+*Hình 4.4: Quy trình khai thác lỗ hổng tải tệp mã độc Web Shell Bước 2 từ slide bài giảng.*
+
 - **MITRE ATT&CK**: `T1190` (Exploit Public-Facing App), `T1505.003` (Server Software Component: Web Shell), `T1059.004` (Unix Shell)
 - **Mục tiêu**: Vượt qua bộ lọc upload trên DVWA (Security = Low), tải lên `shell.php` và kích hoạt reverse shell tương tác về Kali qua port 4444.
 
@@ -419,6 +427,10 @@ curl -G "http://192.168.50.20/dvwa/hackable/uploads/shell.php" \
 ---
 
 ### Bước 3: Thiết lập duy trì truy cập bằng Cronjob (Persistence)
+
+![Thiết lập Cronjob Persistence từ Slide](assets/slides/slide_08.png)
+*Hình 4.11: Cơ chế duy trì quyền truy cập ngầm qua Linux Crontab Bước 3 từ slide bài giảng.*
+
 - **MITRE ATT&CK**: `T1053.003` (Scheduled Task/Job: Cron)
 - **Mục tiêu**: Cài đặt một cron job tự động kết nối reverse shell về Kali mỗi 5 phút dưới quyền tài khoản `www-data`.
 - **Lệnh thực thi trên Web Shell**:
@@ -429,6 +441,10 @@ curl -G "http://192.168.50.20/dvwa/hackable/uploads/shell.php" \
 ---
 
 ### Bước 4: Leo thang đặc quyền Root qua Sudo GTFOBins (Privilege Escalation)
+
+![Leo thang đặc quyền Sudo GTFOBins từ Slide](assets/slides/slide_12.png)
+*Hình 4.12: Cơ chế leo thang đặc quyền Root qua Sudo NOPASSWD find Bước 4 từ slide bài giảng.*
+
 - **MITRE ATT&CK**: `T1548.003` (Abuse Elevation Control Mechanism: Sudo)
 - **Mục tiêu**: Khai thác cấu hình `sudoers` cho phép tài khoản `www-data` thực thi lệnh `find` với quyền root không cần mật khẩu (`NOPASSWD`).
 - **Lệnh thực thi trên Web Shell**:
@@ -440,6 +456,10 @@ sudo /usr/bin/find . -exec /bin/sh \; -quit
 ---
 
 ### Bước 5: Thu thập Credential từ file cấu hình nội bộ (Credential Access)
+
+![Thu thập thông tin tài khoản từ file cấu hình từ Slide](assets/slides/slide_15.png)
+*Hình 4.13: Quy trình thu thập thông tin mạng và mật khẩu từ file config.inc.php Bước 5 từ slide bài giảng.*
+
 - **MITRE ATT&CK**: `T1552.001` (Unsecured Credentials: Credentials In Files)
 - **Mục tiêu**: Khám phá các host lân cận qua bảng ARP cache (`ip neigh`) và đọc file cấu hình web server để tìm thông tin tài khoản dịch vụ Active Directory / Windows.
 - **Lệnh thực thi (Root)**:
@@ -457,6 +477,10 @@ cat /var/www/html/dvwa/config/config.inc.php | grep -i "svc_"
 ---
 
 ### Bước 6: Mở kênh Reverse SOCKS Tunnel qua Chisel (Defense Evasion và Tunneling)
+
+![Thiết lập đường hầm Chisel Reverse Tunnel từ Slide](assets/slides/slide_17.png)
+*Hình 4.16: Kiến trúc đường hầm Chisel Reverse SOCKS5 Proxy và Socat Port Forwarding Bước 6 từ slide bài giảng.*
+
 - **MITRE ATT&CK**: `T1105` (Ingress Tool Transfer), `T1090.001` (Proxy: Internal Proxy)
 - **Mục tiêu**: Tải binary `chisel` vào thư mục `/tmp` trên Web Server và thiết lập reverse SOCKS5 proxy về máy Kali để định tuyến traffic vào mạng nội bộ.
 
@@ -507,6 +531,10 @@ socat TCP-LISTEN:5555,fork,reuseaddr TCP:192.168.100.30:5985 &
 ---
 
 ### Bước 8: Di chuyển ngang và Tạo tài khoản quản trị dự phòng (Lateral Movement và Persistence)
+
+![Di chuyển ngang WinRM từ Slide](assets/slides/slide_19.png)
+*Hình 4.23: Luồng di chuyển ngang qua WinRM bằng tài khoản svc_backup từ slide bài giảng.*
+
 - **MITRE ATT&CK**: `T1021.006` (Remote Services: Windows Remote Management), `T1136.001` (Create Account: Local Account)
 - **Mục tiêu**: Đăng nhập WinRM vào máy chủ Windows bằng tài khoản `svc_backup`, kiểm tra đặc quyền và tạo tài khoản local backdoor thêm vào nhóm `Administrators`.
 
@@ -522,6 +550,9 @@ evil-winrm -i 192.168.50.20 -u svc_backup -p 'P@ssw0rd2026!' -P 5555
 ![Kiểm tra whoami /all và đặc quyền Administrator](assets/Script/23_whoami_all.png)
 *Hình 4.20: Kiểm tra đặc quyền tài khoản và quyền hạn thành viên Administrators.*
 
+![Tạo tài khoản quản trị backdoor từ Slide](assets/slides/slide_21.png)
+*Hình 4.27: Tạo tài khoản ngầm backdoor thêm vào Administrators từ slide bài giảng.*
+
 2. **Thực thi trên Remote PowerShell**:
 ```powershell
 net user backdoor P@ssw0rd123! /add
@@ -534,6 +565,10 @@ net localgroup Administrators backdoor /add
 ---
 
 ### Bước 9: Tắt cơ chế phòng thủ và Trích xuất bộ nhớ LSASS (Defense Evasion và Cred Dump)
+
+![Vô hiệu hóa Defender và Dump LSASS từ Slide](assets/slides/slide_25.png)
+*Hình 4.29: Tạo Windows Service trích xuất bộ nhớ tiến trình LSASS từ slide bài giảng.*
+
 - **MITRE ATT&CK**: `T1562.001` (Impair Defenses: Disable or Modify Tools), `T1003.001` (OS Credential Dumping: LSASS Memory)
 - **Mục tiêu**: Tắt tính năng Realtime Protection của Windows Defender và tạo Windows Service để chạy `procdump64.exe` trích xuất `lsass.exe` dưới quyền `NT AUTHORITY\SYSTEM`.
 
@@ -555,6 +590,13 @@ sc.exe start DumpService
 ---
 
 ### Bước 10: Phá hủy Volume Shadow Copies và Mô phỏng mã hóa tống tiền (Impact)
+
+![Xóa Volume Shadow Copies từ Slide](assets/slides/slide_26.png)
+*Hình 4.31: Kỹ thuật vô hiệu hóa khả năng phục hồi dữ liệu vssadmin delete shadows từ slide bài giảng.*
+
+![Mã hóa tống tiền hàng loạt từ Slide](assets/slides/slide_28.png)
+*Hình 4.32: Tấn công mã hóa tống tiền hàng loạt file sang phần mở rộng .locked từ slide bài giảng.*
+
 - **MITRE ATT&CK**: `T1490` (Inhibit System Recovery), `T1486` (Data Encrypted for Impact)
 - **Mục tiêu**: Xóa toàn bộ điểm khôi phục hệ thống (VSS) nhằm triệt tiêu khả năng cứu dữ liệu, sau đó thực thi script PowerShell mã hóa toàn bộ file trong `C:\Users\Public\LabData` bằng thuật toán XOR byte và đổi phần mở rộng thành `.locked`.
 
